@@ -132,6 +132,9 @@ export const API_ENDPOINTS = {
 
     GET_LAPORAN_SISASTOCK: `${API_URL}/laporan/stock`,
     GET_LAPORAN_MUTASI: `${API_URL}/laporan/mutasi`,
-    
+
+    //PENJUALAN
+    GET_STOCK_BY_KODE_TOKO: (kode_toko) => `${API_URL}/penjualan/${kode_toko}`,
+    ADD_TRANSACTION: `${API_URL}/penjualan/add`
   };
 

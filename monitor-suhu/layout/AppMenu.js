@@ -109,9 +109,34 @@ const AppMenu = () => {
                 },
             ]
         },
+        {
+            label: "PENJUALAN",
+            items: [
+                {
+                    label:"Master",
+                    icon: "pi pi-briefcase",
+                    items: [
+                        {
+                           label:"Perubahan harga",
+                           icon: "pi pi-dollar" 
+                        },
+                        {
+                           label:"Discount",
+                           icon:"pi pi-percentage"
+                        },
+                    ] 
+                },
+                
+                {
+                 label: "Penjualan",
+                 icon: "pi pi-shopping-cart",
+                 to: "/penjualan/penjualan"
+                },
+            ]
+        },
 
         {
-            label: 'Master',
+            label: 'GUDANG',
             icon: 'pi pi-fw pi-sitemap',
             roles: ['user', 'admin', 'superadmin'],
             items: [

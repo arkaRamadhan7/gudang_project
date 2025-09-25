@@ -8,7 +8,7 @@ export const PUT = async (request, { params }) => {
   
   try {
     const body = await request.json();
-    const response = await Axios.put(API_ENDPOINTS.EDIT_STOCK(id), body);
+    const response = await axios.put(API_ENDPOINTS.EDIT_STOCK(id), body);
     
     return Response.json({
       status: '00',

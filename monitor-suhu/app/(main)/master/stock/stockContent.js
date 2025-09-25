@@ -97,6 +97,24 @@ const StockContent = () => {
     }
   }, []);
 
+  const fetchToko = useCallback(async() => {
+    try {
+      const res = await fetch("/api/toko");
+      const json = await res.json();
+
+      if (json.status === '00') {
+        return json.data.map(item => ({
+          label: item.NAMA,
+          value: item.KODE
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error("Gagal ambil kode Toko", error);
+      return [];
+    }
+  }, []);
+
   const fetchGudang = useCallback(async () => {
     try {
       const res = await fetch("/api/gudang/nama");
@@ -124,7 +142,7 @@ const StockContent = () => {
       if (json.status === '00') {
         const processedData = json.data.map(item => ({
           ...item,
-          id: item.id,
+          id: item.id || item.ID, // Pastikan ada id
           TGL_MASUK: parseDateFromDB(item.TGL_MASUK),
           EXPIRED: parseDateFromDB(item.EXPIRED)
         }));
@@ -142,13 +160,12 @@ const StockContent = () => {
 
   useEffect(() => {
     const loadInitialData = async () => {
-      const [rakData, satuanData, golonganData, tokoData, gudangData  ] = await Promise.all([
+      const [rakData, satuanData, golonganData, tokoData, gudangData] = await Promise.all([
         fetchDropdownData('rak'),
         fetchDropdownData('satuan'),
         fetchDropdownData('golonganstock'),
-        fetchDropdownData('toko'),
+        fetchToko(),
         fetchGudang(),
-        fetchStock()
       ]);
 
       setOptions({
@@ -158,10 +175,13 @@ const StockContent = () => {
         gudang: gudangData,
         toko: tokoData
       });
+      
+      // Panggil fetchStock setelah options dimuat
+      await fetchStock();
     };
 
     loadInitialData();
-  }, [fetchDropdownData, fetchStock]);
+  }, [fetchDropdownData, fetchStock, fetchToko, fetchGudang]);
 
   const filteredStocks = useMemo(() => {
     let filtered = stock;
@@ -174,7 +194,7 @@ const StockContent = () => {
       filtered = filtered.filter(item => item.SATUAN === filters.satuan);
     }
     if (filters.gudang) {
-      filtered =filtered.filter(item => item.GUDANG === filters.gudang)
+      filtered = filtered.filter(item => item.GUDANG === filters.gudang);
     }
 
     return filtered;
@@ -195,7 +215,6 @@ const StockContent = () => {
     });
   }, []);
 
-  // Fixed handleFormChange to handle both regular inputs and dropdown changes
   const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -215,13 +234,39 @@ const StockContent = () => {
     setForm(prev => ({ ...prev, [name]: formattedDate }));
   }, []);
 
+  // PERBAIKAN UTAMA: Validasi form dan penanganan submit yang lebih baik
+  const validateForm = () => {
+    const requiredFields = ['GUDANG', 'KODE', 'NAMA', 'BARCODE'];
+    const emptyFields = requiredFields.filter(field => !form[field] || form[field].trim() === '');
+    
+    if (emptyFields.length > 0) {
+      toastRef.current?.showToast('99', `Field wajib tidak boleh kosong: ${emptyFields.join(', ')}`);
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    
+    // Validasi form
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const method = dialogMode === 'add' ? 'POST' : 'PUT';
-      const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
+      const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock?.id || selectedStock?.ID}`;
+      
+      // Debug log untuk memastikan data yang dikirim
+      console.log('Submitting form:', {
+        method,
+        url,
+        data: form
+      });
       
       const res = await fetch(url, {
         method,
@@ -230,9 +275,16 @@ const StockContent = () => {
       });
       
       const json = await res.json();
+      
+      // Debug log response
+      console.log('Server response:', {
+        status: res.status,
+        ok: res.ok,
+        data: json
+      });
 
       if (res.ok && json.status === '00') {
-        toastRef.current?.showToast(json.status, json.message);
+        toastRef.current?.showToast('00', json.message || 'Data berhasil disimpan');
         await fetchStock();
         closeDialog();
       } else {
@@ -240,48 +292,60 @@ const StockContent = () => {
       }
     } catch (err) {
       console.error('Submit error:', err);
-      toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menyimpan data');
+      toastRef.current?.showToast('99', err.message || 'Terjadi kesalahan saat menyimpan data');
     } finally {
       setIsLoading(false);
     }
-  }, [dialogMode, form, selectedStock, fetchStock]);
+  }, [dialogMode, form, selectedStock, fetchStock, validateForm]);
 
   const handleEdit = useCallback((row) => {
+    console.log('Edit row data:', row);
     setDialogMode('edit');
     setSelectedStock(row);
     
-    const formData = { ...row };
-    if (formData.TGL_MASUK) {
-      formData.TGL_MASUK = parseDateFromDB(formData.TGL_MASUK);
+    // Mapping semua field dari row ke form
+    const formData = {};
+    Object.keys(initialFormState).forEach(key => {
+      formData[key] = row[key] || '';
+    });
+    
+    // Khusus untuk tanggal
+    if (row.TGL_MASUK) {
+      formData.TGL_MASUK = parseDateFromDB(row.TGL_MASUK);
     }
-    if (formData.EXPIRED) {
-      formData.EXPIRED = parseDateFromDB(formData.EXPIRED);
+    if (row.EXPIRED) {
+      formData.EXPIRED = parseDateFromDB(row.EXPIRED);
     }
+    
+    console.log('Form data for edit:', formData);
     setForm(formData);
   }, []);
 
   const handleDelete = useCallback(async (data) => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
-    console.log("Stock ID:", data?.ID);
-    if (!data?.id) {
-      toastRef.current?.showToast('99', 'ID NOT FOUND')
+    
+    const stockId = data?.id || data?.ID;
+    console.log("Delete Stock ID:", stockId);
+    
+    if (!stockId) {
+      toastRef.current?.showToast('99', 'ID tidak ditemukan');
       return;
     }
     
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/stock/${data.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/stock/${stockId}`, { method: 'DELETE' });
       const json = await res.json();
 
       if (res.ok && json.status === '00') {
-        toastRef.current?.showToast(json.status, json.message);
+        toastRef.current?.showToast('00', json.message || 'Data berhasil dihapus');
         await fetchStock();
       } else {
         toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menghapus data');
       }
     } catch (err) {
       console.error('Delete error:', err);
-      toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menghapus data');
+      toastRef.current?.showToast('99', err.message || 'Terjadi kesalahan saat menghapus data');
     } finally {
       setIsLoading(false);
     }
@@ -346,9 +410,9 @@ const StockContent = () => {
       style={{ width: '40rem' }}
     >
       <form onSubmit={handleSubmit}>
-        {/* Fix Gudang dropdown */}
+        {/* Gudang dropdown */}
         <div className="mb-3">
-          <label htmlFor="GUDANG">Gudang</label>
+          <label htmlFor="GUDANG">Gudang *</label>
           <Dropdown
             id="GUDANG"
             name="GUDANG"
@@ -362,6 +426,7 @@ const StockContent = () => {
             showClear
           />
         </div>
+        
         <div className="mb-3">
           <label htmlFor="KODE_TOKO">KODE TOKO</label>
           <Dropdown
@@ -377,20 +442,42 @@ const StockContent = () => {
             showClear
           />
         </div>
-        
 
-        {['KODE', 'NAMA', 'JENIS'].map((field) => (
-          <div key={field} className="mb-3">
-            <label htmlFor={field}>{field.replace(/_/g, ' ')}</label>
-            <InputText
-              id={field}
-              name={field}
-              value={form[field] || ''}
-              onChange={handleFormChange}
-              className="w-full mt-2"
-            />
-          </div>
-        ))}
+        {/* Required fields dengan asterisk */}
+        <div className="mb-3">
+          <label htmlFor="KODE">KODE *</label>
+          <InputText
+            id="KODE"
+            name="KODE"
+            value={form.KODE || ''}
+            onChange={handleFormChange}
+            className="w-full mt-2"
+            placeholder="Masukkan kode"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="NAMA">NAMA *</label>
+          <InputText
+            id="NAMA"
+            name="NAMA"
+            value={form.NAMA || ''}
+            onChange={handleFormChange}
+            className="w-full mt-2"
+            placeholder="Masukkan nama"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="JENIS">JENIS</label>
+          <InputText
+            id="JENIS"
+            name="JENIS"
+            value={form.JENIS || ''}
+            onChange={handleFormChange}
+            className="w-full mt-2"
+          />
+        </div>
 
         <div className="mb-3">
           <label htmlFor="GOLONGAN">Golongan</label>
@@ -408,7 +495,6 @@ const StockContent = () => {
           />
         </div>
         
-        {/* RAK */}
         <div className="mb-3">
           <label htmlFor="RAK">RAK</label>
           <Dropdown
@@ -453,7 +539,7 @@ const StockContent = () => {
         </div>
 
         <div className="mb-3">
-          <label className="block text-sm font-medium mb-1">BARCODE</label>
+          <label className="block text-sm font-medium mb-1">BARCODE *</label>
           <InputText
             id="BARCODE"
             name="BARCODE"
@@ -474,6 +560,7 @@ const StockContent = () => {
               value={form[field] || ''}
               onChange={handleFormChange}
               className="w-full mt-2"
+              type={['HB', 'HJ', 'QTY', 'BERAT'].includes(field) ? 'number' : 'text'}
             />
           </div>
         ))}
@@ -517,6 +604,7 @@ const StockContent = () => {
           onClick={clearFilters}
         />
       </div>
+      
       <div className="mb-4 p-3 border rounded-lg bg-gray-50">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
@@ -548,17 +636,19 @@ const StockContent = () => {
           <div>
             <label className='block text-sm font-medium mb-1'>Filter Gudang</label>
             <Dropdown
-            value={filters.gudang}
-            options={options.gudang}
-            onChange={(e) => handleFilterChange('gudang', e.value)}
-            className='w-full'
-            placeholder='Pilih Gudang'
-            optionLabel='label'
-            optionValue='value'
-            showClear/>
+              value={filters.gudang}
+              options={options.gudang}
+              onChange={(e) => handleFilterChange('gudang', e.value)}
+              className='w-full'
+              placeholder='Pilih Gudang'
+              optionLabel='label'
+              optionValue='value'
+              showClear
+            />
           </div>
         </div>
       </div>
+      
       <DataTable
         value={filteredStocks}
         paginator
