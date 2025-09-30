@@ -434,7 +434,6 @@ export default function PenjualanPage() {
         />
       </div>
       <Dialog
-      header="Struk Transaksi"
       visible={!!dataStruk} 
       style={{ width: 'auto' }}
       modal
