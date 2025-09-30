@@ -20,7 +20,8 @@ const TokoPage = () => {
     NAMA: '',
     KETERANGAN: '',
     GUDANG: '',
-    ALAMAT: ''
+    ALAMAT: '',
+    NO_HP:''
   });
 
   useEffect(() => {
@@ -93,20 +94,19 @@ const TokoPage = () => {
     }
   };
 
-  // Function untuk reset form dengan nilai kosong
   const resetForm = () => {
     setForm({ 
       KODE: '', 
       NAMA: '', 
       KETERANGAN: '', 
       GUDANG: '',
-      ALAMAT: '' 
+      ALAMAT: '',
+      NO_HP:''
     });
     setDialogMode(null);
     setSelectedToko(null);
   };
 
-  // Function untuk membuka dialog tambah dengan form kosong
   const openAddDialog = () => {
     setDialogMode('add');
     setSelectedToko(null);
@@ -145,6 +145,7 @@ const TokoPage = () => {
         <Column field="KETERANGAN" header="Keterangan" />
         <Column field="GUDANG" header="Gudang" />
         <Column field="ALAMAT" header="Alamat" />
+        <Column field='NO_HP' header="Nomer Telpon"/>
         <Column
           header="Aksi"
           style={{ width: '150px' }}
@@ -162,7 +163,8 @@ const TokoPage = () => {
                     NAMA: row.NAMA || '',
                     KETERANGAN: row.KETERANGAN || '',
                     GUDANG: row.GUDANG || '',
-                    ALAMAT: row.ALAMAT || ''
+                    ALAMAT: row.ALAMAT || '',
+                    NO_HP: row.NO_HP || '',
                   });
                 }}
               />
@@ -244,6 +246,17 @@ const TokoPage = () => {
               id="ALAMAT"
               name="ALAMAT"
               value={form.ALAMAT}
+              onChange={handleChange}
+              className="w-full mt-2"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="NO_HP">Nomer Telpon</label>
+            <InputText
+              id="NO_HP"
+              name="NO_HP"
+              value={form.NO_HP}
               onChange={handleChange}
               className="w-full mt-2"
               required

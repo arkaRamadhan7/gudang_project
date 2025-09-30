@@ -135,6 +135,8 @@ export const API_ENDPOINTS = {
 
     //PENJUALAN
     GET_STOCK_BY_KODE_TOKO: (kode_toko) => `${API_URL}/penjualan/${kode_toko}`,
-    ADD_TRANSACTION: `${API_URL}/penjualan/add`
+    ADD_TRANSACTION: `${API_URL}/penjualan/transaksi`,
+    GET_PENDING_TRANSACTION: `${API_URL}/penjualan/transaksi`,
+    CANCELLED: (id) => `${API_URL}/penjualan/transaksi/${id}/cancel`
   };
 

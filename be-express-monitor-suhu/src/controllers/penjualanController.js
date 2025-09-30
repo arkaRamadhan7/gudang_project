@@ -1,6 +1,7 @@
 import { json } from "sequelize";
 import { db } from "../core/config/knex.js";
-import { status } from "../utils/general.js"
+import { status, datetime } from "../utils/general.js"
+import { AArrowUpIcon, Columns3Cog } from "lucide-react";
 
 export const getStockByKodeToko = async (req, res) => {
     try {
@@ -9,6 +10,7 @@ export const getStockByKodeToko = async (req, res) => {
         const data = await db("stock")
         .where({ kode_toko })
         .select(
+            'ID',
             'GUDANG',
             'KODE',
             'KODE_TOKO',
@@ -52,43 +54,62 @@ export const getStockByKodeToko = async (req, res) => {
 
 }
 
-export const addTransaction = async (req, res) => {
-    try {
-        const {
-            KODE,
-            KODE_TOKO,
-            FAKTUR,
-            TGL,
-            GUDANG,
-            NAMA,
-            HARGA,
-            QTY,
-            KREDIT,
-            USERNAME,
-        } = req.body;
 
-        await db("transaksi_toko").insert({
-            KODE,
-            KODE_TOKO,
-            FAKTUR,
-            TGL,
-            GUDANG,
-            NAMA,
-            HARGA,
-            QTY,
-            KREDIT: QTY,
-            USERNAME,
+export const transaction = async (req, res) => {
+    try {
+        const { items, username} = req.body;
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({
+                status: "40", 
+                message: "Items tidak boleh kosong"
+            });
+        }   
+        let faktur;
+        console.log(items)
+        await db.transaction(async (trx) => {
+            for (const item of items) {
+                
+                const id = item.id
+                const  stock = await trx('stock').where({ id }).first();
+                const qtyStock = Number(stock.QTY);
+                faktur = `PJ`+ datetime() + String(id).padStart(6, '0')
+                if (item.qty > qtyStock) {
+                    throw new Error("Stock tidak Cukup")
+                }
+
+                const updateStock = qtyStock - item.qty;
+
+                console.log(updateStock)
+                await trx("kartustock").insert({
+                    status: "0",
+                    faktur: faktur, 
+                    gudang: item.gudang, 
+                    kode: item.kode,     
+                    qty: item.qty,       
+                    harga: item.harga,   
+                    kredit: item.qty,    
+                    hp: item.harga,      
+                    username: username, 
+                    satuan: item.satuan, 
+                    keterangan: "Penjualan " + item.nama 
+                });
+                console.log(faktur)
+                await trx('stock').where({ id }).update({ QTY: updateStock })
+            }
         });
+
         return res.status(200).json({
-            status: status.SUKSES,
-            message: "Berhasil Tambahkan data transaksi",
+            status: "00",
+            message: "Transaksi Berhasil Disimpan",
+            faktur: faktur,
+        
         });
+    
     } catch (error) {
-        console.error("ERROR Tambahkan Transaksi", error.message);
+        console.error("Error pada transaksi:", error);
         return res.status(500).json({
-            status: status.BAD_REQUEST,
-            message: "Gagal Tambahkan Data Transaksi",
-            error: error.message
-        })
-    }
-}
+            status: status.BAD_REQUEST, 
+            message: "Terjadi Kesalahan Pada Sisi Server"
+        });
+    };
+};

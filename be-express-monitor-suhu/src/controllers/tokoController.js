@@ -29,13 +29,14 @@ export const fetchAllToko = async (req, res) => {
 
 export const addToko = async (req, res) => {
     try {
-        const {KODE, NAMA, KETERANGAN, GUDANG, ALAMAT} = req.body;
+        const {KODE, NAMA, KETERANGAN, GUDANG, ALAMAT, NO_HP} = req.body;
         await db("toko").insert({
             KODE,
             NAMA,
             KETERANGAN,
             GUDANG,
-            ALAMAT
+            ALAMAT,
+            NO_HP
         });
 
         return res.status(200).json({
@@ -55,14 +56,15 @@ export const addToko = async (req, res) => {
 export const editToko = async (req, res) => {
     try {
         const { id } = req.params;
-        const {KODE, NAMA, KETERANGAN, GUDANG, ALAMAT} = req.body;
+        const {KODE, NAMA, KETERANGAN, GUDANG, ALAMAT, NO_HP} = req.body;
 
         await db("toko").where({ id }).update({
             KODE,
             NAMA,
             KETERANGAN,
             GUDANG,
-            ALAMAT
+            ALAMAT,
+            NO_HP
         });
         return res.status(200).json({
             status: status.SUKSES,
