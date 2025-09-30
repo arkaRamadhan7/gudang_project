@@ -65,7 +65,6 @@ export const transaction = async (req, res) => {
             });
         }   
         let faktur;
-        console.log(items)
         await db.transaction(async (trx) => {
             for (const item of items) {
                 
@@ -79,7 +78,6 @@ export const transaction = async (req, res) => {
 
                 const updateStock = qtyStock - item.qty;
 
-                console.log(updateStock)
                 await trx("kartustock").insert({
                     status: "0",
                     faktur: faktur, 
@@ -93,7 +91,6 @@ export const transaction = async (req, res) => {
                     satuan: item.satuan, 
                     keterangan: "Penjualan " + item.nama 
                 });
-                console.log(faktur)
                 await trx('stock').where({ id }).update({ QTY: updateStock })
             }
         });

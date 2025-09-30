@@ -9,7 +9,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { useAuth } from "@/app/(auth)/context/authContext";
-import StrukPrint from "./StrukPrint";
+import { downloadStrukAsPDF } from "./StrukPrint"
 import { Dialog } from "primereact/dialog";
 
 export default function PenjualanPage() {
@@ -21,7 +21,6 @@ export default function PenjualanPage() {
   const [cart, setCart] = useState([]);
   const [stockKeyword, setStockKeyword] = useState("");
   const [stockResult, setStockResult] = useState([]);
-  const [dataStruk, setDataStruk] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const showSuccess = (message) => toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: message, life: 3000 });
@@ -141,6 +140,7 @@ export default function PenjualanPage() {
   const handleSubmit = async () => {
     console.log(cart)
 
+
       
     if (!selectedToko) {
       showWarn("Pilih toko terlebih dahulu!");
@@ -160,13 +160,15 @@ export default function PenjualanPage() {
       gudang: item.gudang,
       satuan: item.satuan,
       id: item.id,
-      no_hp: item.ho_hp
+
+
+      
     }));
 
     const payload = {
       KODE_TOKO: selectedToko,
       username: user ? user.email : "-", 
-      items: itemsPayload
+      items: itemsPayload,
     };
 
     try {
@@ -184,14 +186,15 @@ export default function PenjualanPage() {
       if (json.status === "00") {
         const tokoTerpilih = daftarToko.find(toko => toko.KODE === selectedToko);
         showSuccess("Penjualan berhasil disimpan!");
-        setDataStruk({
+        downloadStrukAsPDF({
           faktur: json.faktur,
           items: cart,
           total: getTotalCart(),
           tanggal: new Date(),
           username: user ? user.email : "-",
           namaToko: tokoTerpilih ? tokoTerpilih.NAMA : "-",
-          alamatToko: tokoTerpilih ? tokoTerpilih.ALAMAT : "-"
+          alamatToko: tokoTerpilih ? tokoTerpilih.ALAMAT : "-",
+          nomerHp: tokoTerpilih ? tokoTerpilih.NO_HP : "-"
         });
         setCart([]);
         setBarang({ kode: "", nama: "", qty: 1, harga: 0, gudang: "", satuan: "" });
@@ -253,11 +256,6 @@ export default function PenjualanPage() {
           className="w-full mt-2"
           showClear
         />
-        {selectedToko && (
-          <small className="text-gray-600">
-            Toko terpilih dengan kode: {selectedToko}
-          </small>
-        )}
       </div>
 
       {/* Form Pencarian Stock */}
@@ -433,14 +431,6 @@ export default function PenjualanPage() {
           disabled={cart.length === 0}
         />
       </div>
-      <Dialog
-      visible={!!dataStruk} 
-      style={{ width: 'auto' }}
-      modal
-      onHide={() => setDataStruk(null)}
-    >
-      {dataStruk && <StrukPrint data={dataStruk} />}
-    </Dialog>
     </div>
   );
 }
