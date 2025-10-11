@@ -117,13 +117,13 @@ const StockContent = () => {
 
   const fetchGudang = useCallback(async () => {
     try {
-      const res = await fetch("/api/gudang/nama");
+      const res = await fetch("/api/gudang");
       const json = await res.json();
 
       if (json.status === "00") {
-        return json.namaGudang.map(nama => ({
-          label: nama,
-          value: nama,
+        return json.gudang.map(item => ({
+          label: item.nama,
+          value: item.nama,
         }));
       }
       return [];

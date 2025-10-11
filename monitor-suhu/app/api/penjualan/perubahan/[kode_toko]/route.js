@@ -1,6 +1,5 @@
-
 import axios from "axios";
-import { API_ENDPOINTS } from '../../api.js';
+import { API_ENDPOINTS } from '../../../api.js';
 import { NextResponse } from "next/server";
 
 
@@ -19,7 +18,7 @@ export async function GET(request, { params }) {
       });
     }
 
-    const response = await axios.get(API_ENDPOINTS.GET_STOCK_BY_KODE_TOKO(kode_toko));
+    const response = await axios.get(API_ENDPOINTS.GET_STOCK_FOR_PERUBAHAN(kode_toko));
     let stockData = response.data.data || response.data;
 
     if (!Array.isArray(stockData)) {

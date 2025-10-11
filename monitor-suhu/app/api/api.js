@@ -136,7 +136,19 @@ export const API_ENDPOINTS = {
     //PENJUALAN
     GET_STOCK_BY_KODE_TOKO: (kode_toko) => `${API_URL}/penjualan/${kode_toko}`,
     ADD_TRANSACTION: `${API_URL}/penjualan/transaksi`,
-    GET_PENDING_TRANSACTION: `${API_URL}/penjualan/transaksi`,
-    CANCELLED: (id) => `${API_URL}/penjualan/transaksi/${id}/cancel`
-  };
-
+    PERUBAHAN_HARGA_DAN_DISKON: `${API_URL}/penjualan/perubahan`,
+    GET_STOCK_FOR_PERUBAHAN: (kode_toko) => `${API_URL}/penjualan/product/${kode_toko}`,
+    GET_GUDANG: `${API_URL}/penjualan/gudang`,
+    GET_STOCK_FROM_GUDANG: (GUDANG) => `${API_URL}/penjualan/get-stock/${GUDANG}`,
+    REQUEST_STOCK: `${API_URL}/penjualan/request-stock`,
+    REQUEST_STOCK_SIDE_GUDANG: `${API_URL}/penjualan/request`,
+    TERIMA_REQUEST: `${API_URL}/penjualan/terima-request`,
+    STATUS: (kode_toko) => `${API_URL}/penjualan/status/${kode_toko}`,
+    REJECTED: `${API_URL}/penjualan/rejected`,
+    //diskon periode
+    GET_STOCK_FOR_DISKON: (kode_toko) => `${API_URL}/product/${kode_toko}`,
+    ADD_DISKON: (id) => `${API_URL}/product/add/${id}`,
+    EDIT_DISKON: (id) => `${API_URL}/product/edit/${id}`,
+    DELETE_DISKON: (id) => `${API_URL}/product/delete/${id}`,
+    
+}

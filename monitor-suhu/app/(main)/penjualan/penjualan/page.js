@@ -17,7 +17,7 @@ export default function PenjualanPage() {
   
   const [daftarToko, setDaftarToko] = useState([]);
   const [selectedToko, setSelectedToko] = useState(null); 
-  const [barang, setBarang] = useState({ id: "", kode: "", nama: "", qty: 1, harga: 0, gudang: "",satuan: "", });
+  const [barang, setBarang] = useState({ id: "", kode: "", nama: "", qty: 1, harga: 0,satuan: "", discount:"" });
   const [cart, setCart] = useState([]);
   const [stockKeyword, setStockKeyword] = useState("");
   const [stockResult, setStockResult] = useState([]);
@@ -84,7 +84,7 @@ export default function PenjualanPage() {
     setStockResult([]);
     setStockKeyword("");
     setCart([]);
-    setBarang({ id: '', kode: "", nama: "", qty: 1, harga: 0, gudang: "", satuan: "" });
+    setBarang({ id: '', kode: "", nama: "", qty: 1, harga:0, satuan: "", discount:"" });
   }, [selectedToko]);
 
   const handleAddToCart = () => {
@@ -96,10 +96,7 @@ export default function PenjualanPage() {
     showError("Kuantitas barang harus lebih dari 0");
     return;
   }
-  if (!barang.gudang) {
-    showError("Informasi gudang tidak ditemukan untuk barang ini. Tidak dapat ditambahkan.");
-    return;
-  }
+
 
 
   const isExisting = cart.some(item => item.kode === barang.kode && item.gudang === barang.gudang);
@@ -127,14 +124,14 @@ export default function PenjualanPage() {
         nama: barang.nama,
         qty: Number(barang.qty),
         harga: Number(barang.harga),
-        gudang: barang.gudang,
-        satuan: barang.satuan
+        satuan: barang.satuan,
+        discount: barang.discount
       };
       return [...prevCart, newItem];
     }
   });
 
-  setBarang({ id: '', kode: "", nama: "", qty: 1, harga: 0, gudang: "", satuan: "" });
+  setBarang({ id: '', kode: "", nama: "", qty: 1, harga: 0, satuan: "", discount:"" });
 };
 
   const handleSubmit = async () => {
@@ -157,9 +154,9 @@ export default function PenjualanPage() {
       nama: item.nama,
       qty: item.qty,
       harga: item.harga,
-      gudang: item.gudang,
       satuan: item.satuan,
       id: item.id,
+      discount: item.discount
 
 
       
@@ -169,6 +166,7 @@ export default function PenjualanPage() {
       KODE_TOKO: selectedToko,
       username: user ? user.email : "-", 
       items: itemsPayload,
+      
     };
 
     try {
@@ -197,7 +195,7 @@ export default function PenjualanPage() {
           nomerHp: tokoTerpilih ? tokoTerpilih.NO_HP : "-"
         });
         setCart([]);
-        setBarang({ kode: "", nama: "", qty: 1, harga: 0, gudang: "", satuan: "" });
+        setBarang({ kode: "", nama: "", qty: 1, harga: 0, satuan: "", discount:"" });
       } else {
         showError(json.message || "Gagal menyimpan penjualan");
       }
@@ -212,11 +210,11 @@ export default function PenjualanPage() {
       kode: row.KODE,
       nama: row.NAMA,
       qty: 1,
-      harga: row.HJ || row.HARGA || 0,
-      gudang: row.GUDANG,
+      harga: row.HJ2 ,
       satuan: row.SATUAN,
       id: row.ID,
-      no_hp: row.NO_HP
+      no_hp: row.NO_HP,
+      discount: row.DISCOUNT
     });
     showSuccess(`Barang ${row.NAMA} berhasil dipilih`);
   };
@@ -241,7 +239,7 @@ export default function PenjualanPage() {
     return cart.reduce((total, item) => total + (Number(item.qty) * Number(item.harga)), 0);
   };
   return (
-    <div className="p-6">
+    <div className="card p-6">
       <Toast ref={toast} />
       <h1 className="text-xl font-bold mb-4 ">Transaksi Penjualan</h1>
       <div className="mb-5">
@@ -281,16 +279,15 @@ export default function PenjualanPage() {
 
           {stockResult.length > 0 && (
             <div className="mt-4">
-              <DataTable value={stockResult} paginator rows={5} stripedRows size="small" dataKey="KODE">
+              <DataTable value={stockResult} paginator rows={5} stripedRows size="small" dataKey="ID">
                 <Column field="KODE" header="Kode" sortable />
                 <Column field="NAMA" header="Nama" sortable />
                 <Column field="QTY" header="Stock" sortable />
-                <Column field="GUDANG" header="Gudang" sortable />
                 <Column 
-                  field="HJ" 
+                  field="HJ2" 
                   header="Harga Jual" 
                   sortable
-                  body={(row) => formatCurrency(row.HJ || row.HARGA || 0)}
+                  body={(row) => formatCurrency(row.HJ2 || row.HARGA || 0)}
                 />
                 <Column
                   header="Aksi"
