@@ -186,7 +186,6 @@ export default function PerubahanHargaPage() {
                         icon="pi pi-pencil" 
                         severity="warning"
                         size="small"
-                        rounded
                         tooltip="Ubah Harga"
                         onClick={() => openEditDialog(rowData)} 
                     />

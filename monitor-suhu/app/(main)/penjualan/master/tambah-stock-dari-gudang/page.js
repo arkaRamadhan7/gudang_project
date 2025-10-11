@@ -35,7 +35,6 @@ const RequestStockPage = () => {
     const [statusData, setStatusData] = useState([]);
     const [isLoadingStatus, setIsLoadingStatus] = useState(false);
     
-    // --- useEffect Anda yang sudah ada ---
     useEffect(() => {
         fetchToko();
         fetchGudang();
@@ -49,7 +48,6 @@ const RequestStockPage = () => {
         );
     }, [searchTerm, stockFromGudang]);
 
-    // --- useEffect baru untuk mengambil data status ---
     useEffect(() => {
         if (!selectedTokoForStatus) {
             setStatusData([]);
@@ -77,7 +75,6 @@ const RequestStockPage = () => {
         fetchStatusData();
     }, [selectedTokoForStatus]);
 
-    // --- Fungsi Anda yang sudah ada (tidak ada perubahan) ---
     const fetchToko = async () => {
         setIsTokoLoading(true);
         try {
@@ -224,7 +221,7 @@ const RequestStockPage = () => {
     };
 
     const actionBodyTemplate = (rowData) => (
-        <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text" onClick={() => handleRemoveStock(rowData)} />
+        <Button icon="pi pi-trash" className="p-button-danger" onClick={() => handleRemoveStock(rowData)} />
     );
 
     const dialogActionBodyTemplate = (rowData) => (
@@ -257,7 +254,6 @@ const RequestStockPage = () => {
         );
     };
 
-    // --- Template baru untuk kolom status di tabel status ---
     const statusBodyTemplate = (rowData) => {
         const severityMap = {
             pending: 'warning',
@@ -277,7 +273,6 @@ const RequestStockPage = () => {
                     
                     <TabView>
                         <TabPanel header="Detail Permintaan">
-                            {/* KONTEN TAB INI TIDAK SAYA UBAH */}
                             <div className="p-fluid formgrid grid mt-4">
                                 <div className="field col-12 md:col-6">
                                     <label htmlFor="toko" className="font-medium text-sm block mb-2">Toko Peminta</label>
@@ -319,7 +314,6 @@ const RequestStockPage = () => {
                             </div>
                         </TabPanel>
 
-                        {/* ======================= PERUBAHAN DI SINI ======================= */}
                         <TabPanel header="Status Permintaan">
                              <div className="p-4">
                                 <div className="field">
@@ -355,7 +349,6 @@ const RequestStockPage = () => {
                                 </div>
                             </div>
                         </TabPanel>
-                         {/* ===================== AKHIR PERUBAHAN ===================== */}
 
                     </TabView>
                 </div>
