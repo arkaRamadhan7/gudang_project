@@ -1,14 +1,14 @@
-import { config } from "dotenv";
+
 import app from "./src/app.js";
 import { createRequire } from 'module';
 import http from 'http';
 import dotenv from 'dotenv'
 
 dotenv.config();
-config({ path: './.env' });
+
 
 const server = http.createServer(app);
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8100;
 const host = process.env.HOST || 'localhost';
 
 

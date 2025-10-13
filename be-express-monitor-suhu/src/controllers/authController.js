@@ -1,4 +1,4 @@
-// src/controllers/authController.js
+
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken';
 import { 
@@ -290,4 +290,3 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Error Server', error: err.message });
   }
 };
-

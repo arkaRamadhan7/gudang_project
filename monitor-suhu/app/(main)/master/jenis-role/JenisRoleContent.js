@@ -61,7 +61,7 @@ const JenisRoleContent = () => {
     setIsSubmitting(true);
 
     if (!form.role.trim()) {
-      toastRef.current?.showToast('99', 'Nama role wajib diisi');
+      toastRef.current?.showToast('99', 'Jenis role wajib diisi');
       setIsSubmitting(false);
       return;
     }

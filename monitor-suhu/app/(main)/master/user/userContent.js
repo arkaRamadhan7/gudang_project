@@ -65,8 +65,6 @@ const fetchUser = async () => {
   }
 };
 
-
-
   const resetFormAndCloseDialog = () => {
     setForm(defaultForm);
     setDialogMode(null);

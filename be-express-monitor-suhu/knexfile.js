@@ -1,42 +1,40 @@
 import { config } from "dotenv";
-import { extensions } from "sequelize/lib/utils/validator-extras";
+import knex from "knex";
 
-config();
+config(); // Load .env
+
+const env = process.env.NODE_ENV || "development";
 
 const knexConfig = {
   development: {
-    client: String(process.env.DB_CLIENT) || "mysql",
+    client: "mysql2",
     connection: {
-      host: String(process.env.DB_HOST) || "localhost",
-      user: String(process.env.DB_USERNAME) || "root",
-      password: String(process.env.DB_PASSWORD) || "",
-      database: String(process.env.DB_NAME) || "",
-      charset: 'utf8mb4'
+      host: process.env.DB_HOST || "localhost",
+      user: process.env.DB_USERNAME || "root",
+      password: process.env.DB_PASSWORD || "",
+      database: process.env.DB_NAME || "gudang",
+      charset: "utf8mb4"
     },
-    pool: {
-      min: 2,
-      max: 10
-
-    },
+    pool: { min: 2, max: 10 },
     migrations: {
       directory: "./src/migrations",
       extension: "js",
-      loadExtensions: [".js"],
-    },
+      loadExtensions: [".js"]
+    }
   },
   production: {
-    client: String(process.env.DB_CLIENT) || "mysql",
+    client: "mysql2",
     connection: {
-      host: String(process.env.DB_HOST) || "localhost",
-      user: String(process.env.DB_USERNAME) || "root",
-      password: String(process.env.DB_PASSWORD) || "",
-      database: String(process.env.DB_NAME) || "",
+      host: process.env.DB_HOST || "localhost",
+      user: process.env.DB_USERNAME || "root",
+      password: process.env.DB_PASSWORD || "",
+      database: process.env.DB_NAME || "gudang"
     },
     migrations: {
       directory: "./src/migrations",
       extension: "js"
-    },
-  },
+    }
+  }
 };
 
 export default knexConfig;

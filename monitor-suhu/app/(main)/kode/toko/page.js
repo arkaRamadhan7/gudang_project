@@ -5,16 +5,19 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import ToastNotifier from '@/app/components/ToastNotifier';
+
 export const dynamic = "force-dynamic";
 
 const TokoPage = () => {
   const toastRef = useRef(null);
   const [toko, setToko] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [dialogMode, setDialogMode] = useState(null); // 'add' | 'edit' | null
+  const [dialogMode, setDialogMode] = useState(null); 
   const [selectedToko, setSelectedToko] = useState(null);
+  const [gudangOption, setGudangOptions] = useState([]);
   const [form, setForm] = useState({
     KODE: '',
     NAMA: '',
@@ -25,6 +28,7 @@ const TokoPage = () => {
 
   useEffect(() => {
     fetchToko();
+    fetchGudangOptions();
   }, []);
 
   const fetchToko = async () => {
@@ -42,6 +46,23 @@ const TokoPage = () => {
       toastRef.current?.showToast('99', 'Gagal mengambil data Toko');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchGudangOptions = async () => {
+    try {
+      const res = await fetch ('/api/gudang/nama');
+      const json = await res.json();
+
+      if (json.status === '00') {
+        const option = json.namaGudang.map(nama =>({
+          label : nama,
+          value : nama
+        }));
+        setGudangOptions(option);
+      }
+    }catch (err) {
+      console.error('gagal mengabil data dari gudang',err);
     }
   };
 
@@ -228,11 +249,13 @@ const TokoPage = () => {
 
           <div className="mb-3">
             <label htmlFor="GUDANG">Gudang</label>
-            <InputText
+            <Dropdown
               id="GUDANG"
               name="GUDANG"
               value={form.GUDANG}
-              onChange={handleChange}
+              onChange={(e) => setForm(prev => ({...prev,GUDANG:e.value}))}
+              options={gudangOption}
+              placeholder='pilih gudang'
               className="w-full mt-2"
               required
             />

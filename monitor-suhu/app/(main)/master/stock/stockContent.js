@@ -50,6 +50,7 @@ const StockContent = () => {
   });
   const [dialogMode, setDialogMode] = useState(null);
   const [selectedStock, setSelectedStock] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState(initialFormState);
   
   const formatDateToDB = (date) => {
@@ -195,7 +196,6 @@ const StockContent = () => {
     });
   }, []);
 
-  // Fixed handleFormChange to handle both regular inputs and dropdown changes
   const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -215,36 +215,58 @@ const StockContent = () => {
     setForm(prev => ({ ...prev, [name]: formattedDate }));
   }, []);
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const method = dialogMode === 'add' ? 'POST' : 'PUT';
-      const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
-      
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      
-      const json = await res.json();
+  const resetFormAndCloseDialog = () => {
+  setForm(initialFormState);  
+  setDialogMode(null);         
+  setSelectedStock(null);      
+};
 
-      if (res.ok && json.status === '00') {
-        toastRef.current?.showToast(json.status, json.message);
-        await fetchStock();
-        closeDialog();
-      } else {
-        toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menyimpan data');
-      }
-    } catch (err) {
-      console.error('Submit error:', err);
-      toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menyimpan data');
-    } finally {
-      setIsLoading(false);
+    
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    if (!form.KODE.trim()) {
+      toastRef.current?.showToast('99','Kode wajib di isi');
+      setIsSubmitting(false);
+      return;
     }
-  }, [dialogMode, form, selectedStock, fetchStock]);
+    try {
+      let res,json;
+      if (dialogMode === 'add') {
+        res = await fetch ('/api/stock', {
+          method : 'POST',
+          headers: { 'Content-Type' : 'application/json'},
+          body : JSON.stringify(form),  
+        });
+      }else if (dialogMode === 'edit' && selectedStock ) {
+        res = await fetch(`/api/stock/${selectedStock.id}`, {
+          method : 'PUT',
+          headers : { 'Content-Type' : 'application/json'},
+          body : JSON.stringify(form),
+        });
+      } else {
+        toastRef.current?.showToast('99' , 'Mode dialog tidak valid');
+        setIsSubmitting(false);
+        return;
+      }
+      json = await res.json();
+
+      if (!res.ok) {
+        toastRef.current?.showToast(json.status ?? '99' , json.message || 'Gagal menimpan data');
+        setIsSubmitting(false);
+        return;
+      }
+      toastRef.current?.showToast(json.status, json.message);
+      resetFormAndCloseDialog();
+      await fetchStock();
+    } catch (error) {
+      toastRef.current?.showToast('99','Gagal/error dalam meyimpan data')
+      console.error('Sumbit error : ', error);
+    }
+    setIsSubmitting(false);
+  };
+
 
   const handleEdit = useCallback((row) => {
     setDialogMode('edit');
@@ -345,7 +367,12 @@ const StockContent = () => {
       onHide={closeDialog}
       style={{ width: '40rem' }}
     >
-      <form onSubmit={handleSubmit}>
+      <form
+       onSubmit={(e) => {
+            e.preventDefault(); 
+            handleSubmit();
+          }}
+        >
         {/* Fix Gudang dropdown */}
         <div className="mb-3">
           <label htmlFor="GUDANG">Gudang</label>
