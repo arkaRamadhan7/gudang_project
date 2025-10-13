@@ -8,7 +8,7 @@ export const up = function (knex) {
     table.string("name", 100).notNullable();
     table.string("email", 100).notNullable().unique();
     table.string("password").notNullable();
-    table.enu("role", ["admin", "user"]).notNullable().defaultTo("user");
+    table.string("role", 50).notNullable().defaultTo("user");
   });
 };
 

@@ -3,7 +3,8 @@ import app from "./src/app.js";
 import { createRequire } from 'module';
 import http from 'http';
 import dotenv from 'dotenv'
-
+import cron from 'node-cron'
+import { updateExpiredDiscounts } from "./src/controllers/discountPeriodeController.js";
 dotenv.config();
 
 
@@ -11,6 +12,10 @@ const server = http.createServer(app);
 const port = process.env.PORT || 8100;
 const host = process.env.HOST || 'localhost';
 
+cron.schedule("24 * * * *", () => {
+  console.log("reset diskon")
+  updateExpiredDiscounts();
+})
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);

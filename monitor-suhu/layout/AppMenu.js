@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import { LayoutContext } from './context/layoutcontext';
 import { MenuProvider } from './context/menucontext';
-import Link from 'next/link';
 
 const AppMenu = () => {
     const { layoutConfig } = useContext(LayoutContext);
@@ -109,9 +108,42 @@ const AppMenu = () => {
                 },
             ]
         },
+        {
+            label: "PENJUALAN",
+            items: [
+                {
+                    label:"Master",
+                    icon: "pi pi-briefcase",
+                    items: [
+                        {
+                           label:"Perubahan Harga",
+                           icon: "pi pi-tag", 
+                           to: "/penjualan/master/perubahanHarga"
+                        },
+                        {
+                           label:"Discount Periode",
+                           icon:"pi pi-percentage",
+                           to: "/penjualan/master/diskonPeriode"
+
+                        },
+                        {
+                            label:"Tambah Stock",
+                            icon:"pi pi-box", 
+                            to:"/penjualan/master/tambah-stock-dari-gudang"
+                        },
+                    ] 
+                },
+                
+                {
+                 label: "Penjualan",
+                 icon: "pi pi-shopping-cart",
+                 to: "/penjualan/penjualan"
+                },
+            ]
+        },
 
         {
-            label: 'Master',
+            label: 'GUDANG',
             icon: 'pi pi-fw pi-sitemap',
             roles: ['user', 'admin', 'superadmin'],
             items: [
@@ -139,6 +171,13 @@ const AppMenu = () => {
                     to: '/master/terima-barang',
                     roles: ['user', 'admin', 'superadmin']
                 },
+                {
+                    label: "Request Stock",
+                    icon: "pi pi-box",
+                    to: "/master/request-stock"
+
+                },
+
                 {
                     label: 'Users', 
                     icon: 'pi pi-users',

@@ -8,7 +8,7 @@ export const GET = async () => {
     const response = await Axios.get(API_ENDPOINTS.GETALLGUDANG);
     const { status, message, gudang } = response.data;
 
-    return NextResponse.json({ status, message, gudang });
+    return NextResponse.json({ status, message, data: gudang });
   } catch (err) {
     console.error('GET gudang error:', err.message);
     return NextResponse.json(

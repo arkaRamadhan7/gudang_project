@@ -12,12 +12,21 @@ export function datetime() {
   const datetime =
     now.getFullYear() +
     String(now.getMonth() + 1).padStart(2, "0") +
-    String(now.getDate()).padStart(2, "0") +
-    String(now.getHours()).padStart(2, "0") +
-    String(now.getMinutes()).padStart(2, "0") +
-    String(now.getSeconds()).padStart(2, "0");
+    String(now.getDate()).padStart(2, "0") 
 
   return datetime;
+}
+export function generateFaktur() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const date = `${year}${month}${day}`;
+  const id = String(productId).padStart(6, '0');
+  return `PJ${date}${id}`
+}
+export function timestap() {
+  
 }
 
 export const status = {
