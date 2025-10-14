@@ -1,9 +1,6 @@
 import { db } from "../core/config/knex.js";
 import { datetime, status } from "../utils/general.js";
 
-/**
- * ✅ Helper function untuk format tanggal ke MySQL format
- */
 const formatDateForMySQL = (dateString) => {
   if (!dateString) return null;
   
@@ -147,7 +144,7 @@ export const addKartuStock = async (req, res) => {
       error: error.message
     });
   }
-};
+}; 
 
 /**
  * ✅ FIXED: Edit data kartu stok dengan sanitization

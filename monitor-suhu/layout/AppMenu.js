@@ -213,6 +213,11 @@ const AppMenu = () => {
                     label: "Laporan Mutasi Gudang",
                     icon: "pi pi-truck",
                     to: "/laporan/mutasi"
+                },
+                {
+                    label: "Laporan Penjualan Toko",
+                    icon: "pi-cart",
+                    to: "/laporan/data-penjualan"
                 }
             ]
         }
