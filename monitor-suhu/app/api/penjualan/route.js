@@ -18,3 +18,15 @@ export async function POST(req) {
      }
     
 }
+
+export const GET = async () => {
+  try {
+    const response = await axios.get(API_ENDPOINTS.GET_ALL_PENJUALAN);
+    const { status, message, data } = response.data;
+
+    return NextResponse.json({ status, message, data });
+  } catch (err) {
+    console.error('Error API route:', err.message);
+    return NextResponse.json({ status: 500, message: 'Gagal mengambil data penjualan' });
+  }
+};

@@ -1,4 +1,4 @@
-// app/api/api.js
+
 export const API_URL = process.env.API_URL;
 
 export const API_ENDPOINTS = {
@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   DELETE_USER: (id) => `${API_URL}/users/delete/${id}`,
   UPDATE_USER: `${API_URL}/users/update`, // Tambahan untuk update profile
   CHANGE_PASSWORD: `${API_URL}/users/change-password`,
+  TOTAL_USERS : `${API_URL}/users/total`,
 
   GET_ALL_RAK: `${API_URL}/rak`,
   GET_RAK_BY_KODE: (kode) => `${API_URL}/rak/${kode}`,
@@ -146,6 +147,7 @@ export const API_ENDPOINTS = {
     TERIMA_REQUEST: `${API_URL}/penjualan/terima-request`,
     STATUS: (kode_toko) => `${API_URL}/penjualan/status/${kode_toko}`,
     REJECTED: `${API_URL}/penjualan/rejected`,
+    GET_ALL_PENJUALAN : `${API_URL}/penjualan/`,
     //diskon periode
     GET_STOCK_FOR_DISKON: (kode_toko) => `${API_URL}/product/${kode_toko}`,
     ADD_DISKON: (id) => `${API_URL}/product/add/${id}`,

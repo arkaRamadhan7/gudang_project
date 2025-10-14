@@ -1,105 +1,31 @@
 'use client';
+
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Chart } from 'primereact/chart';
 import { DataTable } from 'primereact/datatable';
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { LayoutContext } from '../../layout/context/layoutcontext';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../(auth)/context/authContext';
-import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
-
-const lineData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-        {
-            label: 'First Dataset',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            backgroundColor: '#2f4860',
-            borderColor: '#2f4860',
-            tension: 0.4
-        },
-        {
-            label: 'Second Dataset',
-            data: [28, 48, 40, 19, 86, 27, 90],
-            fill: false,
-            backgroundColor: '#00bb7e',
-            borderColor: '#00bb7e',
-            tension: 0.4
-        }
-    ]
-};
+import { Dropdown } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { LayoutContext } from '../../layout/context/layoutcontext';
+import { useAuth } from '../(auth)/context/authContext';
+import "@/styles/page/dashboard.scss";
 
 const Dashboard = () => {
     const [products, setProducts] = useState([]);
+    const [penjualanData, setPenjualanData] = useState([]);
+    const [loadingPenjualan, setLoadingPenjualan] = useState(false);
+    const [globalFilter, setGlobalFilter] = useState('');
     const [lineOptions, setLineOptions] = useState({});
     const { layoutConfig } = useContext(LayoutContext);
     const [totalStockColumns, setTotalStockColumns] = useState(null);
     const [totalGudangColumns, setTotalGudangColumns] = useState(null);
     const [totalMutasiColoumns, setTotalMutasiColoumns] = useState(null);
+    const [totalUsersColoumns, setTotalUsersColoumns] = useState(null);
     const toast = useRef(null);
-    
     const { user, loading, initialized, logout } = useAuth(); 
     
-
-
-    const applyLightTheme = () => {
-        const options = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#495057'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#495057' },
-                    grid: { color: '#ebedef' }
-                },
-                y: {
-                    ticks: { color: '#495057' },
-                    grid: { color: '#ebedef' }
-                }
-            }
-        };
-
-        setLineOptions(options);
-    };
-
-    const applyDarkTheme = () => {
-        const options = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#ebedef'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#ebedef' },
-                    grid: { color: 'rgba(160, 167, 181, .3)' }
-                },
-                y: {
-                    ticks: { color: '#ebedef' },
-                    grid: { color: 'rgba(160, 167, 181, .3)' }
-                }
-            }
-        };
-
-        setLineOptions(options);
-    };
-    useEffect(() => {
-        if (layoutConfig.colorScheme === 'light') {
-            applyLightTheme();
-        } else {
-            applyDarkTheme();
-        }
-    }, [layoutConfig.colorScheme]);
-
-
-
     useEffect(() => {
         const fetchTotalColumns = async () => {
             try {
@@ -128,9 +54,9 @@ const Dashboard = () => {
             }
         };
         fetchTotalGudang();
-  }, []);
+    }, []);
 
-  useEffect(() => {
+    useEffect(() => {
         const fetchTotalMutasi = async () => {
             try {
                 const res = await fetch('/api/mutasi/total');
@@ -145,14 +71,109 @@ const Dashboard = () => {
         fetchTotalMutasi();
     }, []);
 
+    useEffect(() => {
+        const fetchTotalusers = async () => {
+            try {
+                const res = await fetch('/api/users/total');
+                if (!res.ok) throw Error('gagal ambil total gudang');
+                const data = await res.json();
+                setTotalUsersColoumns(data.total);
+            } catch (error) {
+                console.error(error);
+                setTotalUsersColoumns('Error');
+            }
+        };
+        fetchTotalusers();
+    }, []);
+
+    // Fetch Data Penjualan
+    useEffect(() => {
+        const fetchPenjualan = async () => {
+            setLoadingPenjualan(true);
+            try {
+                const res = await fetch('/api/penjualan');
+                if (!res.ok) throw new Error('Gagal mengambil data penjualan');
+                const data = await res.json();
+                
+                // Handle berbagai format response
+                if (Array.isArray(data)) {
+                    setPenjualanData(data);
+                } else if (data.data && Array.isArray(data.data)) {
+                    setPenjualanData(data.data);
+                } else if (data.penjualan && Array.isArray(data.penjualan)) {
+                    setPenjualanData(data.penjualan);
+                } else {
+                    console.error('Format data tidak sesuai:', data);
+                    setPenjualanData([]);
+                    toast.current?.show({
+                        severity: 'warn',
+                        summary: 'Warning',
+                        detail: 'Format data penjualan tidak sesuai',
+                        life: 3000
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                setPenjualanData([]);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Gagal memuat data penjualan',
+                    life: 3000
+                });
+            } finally {
+                setLoadingPenjualan(false);
+            }
+        };
+        
+        if (user) {
+            fetchPenjualan();
+        }
+    }, [user]);
+
+    // Format currency
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        }).format(value);
+    };
+
+    // Template untuk kolom harga
+    const hargaBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.HARGA);
+    };
+
+    // Template untuk kolom kredit
+    const kreditBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.KREDIT);
+    };
+
+    // Header tabel dengan search
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center">
+                <h5 className="m-0">Data Penjualan</h5>
+                <span className="p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText
+                        type="search"
+                        value={globalFilter}
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        placeholder="Cari data..."
+                    />
+                </span>
+            </div>
+        );
+    };
 
     if (!initialized || loading) {
         return (
-            <div className="flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+            <div className="loading-container">
                 <div className="text-center">
-                    <i className="pi pi-spin pi-spinner" style={{ fontSize: '2rem' }}></i>
-                    <p className="mt-3">Loading Dashboard...</p>
-                    <small className="text-500">
+                    <i className="pi pi-spin pi-spinner"></i>
+                    <p>Loading Dashboard...</p>
+                    <small>
                         Initialized: {initialized ? 'Yes' : 'No'} | 
                         Loading: {loading ? 'Yes' : 'No'} | 
                         User: {user?.username || 'None'}
@@ -164,67 +185,162 @@ const Dashboard = () => {
 
     if (initialized && !loading && !user) {
         return (
-            <div className="flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+            <div className="redirect-container">
                 <div className="text-center">
-                    <p className="text-500">Redirecting to login</p>
+                    <i className="pi pi-spin pi-spinner"></i>
+                    <p>Redirecting to login...</p>
                 </div>
             </div>
         );
     }
 
-
     return (
-        <div className="grid">
+        <div className="grid" style={{ rowGap: '1rem' }}>
             <Toast ref={toast} />
             
-            <div className="col-12">
+            <div className="col-12" style={{ paddingBottom: 0 }}>
                 <div className="card">
                     <div className="flex justify-content-between align-items-center">
                         <div>
                             <h5>Selamat datang, {user.username}!</h5>
                         </div>
                     </div>
-                        
                 </div>
             </div>
 
             {[{
-                label: "Orders",value: totalStockColumns ? totalStockColumns.toString() : "Loading...", icon: "pi-shopping-cart", bg: "bg-blue-100", color: "text-blue-500", note: "total since last month"
+                label: "Orders",
+                value: totalStockColumns ? totalStockColumns.toString() : "Loading...",
+                icon: "pi-shopping-cart",
+                bg: "bg-blue-100",
+                color: "text-blue-500",
+                note: "total since last month"
             }, {
-                label: "Gudang", value: totalGudangColumns ? totalGudangColumns.toString(): "Loading...", icon: "pi-building", bg: "bg-orange-100", color: "text-orange-500",  note: "since last week"
+                label: "Gudang",
+                value: totalGudangColumns ? totalGudangColumns.toString(): "Loading...",
+                icon: "pi-building",
+                bg: "bg-orange-100",
+                color: "text-orange-500",
+                note: "since last week"
             }, {
-                label: "Mutasi antar gudang", value: totalMutasiColoumns ? totalMutasiColoumns.toString() : "Loading...", icon: " pi-sync", bg: "bg-cyan-100", color: "text-cyan-500", note: "Total all mutasi antar gudang"
+                label: "Mutasi antar gudang",
+                value: totalMutasiColoumns ? totalMutasiColoumns.toString() : "Loading...",
+                icon: "pi-sync",
+                bg: "bg-cyan-100",
+                color: "text-cyan-500",
+                note: "Total all mutasi antar gudang"
             }, {
-                label: "Comments", value: "152 Unread", icon: "pi pi-comment", bg: "bg-purple-100", color: "text-purple-500", subtitle: "85", note: "responded"
+                label: "Users",
+                value: totalUsersColoumns ? totalUsersColoumns.toString() :"Loading.....",
+                icon: "pi-users",
+                bg: "bg-purple-100",
+                color: "text-purple-500",
+                note: "responded"
             }].map((card, i) => (
                 <div className="col-12 lg:col-6 xl:col-3" key={i}>
-                    <div className="card mb-0">
-                        <div className="flex justify-content-between mb-3">
-                            <div>
-                                <span className="block text-500 font-medium mb-3">{card.label}</span>
-                                <div className="text-900 font-medium text-xl">{card.value}</div>
+                    <div className="card mb-0 stats-card">
+                        <div className="stats-card-header">
+                            <div className="stats-info">
+                                <span className="stats-label">{card.label}</span>
+                                <div className="stats-value">{card.value}</div>
                             </div>
-                            <div className={`flex align-items-center justify-content-center ${card.bg} border-round`} style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className={`pi ${card.icon} ${card.color} text-xl`} />
+                            <div className={`stats-icon ${card.bg}`}>
+                                <i className={`pi ${card.icon} ${card.color}`} />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">{card.subtitle} </span>
-                        <span className="text-500">{card.note}</span>
+                        <div className="stats-footer">
+                            {card.subtitle && (
+                                <span className="stats-change">{card.subtitle}</span>
+                            )}
+                            <span className="stats-note">{card.note}</span>
+                        </div>
                     </div>
                 </div>
             ))}
 
-            {['Sehari', 'Seminggu', 'Sebulan'].map((periode, i) => (
-                <div className="col-12" key={i}>
-                    <div className="card">
-                        <h5>Data Suhu Selama {periode}</h5>
-                        <Chart type="line" data={lineData} options={lineOptions} />
-                    </div>
-                    <div className="card">
-                        <DataTable />
-                    </div>
+            {/* Tabel Data Penjualan */}
+            <div className="col-12">
+                <div className="card table-card">
+                    <DataTable
+                        value={penjualanData}
+                        loading={loadingPenjualan}
+                        paginator
+                        rows={10}
+                        rowsPerPageOptions={[5, 10, 25, 50]}
+                        globalFilter={globalFilter}
+                        header={renderHeader()}
+                        emptyMessage="Tidak ada data penjualan"
+                        responsiveLayout="scroll"
+                        stripedRows
+                        className="custom-datatable"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Menampilkan {first} sampai {last} dari {totalRecords} data"
+                    >
+                        <Column 
+                            field="POSTING" 
+                            header="Posting" 
+                            sortable
+                            style={{ minWidth: '120px' }}
+                        />
+                        <Column 
+                            field="FAKTUR" 
+                            header="Faktur" 
+                            sortable
+                            style={{ minWidth: '120px' }}
+                        />
+                        <Column 
+                            field="TOKO" 
+                            header="Toko" 
+                            sortable
+                            style={{ minWidth: '150px' }}
+                        />
+                        <Column 
+                            field="KODE" 
+                            header="Kode" 
+                            sortable
+                            style={{ minWidth: '120px' }}
+                        />
+                        <Column 
+                            field="QTY" 
+                            header="Qty" 
+                            sortable
+                            style={{ minWidth: '80px' }}
+                        />
+                        <Column 
+                            field="KREDIT" 
+                            header="Kredit" 
+                            body={kreditBodyTemplate}
+                            sortable
+                            style={{ minWidth: '150px' }}
+                        />
+                        <Column 
+                            field="HARGA" 
+                            header="Harga" 
+                            body={hargaBodyTemplate}
+                            sortable
+                            style={{ minWidth: '150px' }}
+                        />
+                        <Column 
+                            field="HP" 
+                            header="HP" 
+                            sortable
+                            style={{ minWidth: '130px' }}
+                        />
+                        <Column 
+                            field="KETERANGAN" 
+                            header="Keterangan" 
+                            sortable
+                            style={{ minWidth: '200px' }}
+                        />
+                        <Column 
+                            field="USERNAME" 
+                            header="Username" 
+                            sortable
+                            style={{ minWidth: '120px' }}
+                        />
+                    </DataTable>
                 </div>
-            ))}
+            </div>
         </div>
     );
 };

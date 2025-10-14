@@ -197,3 +197,24 @@ export const deleteUser = async (req,res) => {
     });
   }
 };
+
+export const getTotalusers = async (req,res) => {
+  try {
+    const data = await db("users").count("* as total").first();
+
+    res.status(200).json({
+      status: status.SUKSES,
+      total: data.total,
+      message: 'Berhasil menampilkan seluruh users',
+      datetime: datetime(),
+      total: data.total
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: 'gagal Mengambil data seluruh users',
+      datetime: datetime(),
+      error: err.message
+    });
+  }
+};

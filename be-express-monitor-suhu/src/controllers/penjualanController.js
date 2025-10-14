@@ -421,4 +421,24 @@ export const statusRequest = async (req, res) => {
             error: error.message
         })
     }
- }
+ };
+
+ export const getAllpenjualan = async (req, res) => {
+  try {
+    const data = await db('kartustock_toko').select('*');
+
+    res.status(200).json({
+      status: status.SUKSES,
+      message: 'Berhasil menampilkan seluruh penjualan',
+      datetime: datetime(),
+      data: data
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: 'Mengambil data seluruh penjualan',
+      datetime: datetime(),
+      error: err.message
+    });
+  }
+};

@@ -10,12 +10,15 @@ import {
     getFakturFromRequest,
     terimaRequest,
     statusRequest,
-    rejected
+    rejected,
+    getAllpenjualan
     
 
 } from "../controllers/penjualanController.js"
 const router = express.Router();
-router.get("/request", getFakturFromRequest)
+
+router.get("/request", getFakturFromRequest);
+router.get("/",getAllpenjualan);
 router.get("/gudang", TambahStockGetGudang);
 router.get("/get-stock/:GUDANG", TambahStockGetStock);
 router.post("/request-stock", TambahStockAdd)
