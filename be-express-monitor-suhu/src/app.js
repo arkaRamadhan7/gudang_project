@@ -23,6 +23,7 @@ import laporanRoutes from './routes/laporanRoutes.js';
 import tokoRoutes from './routes/tokoRoutes.js';
 import penjualanRoutes from './routes/penjualanRoutes.js';
 import discountPeriodeRoutes from './routes/discountPeriodeRoutes.js';
+import  GetDataPenjualan  from './routes/dataPenjualanTokoRoutes.js';
 
 
 dotenv.config();
@@ -93,6 +94,7 @@ app.use("/api/laporan", laporanRoutes);
 app.use("/api/toko", tokoRoutes);
 app.use("/api/penjualan", penjualanRoutes);
 app.use("/api/product", discountPeriodeRoutes);
+app.use("/api/data-penjualan", GetDataPenjualan);
 
 app.get('/', [setResponseHeader], (req, res) => {
   return res.status(200).json({

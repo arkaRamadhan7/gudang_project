@@ -151,5 +151,7 @@ export const API_ENDPOINTS = {
     ADD_DISKON: (id) => `${API_URL}/product/add/${id}`,
     EDIT_DISKON: (id) => `${API_URL}/product/edit/${id}`,
     DELETE_DISKON: (id) => `${API_URL}/product/delete/${id}`,
-    
+    //data-penjualan
+    DATA_PENJUALAN: (kode_toko) => `${API_URL}/data-penjualan/${kode_toko}`
+     
 }
