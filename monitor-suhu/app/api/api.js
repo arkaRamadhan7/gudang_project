@@ -129,6 +129,7 @@ export const API_ENDPOINTS = {
     VALIDASI: (faktur) => `${API_URL}/mutasi/validasi/${faktur}`,
     GET_ALL_MUTASI: `${API_URL}/mutasi`,
     EXPORT_MUTASI: `${API_URL}/mutasi/export`,
+    GETTOTALMUTASI: `${API_URL}/mutasi/total`,
 
     GET_LAPORAN_SISASTOCK: `${API_URL}/laporan/stock`,
     GET_LAPORAN_MUTASI: `${API_URL}/laporan/mutasi`,

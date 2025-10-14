@@ -256,7 +256,6 @@ export default function PenjualanPage() {
         />
       </div>
 
-      {/* Form Pencarian Stock */}
       {selectedToko && (
         <div className="p-4 border rounded-xl shadow mb-6">
           <h2 className="text-lg font-semibold mb-3">Cari Stock</h2>

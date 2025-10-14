@@ -3,6 +3,7 @@ import {db} from "../core/config/knex.js";
 import { format } from "date-fns";
 import { parse } from "dotenv";
 import ExcelJS from "exceljs";
+import { datetime, status } from "../utils/general.js";
 
 export const createmutasi = async(req,res) => {
     try {
@@ -323,3 +324,25 @@ export const exportDataToExcel = async (req, res) => {
   }
 };
 
+export const getTotalColumnsMutasi = async (req, res) => {
+  try {
+    const data = await db('mutasigudang')
+    .where({ POSTING : "masuk"})
+    .count('* as total')
+    .first();
+
+    res.status(200).json({
+      status: status.SUKSES,
+      message: 'Berhasil menghitung jumlah baris mutasi antar gudang',
+      datetime: datetime(),
+      total: data.total
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: status.ERROR,
+      message: 'Gagal menghitung jumlah baris mutasi antar gudang',
+      datetime: datetime(),
+      error: err.message
+    });
+  }
+};

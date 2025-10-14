@@ -36,6 +36,7 @@ const Dashboard = () => {
     const { layoutConfig } = useContext(LayoutContext);
     const [totalStockColumns, setTotalStockColumns] = useState(null);
     const [totalGudangColumns, setTotalGudangColumns] = useState(null);
+    const [totalMutasiColoumns, setTotalMutasiColoumns] = useState(null);
     const toast = useRef(null);
     
     const { user, loading, initialized, logout } = useAuth(); 
@@ -128,6 +129,23 @@ const Dashboard = () => {
         };
         fetchTotalGudang();
   }, []);
+
+  useEffect(() => {
+        const fetchTotalMutasi = async () => {
+            try {
+                const res = await fetch('/api/mutasi/total');
+                if (!res.ok) throw new Error('GAGAL menggambil data total kolom mutasi antar gudang');
+                const data = await res.json();
+                setTotalMutasiColoumns(data.total);
+            } catch (error) {
+                console.error(error);
+                setTotalMutasiColoumns('Error');
+            }
+        };
+        fetchTotalMutasi();
+    }, []);
+
+
     if (!initialized || loading) {
         return (
             <div className="flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
@@ -175,7 +193,7 @@ const Dashboard = () => {
             }, {
                 label: "Gudang", value: totalGudangColumns ? totalGudangColumns.toString(): "Loading...", icon: "pi-building", bg: "bg-orange-100", color: "text-orange-500",  note: "since last week"
             }, {
-                label: "Customers", value: "28441", icon: "pi-inbox", bg: "bg-cyan-100", color: "text-cyan-500", subtitle: "520", note: "newly registered"
+                label: "Mutasi antar gudang", value: totalMutasiColoumns ? totalMutasiColoumns.toString() : "Loading...", icon: " pi-sync", bg: "bg-cyan-100", color: "text-cyan-500", note: "Total all mutasi antar gudang"
             }, {
                 label: "Comments", value: "152 Unread", icon: "pi pi-comment", bg: "bg-purple-100", color: "text-purple-500", subtitle: "85", note: "responded"
             }].map((card, i) => (
