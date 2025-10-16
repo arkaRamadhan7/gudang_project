@@ -9,6 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import ToastNotifier from '@/app/components/ToastNotifier';
+import '@/styles/page/gudang.scss'
 
 const defaultForm = {
   KODE: '',
@@ -129,14 +130,17 @@ const GudangContent = () => {
   };
 
   return (
-    <div className="card">
-      <h3 className="text-xl font-semibold">Master Gudang</h3>
-
-      <div className="flex justify-end my-3">
+  <div className="gudang-container">
+    <div className="gudang-header">
+      <div className="header-content">
+        <div className="title-section">
+          <i className="pi pi-warehouse header-icon"></i>
+          <h3 className="page-title">Master Gudang</h3>
+        </div>
         <Button
           label="Tambah Gudang"
           icon="pi pi-plus"
-          className="text-sm"
+          className="btn-add"
           onClick={() => {
             setDialogMode('add');
             setForm(defaultForm);
@@ -144,28 +148,50 @@ const GudangContent = () => {
           }}
         />
       </div>
+    </div>
 
+    <div className="gudang-content">
       <DataTable
         size="small"
-        className="text-sm"
+        className="custom-datatable"
         value={gudangList}
         paginator
         rows={10}
         loading={isLoading}
         scrollable
+        emptyMessage="Tidak ada data gudang"
       >
-        <Column field="KODE" header="Kode" />
-        <Column field="nama" header="Nama" />
-        <Column field="alamat" header="Alamat" />
-        <Column field="KETERANGAN" header="Keterangan" />
+        <Column 
+          field="KODE" 
+          header="Kode" 
+          className="col-kode"
+        />
+        <Column 
+          field="nama" 
+          header="Nama" 
+          className="col-nama"
+        />
+        <Column 
+          field="alamat" 
+          header="Alamat" 
+          className="col-alamat"
+        />
+        <Column 
+          field="KETERANGAN" 
+          header="Keterangan" 
+          className="col-keterangan"
+        />
         <Column
           header="Aksi"
           body={(row) => (
-            <div className="flex gap-2">
+            <div className="action-buttons">
               <Button
                 icon="pi pi-pencil"
                 size="small"
                 severity="warning"
+                className="btn-edit"
+                tooltip="Edit"
+                tooltipOptions={{ position: 'top' }}
                 onClick={() => {
                   setDialogMode('edit');
                   setSelectedGudang(row);
@@ -181,93 +207,124 @@ const GudangContent = () => {
                 icon="pi pi-trash"
                 size="small"
                 severity="danger"
+                className="btn-delete"
+                tooltip="Hapus"
+                tooltipOptions={{ position: 'top' }}
                 onClick={() => handleDelete(row)}
               />
             </div>
           )}
-          style={{ width: '150px' }}
+          className="col-action"
         />
       </DataTable>
-
-      <Dialog
-        key={dialogMode}
-        header={dialogMode === 'edit' ? 'Edit Gudang' : 'Tambah Gudang'}
-        visible={dialogMode !== null}
-        onHide={resetFormAndCloseDialog}
-        style={{ width: '30rem' }}
-      >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
-          <div className="mb-3">
-            <label htmlFor="KODE">Kode</label>
-            <InputText
-              id="KODE"
-              name="KODE"
-              value={form.KODE}
-              onChange={handleChange}
-              className="w-full mt-2"
-              placeholder="Kode Gudang"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label htmlFor="nama">Nama</label>
-            <InputText
-              id="nama"
-              name="nama"
-              value={form.nama}
-              onChange={handleChange}
-              className="w-full mt-2"
-              placeholder="Nama Gudang"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label htmlFor="alamat">Alamat</label>
-            <InputText
-              id="alamat"
-              name="alamat"
-              value={form.alamat}
-              onChange={handleChange}
-              className="w-full mt-2"
-              placeholder="Alamat Gudang"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label htmlFor="KETERANGAN">Jenis Gudang</label>
-            <Dropdown
-              id="KETERANGAN"
-              name="KETERANGAN"
-              value={form.KETERANGAN} 
-              options={jenisGudangList}
-              onChange={(e) => setForm(prev => ({ ...prev, KETERANGAN: e.value }))}
-              className="w-full mt-2"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Pilih Jenis Gudang"
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              label="Simpan"
-              icon="pi pi-save"
-              severity="success"
-              disabled={isSubmitting}
-            />
-          </div>
-        </form>
-      </Dialog>
-
-      <ToastNotifier ref={toastRef} />
     </div>
-  );
+
+    <Dialog
+      key={dialogMode}
+      header={
+        <div className="dialog-header">
+          <i className={`pi ${dialogMode === 'edit' ? 'pi-pencil' : 'pi-plus-circle'}`}></i>
+          <span>{dialogMode === 'edit' ? 'Edit Gudang' : 'Tambah Gudang'}</span>
+        </div>
+      }
+      visible={dialogMode !== null}
+      onHide={resetFormAndCloseDialog}
+      className="gudang-dialog"
+    >
+      <form
+        className="gudang-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <div className="form-group">
+          <label htmlFor="KODE" className="form-label">
+            <i className="pi pi-tag"></i>
+            Kode
+          </label>
+          <InputText
+            id="KODE"
+            name="KODE"
+            value={form.KODE}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Masukkan kode gudang"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="nama" className="form-label">
+            <i className="pi pi-building"></i>
+            Nama
+          </label>
+          <InputText
+            id="nama"
+            name="nama"
+            value={form.nama}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Masukkan nama gudang"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="alamat" className="form-label">
+            <i className="pi pi-map-marker"></i>
+            Alamat
+          </label>
+          <InputText
+            id="alamat"
+            name="alamat"
+            value={form.alamat}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Masukkan alamat gudang"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="KETERANGAN" className="form-label">
+            <i className="pi pi-info-circle"></i>
+            Jenis Gudang
+          </label>
+          <Dropdown
+            id="KETERANGAN"
+            name="KETERANGAN"
+            value={form.KETERANGAN} 
+            options={jenisGudangList}
+            onChange={(e) => setForm(prev => ({ ...prev, KETERANGAN: e.value }))}
+            className="form-dropdown"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Pilih jenis gudang"
+          />
+        </div>
+
+        <div className="form-footer">
+          <Button
+            type="button"
+            label="Batal"
+            icon="pi pi-times"
+            severity="secondary"
+            className="btn-cancel"
+            onClick={resetFormAndCloseDialog}
+          />
+          <Button
+            type="submit"
+            label="Simpan"
+            icon="pi pi-save"
+            severity="success"
+            className="btn-submit"
+            disabled={isSubmitting}
+          />
+        </div>
+      </form>
+    </Dialog>
+
+    <ToastNotifier ref={toastRef} />
+  </div>
+);
 };
 
 export default GudangContent;

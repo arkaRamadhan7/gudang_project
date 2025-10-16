@@ -1,0 +1,686 @@
+// Variables - Dark Blue Theme
+$primary-color: #1e40af;
+$primary-dark: #1e3a8a;
+$primary-light: #3b82f6;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$bg-dark: #0f172a;
+$bg-secondary: #1e293b;
+$bg-card: #334155;
+$text-primary: #f1f5f9;
+$text-secondary: #cbd5e1;
+$border-color: #475569;
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+$border-radius: 16px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Container
+.gudang-container {
+  background: linear-gradient(135deg, $bg-dark 0%, $primary-dark 100%);
+  min-height: 100vh;
+  padding: 24px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: linear-gradient(180deg, rgba(30, 64, 175, 0.2) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  // Force table colors globally
+  :global(.p-datatable) {
+    background: #2c3e50 !important;
+    
+    :global(.p-datatable-wrapper) {
+      background: #2c3e50 !important;
+    }
+    
+    :global(.p-datatable-table) {
+      background: #2c3e50 !important;
+    }
+  }
+
+  // Header Section
+  .gudang-header {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    border-radius: $border-radius;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: $shadow-lg;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+
+      .title-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .header-icon {
+          font-size: 28px;
+          color: white;
+          background: rgba(255, 255, 255, 0.2);
+          padding: 12px;
+          border-radius: 12px;
+          backdrop-filter: blur(10px);
+        }
+
+        .page-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          margin: 0;
+          letter-spacing: -0.5px;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      .btn-add {
+        background: rgb(47, 76, 129);
+        color: $primary-color;
+        border: none;
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: $transition;
+        box-shadow: $shadow-md;
+
+        &:hover {
+          background: $text-primary;
+          transform: translateY(-2px);
+          box-shadow: $shadow-lg;
+        }
+
+        .pi {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  // Content Section
+  .gudang-content {
+    background: #2c3e50;
+    border-radius: $border-radius;
+    padding: 24px;
+    box-shadow: $shadow-md;
+    border: 1px solid #34495e;
+    position: relative;
+    z-index: 1;
+
+    &:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+    }
+
+    .gudang-table,
+    .custom-datatable {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #2c3e50 !important;
+
+      // Wrapper table
+      :global(.p-datatable-wrapper) {
+        background: #2c3e50 !important;
+      }
+
+      // Table element
+      :global(.p-datatable-table) {
+        background: #2c3e50 !important;
+      }
+
+      // Table Header
+      :global(.p-datatable-thead) > tr > th {
+        background: #3d4f63 !important;
+        color: #e2e8f0 !important;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #4a5f7a !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 14px 12px;
+      }
+
+      // Table Body
+      :global(.p-datatable-tbody) {
+        background: #2c3e50 !important;
+
+        > tr {
+          transition: $transition;
+          background: #2c3e50 !important;
+          border-bottom: 1px solid #3d4f63 !important;
+          border-left: none !important;
+          border-right: none !important;
+
+          &:hover {
+            background: #364f65 !important;
+            transform: scale(1.002);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+          }
+
+          &:nth-child(even) {
+            background: #2a3947 !important;
+
+            &:hover {
+              background: #364f65 !important;
+            }
+          }
+
+          > td {
+            padding: 14px 12px;
+            color: #94a3b8 !important;
+            font-size: 0.95rem;
+            border: none !important;
+            background: transparent !important;
+          }
+        }
+      }
+
+      // Column Styles
+      .col-kode {
+        font-weight: 700 !important;
+        color: #60a5fa !important;
+        font-size: 0.95rem !important;
+      }
+
+      .col-nama {
+        font-weight: 600 !important;
+        color: #cbd5e1 !important;
+      }
+
+      .col-alamat {
+        color: #94a3b8 !important;
+        font-size: 0.9rem !important;
+        text-transform: uppercase;
+        font-weight: 500 !important;
+      }
+
+      .col-keterangan {
+        font-style: italic !important;
+        color: #94a3b8 !important;
+        font-weight: 400 !important;
+      }
+
+      .col-action {
+        width: 150px;
+        text-align: center;
+      }
+
+      // Action Buttons
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+
+        .btn-edit,
+        .btn-delete {
+          transition: $transition;
+          border-radius: 8px;
+          box-shadow: $shadow-sm;
+          border: none;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: $shadow-md;
+          }
+        }
+
+        .btn-edit {
+          background: $warning-color;
+          border-color: $warning-color;
+
+          &:hover {
+            background: darken($warning-color, 10%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+          }
+        }
+
+        .btn-delete {
+          background: $danger-color;
+          border-color: $danger-color;
+
+          &:hover {
+            background: darken($danger-color, 10%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+          }
+        }
+      }
+
+      // Paginator
+      :global(.p-paginator) {
+        background: #34495e !important;
+        border: none !important;
+        border-top: 2px solid #3d566e !important;
+        padding: 16px;
+        border-radius: 0 0 12px 12px;
+
+        :global(.p-paginator-first),
+        :global(.p-paginator-prev),
+        :global(.p-paginator-next),
+        :global(.p-paginator-last) {
+          color: $text-secondary !important;
+          background: transparent !important;
+          border: 1px solid #3d566e !important;
+          border-radius: 8px;
+          min-width: 2.5rem;
+          height: 2.5rem;
+          transition: $transition;
+
+          &:not(:global(.p-disabled)):hover {
+            background: rgba(59, 130, 246, 0.15) !important;
+            border-color: $primary-light !important;
+            color: $primary-light !important;
+          }
+
+          &:global(.p-disabled) {
+            opacity: 0.3;
+          }
+        }
+
+        :global(.p-paginator-pages) {
+          :global(.p-paginator-page) {
+            color: $text-secondary !important;
+            background: transparent !important;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            min-width: 2.5rem;
+            height: 2.5rem;
+            margin: 0 0.25rem;
+            transition: $transition;
+            font-weight: 600;
+
+            &:hover {
+              background: rgba(59, 130, 246, 0.15) !important;
+              border-color: rgba(59, 130, 246, 0.3);
+              color: $primary-light !important;
+            }
+
+            &:global(.p-highlight) {
+              background: linear-gradient(135deg, $primary-color, $primary-light) !important;
+              border-color: $primary-light;
+              color: white !important;
+              box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+              transform: scale(1.05);
+            }
+          }
+        }
+      }
+
+      // Empty Message
+      :global(.p-datatable-emptymessage) > td {
+        text-align: center;
+        color: $text-secondary;
+        font-style: italic;
+        padding: 32px;
+      }
+    }
+  }
+}
+
+// Dialog Styles
+:global(.gudang-dialog) {
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+  border: 1px solid #3d566e;
+  background: #2c3e50 !important;
+
+  :global(.p-dialog-header) {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    color: white;
+    border-radius: $border-radius $border-radius 0 0;
+    padding: 20px 24px;
+    border: none;
+
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+
+      .pi {
+        font-size: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+      }
+    }
+
+    :global(.p-dialog-header-icon) {
+      color: white !important;
+      transition: $transition;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  :global(.p-dialog-content) {
+    padding: 24px;
+    background: #2c3e50 !important;
+    border-radius: 0 0 $border-radius $border-radius;
+  }
+
+  // Form Styles
+  .gudang-form {
+    .form-group {
+      margin-bottom: 20px;
+
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #e2e8f0 !important;
+        margin-bottom: 8px;
+        font-size: 14px;
+
+        .pi {
+          color: $primary-light;
+          font-size: 14px;
+        }
+      }
+
+      .form-input {
+        width: 100%;
+        border: 1px solid #3d566e !important;
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+        transition: $transition;
+
+        &:enabled:focus {
+          outline: none !important;
+          border-color: $primary-light !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+          background: #1e293b !important;
+        }
+
+        &::placeholder {
+          color: #64748b !important;
+          opacity: 0.7;
+        }
+
+        &:enabled:hover {
+          border-color: $primary-light !important;
+          background: #1e293b !important;
+        }
+      }
+
+      :global(.p-dropdown) {
+        width: 100%;
+        background: #1e293b !important;
+        border: 1px solid #3d566e !important;
+        border-radius: 10px;
+        transition: $transition;
+
+        &:not(:global(.p-disabled)):hover {
+          border-color: $primary-light !important;
+        }
+
+        &:not(:global(.p-disabled)):global(.p-focus) {
+          outline: none !important;
+          border-color: $primary-light !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        :global(.p-dropdown-label) {
+          padding: 12px;
+          color: #e2e8f0 !important;
+          background: transparent !important;
+
+          &:global(.p-placeholder) {
+            color: #64748b !important;
+            opacity: 0.7;
+          }
+        }
+
+        :global(.p-dropdown-trigger) {
+          color: #94a3b8 !important;
+          background: transparent !important;
+        }
+      }
+    }
+
+    .form-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid #3d566e;
+
+      .btn-cancel,
+      .btn-submit {
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: $transition;
+        border: none;
+        box-shadow: $shadow-sm;
+
+        &:enabled:hover {
+          transform: translateY(-2px);
+          box-shadow: $shadow-md;
+        }
+      }
+
+      .btn-cancel {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+        border: 1px solid #475569 !important;
+
+        &:enabled:hover {
+          background: #3d4f63 !important;
+          border-color: $primary-light !important;
+        }
+      }
+
+      .btn-submit {
+        background: $success-color !important;
+        color: white !important;
+
+        &:enabled:hover {
+          background: darken($success-color, 8%) !important;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        &:disabled {
+          opacity: 0.6 !important;
+          cursor: not-allowed !important;
+          transform: none !important;
+        }
+      }
+    }
+  }
+}
+
+// Dropdown Panel Dark Theme
+:global(.p-dropdown-panel) {
+  background: #1e293b !important;
+  border: 1px solid #3d566e !important;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+  :global(.p-dropdown-items) {
+    background: #1e293b !important;
+
+    :global(.p-dropdown-item) {
+      color: #94a3b8 !important;
+      padding: 0.75rem 1rem;
+      transition: $transition;
+      background: transparent !important;
+
+      &:not(:global(.p-highlight)):not(:global(.p-disabled)):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #e2e8f0 !important;
+      }
+
+      &:global(.p-highlight) {
+        background: rgba(59, 130, 246, 0.25) !important;
+        color: #e2e8f0 !important;
+      }
+
+      &:focus {
+        box-shadow: none !important;
+      }
+    }
+  }
+}
+
+// Toast Styling - Dark Theme
+:global(.p-toast) {
+  :global(.p-toast-message) {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-primary;
+    box-shadow: $shadow-lg;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+
+    :global(.p-toast-message-icon),
+    :global(.p-toast-icon-close) {
+      color: $text-primary;
+    }
+
+    &:global(.p-toast-message-success) {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+
+      :global(.p-toast-message-icon) {
+        color: $success-color;
+      }
+    }
+
+    &:global(.p-toast-message-error) {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+
+      :global(.p-toast-message-icon) {
+        color: $danger-color;
+      }
+    }
+
+    &:global(.p-toast-message-warn) {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+
+      :global(.p-toast-message-icon) {
+        color: $warning-color;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .gudang-container {
+    padding: 16px;
+
+    .gudang-header {
+      padding: 16px;
+
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+
+        .title-section {
+          justify-content: center;
+
+          .page-title {
+            font-size: 20px;
+          }
+        }
+
+        .btn-add {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .gudang-content {
+      padding: 16px;
+      overflow-x: auto;
+    }
+  }
+
+  :global(.gudang-dialog) {
+    width: 95% !important;
+    margin: 0 auto;
+
+    .gudang-form {
+      .form-footer {
+        flex-direction: column;
+
+        .btn-cancel,
+        .btn-submit {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Loading State
+:global(.p-datatable-loading-icon) {
+  color: $primary-light;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gudang-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.gudang-content {
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.2s;
+}
