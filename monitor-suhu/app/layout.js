@@ -12,7 +12,8 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <link id="theme-css" href={`/themes/lara-light-indigo/theme.css`} rel="stylesheet" />
+                <link id="theme-css" href={`/themes/lara-dark-indigo/theme.css`} rel="stylesheet" />
+                <link id="theme-override-css" href={`/themes/my-theme-override.css`} rel="stylesheet" />
             </head>
             <body>
                 <AuthProvider>

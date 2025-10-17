@@ -10,7 +10,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Toast } from 'primereact/toast';
-import { Tag } from 'primereact/tag'; // DIIMPOR untuk template status
+import { Tag } from 'primereact/tag';
 
 const RequestStockPage = () => {
     // --- State Anda yang sudah ada ---
@@ -164,6 +164,7 @@ const RequestStockPage = () => {
         });
         setRequestedStock(updatedStock);
     };
+    
     const handleSubmitRequest = async () => {
         if (!selectedToko || !selectedGudang || requestedStock.length === 0) {
             return;
@@ -221,7 +222,7 @@ const RequestStockPage = () => {
     };
 
     const actionBodyTemplate = (rowData) => (
-        <Button icon="pi pi-trash" className="p-button-danger" onClick={() => handleRemoveStock(rowData)} />
+        <Button icon="pi pi-trash" className="p-button-danger p-button-sm" onClick={() => handleRemoveStock(rowData)} />
     );
 
     const dialogActionBodyTemplate = (rowData) => (
@@ -238,6 +239,7 @@ const RequestStockPage = () => {
         </div>
     );
     
+    // --- BLOK PERBAIKAN ---
     const dosEditorTemplate = (rowData) => {
         return (
             <InputNumber 
@@ -246,13 +248,14 @@ const RequestStockPage = () => {
                 mode="decimal" 
                 showButtons 
                 min={1} 
-                className="p-inputnumber-sm" 
-                style={{ width: '80px', textAlign: 'center'}} 
+                className="p-inputnumber-sm w-28" // DILEBARKAN dari 80px ke w-28 (112px)
+                inputClassName="!text-center" // Ditambahkan agar angka tetap di tengah
                 tooltip={`Stok tersedia: ${rowData.DOS} DOS`} 
                 tooltipOptions={{ position: 'top' }} 
             />
         );
     };
+    // --- BATAS PERBAIKAN ---
 
     const statusBodyTemplate = (rowData) => {
         const severityMap = {
@@ -267,92 +270,303 @@ const RequestStockPage = () => {
     return (
         <>
             <Toast ref={toast} />
-            <div className="p-4 md:p-6" style={{ backgroundColor: '#F8F9FA' }}>
-                <div className="card bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Buat Permintaan Stok ke Gudang</h3>
+            <div className="p-4 md:p-6 w-full">
+                <div className="card p-6 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-4">Buat Permintaan Stok ke Gudang</h3>
                     
-                    <TabView>
-                        <TabPanel header="Detail Permintaan">
-                            <div className="p-fluid formgrid grid mt-4">
-                                <div className="field col-12 md:col-6">
-                                    <label htmlFor="toko" className="font-medium text-sm block mb-2">Toko Peminta</label>
-                                    <Dropdown id="toko" value={selectedToko} options={tokoList} onChange={(e) => setSelectedToko(e.value)} optionLabel="NAMA" optionValue="KODE" placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko"} disabled={isTokoLoading} className="w-full" filter />
+                    <TabView className="custom-tabview">
+                        {/* TAB PERMINTAAN */}
+                        <TabPanel 
+                            header={
+                                <div className="flex align-items-center gap-2">
+                                    <i className="pi pi-file-edit"></i>
+                                    <span className="font-semibold">Permintaan</span>
                                 </div>
-                                <div className="field col-12 md:col-6">
-                                    <label htmlFor="gudang" className="font-medium text-sm block mb-2">Gudang Tujuan</label>
-                                    <Dropdown id="gudang" value={selectedGudang} options={gudangList} onChange={(e) => setSelectedGudang(e.value)} optionLabel="nama" optionValue="nama" placeholder={isLoading ? 'Memuat...' : 'Pilih Gudang'} disabled={isLoading} className="w-full" filter />
+                            }
+                        >
+                            <div className="surface-section border-round-lg shadow-2 p-4 mt-4">
+                                {/* Form Section */}
+                                <div className="border-round p-4 mb-4">
+                                        <div className="field col-12 md:col-6">
+                                            <label htmlFor="toko" className="font-semibold text-900 mb-2 block">
+                                                <i className="pi pi-building mr-2 text-primary"></i>
+                                                Toko Peminta
+                                            </label>
+                                            <Dropdown 
+                                                id="toko" 
+                                                value={selectedToko} 
+                                                options={tokoList} 
+                                                onChange={(e) => setSelectedToko(e.value)} 
+                                                optionLabel="NAMA" 
+                                                optionValue="KODE" 
+                                                placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko"} 
+                                                disabled={isTokoLoading} 
+                                                className="w-full border-round" 
+                                                filter 
+                                                showClear
+                                            />
+                                        </div>
+                                        <div className="field col-12 md:col-6">
+                                            <label htmlFor="gudang" className="font-semibold text-900 mb-2 block">
+                                                <i className="pi pi-warehouse mr-2 text-primary"></i>
+                                                Gudang Tujuan
+                                            </label>
+                                            <Dropdown 
+                                                id="gudang" 
+                                                value={selectedGudang} 
+                                                options={gudangList} 
+                                                onChange={(e) => setSelectedGudang(e.value)} 
+                                                optionLabel="nama" 
+                                                optionValue="nama" 
+                                                placeholder={isLoading ? 'Memuat...' : 'Pilih Gudang'} 
+                                                disabled={isLoading} 
+                                                className="w-full border-round" 
+                                                filter 
+                                                showClear
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="mt-6">
-                                <div className="flex justify-end items-center mb-4">
-                                    <Button label="Tambah Produk" icon="pi pi-plus" onClick={handleOpenDialog} className="p-button-sm font-semibold" />
-                                </div>
-                                
-                                <DataTable value={requestedStock} emptyMessage="Belum ada produk yang di-request." size="small" className="text-sm">
-                                    <Column field="KODE" header="Kode Produk" />
-                                    <Column field="NAMA" header="Nama Produk" />
-                                    <Column field="ISI" header="Isi" /> 
-                                    <Column header="Jumlah DOS" body={dosEditorTemplate} />
-                                    <Column header="Aksi" body={actionBodyTemplate} />
-                                </DataTable>
-                                <div className="flex justify-end gap-2 mt-6 border-t pt-4">
-                                    <Button label="Cancel" className="p-button-text p-button-secondary font-semibold" onClick={() => { setRequestedStock([]); setSelectedToko(null); setSelectedGudang(null); }} />
-                                     <Button label="Buat Request" icon="pi pi-send" className="p-button-success font-semibold" onClick={handleSubmitRequest} disabled={!selectedToko || !selectedGudang || requestedStock.length === 0 || isSubmitting} loading={isSubmitting} />
-                                </div>
-                                <Dialog header={dialogHeader} visible={isDialogVisible} style={{ width: '60vw' }} onHide={resetDialog}>
-                                    <div className="p-2">
-                                        <DataTable value={filteredStock} loading={isDialogLoading} emptyMessage="Stok tidak ditemukan di gudang ini." size="small" paginator rows={5} className="text-sm">
-                                            <Column field="KODE" header="Kode Produk" />
-                                            <Column field="NAMA" header="Nama Produk" />
-                                            <Column field="DOS" header="Stok DOS Tersedia" />
-                                            <Column field="ISI" header="Isi per DOS" />
-                                            <Column body={dialogActionBodyTemplate} style={{ textAlign: 'center', width: '6rem' }} />
+                                {/* Product List Section */}
+                                <div className="surface-card border-round-lg shadow-1 p-4">
+                                    <div className="flex justify-content-between align-items-center mb-4">
+                                        <div>
+                                            <h4 className="text-lg font-bold text-900 m-0 mb-1">
+                                                Daftar Produk
+                                            </h4>
+                                            <p className="text-600 text-sm m-0">
+                                                {requestedStock.length} produk dipilih
+                                            </p>
+                                        </div>
+                                        <Button 
+                                            label="Tambah Produk" 
+                                            icon="pi pi-plus" 
+                                            onClick={handleOpenDialog} 
+                                            className="font-semibold shadow-2" 
+                                            raised
+                                        />
+                                    </div>
+
+                                    <div className="border-round overflow-hidden">
+                                        <DataTable 
+                                            value={requestedStock} 
+                                            emptyMessage={
+                                                <div className="text-center py-6">
+                                                    <i className="pi pi-inbox text-4xl text-400 mb-3"></i>
+                                                    <p className="text-600 font-medium">Belum ada produk yang di-request</p>
+                                                    <p className="text-500 text-sm">Klik tombol "Tambah Produk" untuk memulai</p>
+                                                </div>
+                                            }
+                                            size="small" 
+                                            className="text-sm"
+                                            stripedRows
+                                        >
+                                            <Column 
+                                                field="KODE" 
+                                                header="Kode Produk" 
+                                                headerClassName="font-bold"
+                                            />
+                                            <Column 
+                                                field="NAMA" 
+                                                header="Nama Produk" 
+                                                headerClassName="font-bold"
+                                            />
+                                            <Column 
+                                                field="ISI" 
+                                                header="Isi" 
+                                                headerClassName="font-bold"
+                                                style={{ width: '100px' }}
+                                            />
+                                            <Column 
+                                                header="Jumlah DOS" 
+                                                body={dosEditorTemplate} 
+                                                headerClassName="font-bold"
+                                                style={{ width: '150px' }} // Kolom ini sudah cukup lebar (150px)
+                                            />
+                                            <Column 
+                                                header="Aksi" 
+                                                body={actionBodyTemplate} 
+                                                headerClassName="font-bold"
+                                                style={{ width: '100px', textAlign: 'center' }}
+                                            />
                                         </DataTable>
                                     </div>
-                                </Dialog>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
+                                    <Button 
+                                        label="Batal" 
+                                        icon="pi pi-times"
+                                        className="p-button-text p-button-secondary font-semibold" 
+                                        onClick={() => { 
+                                            setRequestedStock([]); 
+                                            setSelectedToko(null); 
+                                            setSelectedGudang(null); 
+                                        }} 
+                                    />
+                                    <Button 
+                                        label="Buat Request" 
+                                        icon="pi pi-send" 
+                                        className="p-button-success font-semibold shadow-2" 
+                                        onClick={handleSubmitRequest} 
+                                        disabled={!selectedToko || !selectedGudang || requestedStock.length === 0 || isSubmitting} 
+                                        loading={isSubmitting}
+                                        raised
+                                    />
                             </div>
                         </TabPanel>
 
-                        <TabPanel header="Status Permintaan">
-                             <div className="p-4">
-                                <div className="field">
-                                    <label htmlFor="tokoStatus" className="font-medium text-sm block mb-2">Toko</label>
-                                    <Dropdown 
-                                        id="tokoStatus" 
-                                        value={selectedTokoForStatus} 
-                                        options={tokoList} 
-                                        onChange={(e) => setSelectedTokoForStatus(e.value)} 
-                                        optionLabel="NAMA" 
-                                        optionValue="KODE" 
-                                        placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko untuk Melihat Status"} 
-                                        disabled={isTokoLoading} 
-                                        className="w-full md:w-1/3" 
-                                        filter 
-                                    />
+                        {/* TAB STATUS PERMINTAAN */}
+                        <TabPanel 
+                            header={
+                                <div className="flex align-items-center gap-2">
+                                    <i className="pi pi-list"></i>
+                                    <span className="font-semibold">Status Permintaan</span>
+                                </div>
+                            }
+                        >
+                            <div className="surface-section border-round-lg shadow-2 p-5 mt-4">
+                                {/* Filter Section */}
+                                <div className="surface-ground border-round p-4 mb-5">
+                                    <div className="field mb-0">
+                                        <label htmlFor="tokoStatus" className="font-semibold text-900 mb-2 block">
+                                            <i className="pi pi-building mr-2 text-primary"></i>
+                                            Pilih Toko
+                                        </label>
+                                        <Dropdown 
+                                            id="tokoStatus" 
+                                            value={selectedTokoForStatus} 
+                                            options={tokoList} 
+                                            onChange={(e) => setSelectedTokoForStatus(e.value)} 
+                                            optionLabel="NAMA" 
+                                            optionValue="KODE" 
+                                            placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko untuk Melihat Status"} 
+                                            disabled={isTokoLoading} 
+                                            className="w-full md:w-6" 
+                                            filter
+                                            showClear
+                                        />
+                                    </div>
                                 </div>
                                 
-                                <div className="mt-6">
-                                    <DataTable 
-                                        value={statusData} 
-                                        loading={isLoadingStatus} 
-                                        emptyMessage="Pilih toko untuk menampilkan data atau tidak ada data permintaan." 
-                                        size="small" 
-                                        className="text-sm"
-                                        paginator rows={10}
-                                    >
-                                        <Column field="FAKTUR" header="FAKTUR" />
-                                        <Column field="NAMA" header="NAMA" />
-                                        <Column field="DOS" header="JUMLAH DOS" />
-                                        <Column field="STATUS" header="Status" body={statusBodyTemplate} />
-                                    </DataTable>
+                                {/* Data Table Section */}
+                                <div className="surface-card border-round-lg shadow-1 p-4">
+                                    <div className="mb-3">
+                                        <h4 className="text-lg font-bold text-900 m-0 mb-1">
+                                            Daftar Status Permintaan
+                                        </h4>
+                                        <p className="text-600 text-sm m-0">
+                                            {statusData.length} permintaan ditemukan
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="border-round overflow-hidden">
+                                        <DataTable 
+                                            value={statusData} 
+                                            loading={isLoadingStatus} 
+                                            emptyMessage={
+                                                <div className="text-center py-6">
+                                                    <i className="pi pi-search text-4xl text-400 mb-3"></i>
+                                                    <p className="text-600 font-medium">
+                                                        {selectedTokoForStatus ? 'Tidak ada data permintaan' : 'Pilih toko untuk menampilkan data'}
+                                                    </p>
+                                                </div>
+                                            }
+                                            size="small" 
+                                            className="text-sm"
+                                            paginator 
+                                            rows={10}
+                                            stripedRows
+                                        >
+                                            <Column 
+                                                field="FAKTUR" 
+                                                header="FAKTUR" 
+                                                headerClassName="font-bold"
+                                            />
+                                            <Column 
+                                                field="NAMA" 
+                                                header="NAMA PRODUK" 
+                                                headerClassName="font-bold"
+                                            />
+                                            <Column 
+                                                field="DOS" 
+                                                header="JUMLAH DOS" 
+                                                headerClassName="font-bold"
+                                                style={{ width: '150px' }}
+                                            />
+                                            <Column 
+                                                field="STATUS" 
+                                                header="STATUS" 
+                                                body={statusBodyTemplate} 
+                                                headerClassName="font-bold"
+                                                style={{ width: '120px' }}
+                                            />
+                                        </DataTable>
+                                    </div>
                                 </div>
                             </div>
                         </TabPanel>
-
                     </TabView>
                 </div>
             </div>
+
+            {/* Dialog */}
+            <Dialog 
+                header={dialogHeader}
+                visible={isDialogVisible} 
+                style={{ width: '70vw' }} 
+                onHide={resetDialog}
+                className="border-round-lg"
+                dismissableMask
+            >
+                <div className="surface-ground border-round p-3">
+                    <DataTable 
+                        value={filteredStock} 
+                        loading={isDialogLoading} 
+                        emptyMessage={
+                            <div className="text-center py-5">
+                                <i className="pi pi-search text-3xl text-400 mb-2"></i>
+                                <p className="text-600 font-medium">Stok tidak ditemukan di gudang ini</p>
+                            </div>
+                        }
+                        size="small" 
+                        paginator 
+                        rows={5} 
+                        className="text-sm"
+                        stripedRows
+                    >
+                        <Column 
+                            field="KODE" 
+                            header="Kode Produk" 
+                            headerClassName="font-bold"
+                        />
+                        <Column 
+                            field="NAMA" 
+                            header="Nama Produk" 
+                            headerClassName="font-bold"
+                        />
+                        <Column 
+                            field="DOS" 
+                            header="Stok DOS Tersedia" 
+                            headerClassName="font-bold"
+                            style={{ width: '150px' }}
+                        />
+                        <Column 
+                            field="ISI" 
+                            header="Isi per DOS" 
+                            headerClassName="font-bold"
+                            style={{ width: '130px' }}
+                        />
+                        <Column 
+                            body={dialogActionBodyTemplate} 
+                            headerClassName="font-bold"
+                            style={{ textAlign: 'center', width: '100px' }} 
+                        />
+                    </DataTable>
+                </div>
+            </Dialog>
         </>
     );
 };

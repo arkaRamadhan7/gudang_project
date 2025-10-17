@@ -97,8 +97,6 @@ export default function PenjualanPage() {
     return;
   }
 
-
-
   const isExisting = cart.some(item => item.kode === barang.kode && item.gudang === barang.gudang);
 
   if (isExisting) {
@@ -137,8 +135,6 @@ export default function PenjualanPage() {
   const handleSubmit = async () => {
     console.log(cart)
 
-
-      
     if (!selectedToko) {
       showWarn("Pilih toko terlebih dahulu!");
       return;
@@ -157,9 +153,6 @@ export default function PenjualanPage() {
       satuan: item.satuan,
       id: item.id,
       discount: item.discount
-
-
-      
     }));
 
     const payload = {
@@ -306,32 +299,57 @@ export default function PenjualanPage() {
         </div>
       )}
 
-      {/* Input Barang Manual */}
-      <div className="p-4 border rounded-xl shadow mb-6">
+      {/* Input Barang Manual - TELAH DIPERBAIKI */}
+      <div className="card">
         <h2 className="text-lg font-semibold mb-3">Input Barang</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 items-center">
-          <InputText
-            placeholder="Kode Barang"
-            value={barang.kode}
-            disabled
-          />
-          <InputText
-            placeholder="Nama Barang"
-            value={barang.nama}
-            disabled
-          />
-          <InputNumber
-            placeholder="Qty"
-            value={barang.qty}
-            onValueChange={(e) => setBarang({ ...barang, qty: e.value })}
-            min={1}
-            showButtons
-          />
-          <InputText
-            placeholder="Harga"
-            value={formatCurrency(barang.harga)}
-            disabled
-          />
+        <div className="">
+          
+          {/* Kode Barang */}
+          <div>
+            <label htmlFor="kodeBarang" className="font-semibold">Kode Barang</label>
+            <InputText
+              id="kodeBarang"
+              value={barang.kode}
+              disabled
+              className="w-full mt-2" // Konsisten dengan Dropdown Toko
+            />
+          </div>
+          
+          {/* Nama Barang */}
+          <div>
+            <label htmlFor="namaBarang" className="font-semibold">Nama Barang</label>
+            <InputText
+              id="namaBarang"
+              value={barang.nama}
+              disabled
+              className="w-full mt-2" // Konsisten
+            />
+          </div>
+
+          {/* Qty */}
+          <div>
+            <label htmlFor="qty" className="font-semibold">Qty</label>
+            <InputNumber
+              id="qty"
+              value={barang.qty}
+              onValueChange={(e) => setBarang({ ...barang, qty: e.value })}
+              min={1}
+              showButtons
+              className="w-full mt-2" // Konsisten
+              inputClassName="w-full" // Memastikan input di dalam InputNumber juga penuh
+            />
+          </div>
+
+          {/* Harga */}
+          <div>
+            <label htmlFor="harga" className="font-semibold">Harga</label>
+            <InputText
+              id="harga"
+              value={formatCurrency(barang.harga)}
+              disabled
+              className="w-full mt-2" // Konsisten
+            />
+          </div>
         </div>
         <Button 
           label="Tambah ke Keranjang" 
@@ -340,6 +358,8 @@ export default function PenjualanPage() {
           disabled={!barang.kode || !barang.nama}
         />
       </div>
+      {/* Batas Perbaikan */}
+
 
       {/* Table Cart */}
       <div className="p-4 border rounded-xl shadow mb-6">

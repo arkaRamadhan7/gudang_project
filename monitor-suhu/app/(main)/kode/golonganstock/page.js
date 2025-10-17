@@ -111,7 +111,7 @@ export default function GolonganStokPage() {
   );
 
   return (
-    <div className="p-4">
+    <div className="p-4 card">
       <h2 className="text-xl font-semibold mb-4">Data Golongan Stok</h2>
 
       <Button
@@ -134,6 +134,7 @@ export default function GolonganStokPage() {
         stripedRows
         emptyMessage="Tidak ada data"
         scrollable
+        className='card'
       >
         <Column field="KODE" header="Kode" style={{ minWidth: '100px' }} />
         <Column field="KETERANGAN" header="Nama Golongan" style={{ minWidth: '200px' }} />
