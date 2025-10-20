@@ -125,7 +125,7 @@ export default function PerubahanHargaPage() {
   return (
     <div className="card p-6">
       <Toast ref={toast} />
-      <h1 className="text-xl font-bold mb-4 ">Perubahan Harga & Diskon</h1>
+      <h1 className="text-xl font-bold mb-4 ">Perubahan Harga</h1>
       
       <div className="mb-5">
         <label className="font-semibold ">Pilih Toko</label>
