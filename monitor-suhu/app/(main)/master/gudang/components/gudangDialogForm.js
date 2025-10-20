@@ -47,9 +47,17 @@ export default function JenisGudangDropdown({ value, onChange, placeholder = 'Pi
       onChange={(e) => onChange(e.value)}
       placeholder={placeholder}
       loading={loading}
-      className="w-full"
+      className="form-dropdown"
       disabled={disabled}
+      style={{
+        width: '100%',
+        backgroundColor: '#1e293b',
+        border: '1px solid #3d566e'
+      }}
+      panelStyle={{
+        backgroundColor: '#1e293b',
+        border: '1px solid #3d566e'
+      }}
     />
   );
 }
-

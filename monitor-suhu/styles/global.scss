@@ -1,0 +1,98 @@
+// Override PrimeReact default theme globally
+:root {
+  --surface-ground: #0f172a;
+  --surface-section: #1e293b;
+  --surface-card: #2c3e50;
+  --text-color: #e2e8f0;
+  --text-color-secondary: #cbd5e1;
+  --primary-color: #1e40af;
+}
+
+// Global DataTable styling
+.p-datatable {
+  background: #2c3e50 !important;
+  
+  .p-datatable-wrapper {
+    background: #2c3e50 !important;
+  }
+  
+  .p-datatable-thead > tr > th {
+    background: #3d4f63 !important;
+    color: #e2e8f0 !important;
+    border: none !important;
+  }
+  
+  .p-datatable-tbody > tr {
+    background: #2c3e50 !important;
+    
+    &:hover {
+      background: #364f65 !important;
+    }
+    
+    > td {
+      color: #94a3b8 !important;
+      border: none !important;
+    }
+  }
+}
+
+// Global Dialog styling
+.p-dialog {
+  background: #2c3e50 !important;
+  
+  .p-dialog-header {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+    color: white !important;
+  }
+  
+  .p-dialog-content {
+    background: #2c3e50 !important;
+    color: #e2e8f0 !important;
+  }
+}
+
+// Global Input styling
+.p-inputtext {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #3d566e !important;
+  
+  &:enabled:focus {
+    background: #1e293b !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+  }
+  
+  &::placeholder {
+    color: #64748b !important;
+  }
+}
+
+// Global Dropdown styling
+.p-dropdown {
+  background: #1e293b !important;
+  border: 1px solid #3d566e !important;
+  
+  .p-dropdown-label {
+    color: #e2e8f0 !important;
+  }
+}
+
+.p-dropdown-panel {
+  background: #1e293b !important;
+  border: 1px solid #3d566e !important;
+  
+  .p-dropdown-item {
+    color: #94a3b8 !important;
+    
+    &:hover {
+      background: rgba(59, 130, 246, 0.15) !important;
+      color: #e2e8f0 !important;
+    }
+    
+    &.p-highlight {
+      background: rgba(59, 130, 246, 0.25) !important;
+      color: #e2e8f0 !important;
+    }
+  }
+}

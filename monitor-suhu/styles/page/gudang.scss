@@ -357,7 +357,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   :global(.p-dialog-header) {
     background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
-    color: white;
+    color: rgb(39, 52, 95);
     border-radius: $border-radius $border-radius 0 0;
     padding: 20px 24px;
     border: none;
@@ -420,7 +420,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
         border: 1px solid #3d566e !important;
         background: #1e293b !important;
-        color: #e2e8f0 !important;
+        color: #44648d !important;
         border-radius: 10px;
         padding: 12px;
         font-size: 14px;
@@ -683,4 +683,215 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .gudang-content {
   animation: fadeIn 0.6s ease-out;
   animation-delay: 0.2s;
+}
+:global(.custom-dialog) {
+  background-color: #0f172a !important; /* warna dasar biru gelap */
+  border-radius: 12px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6) !important;
+  color: #e2e8f0 !important;
+
+  .p-dialog-header {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: #38bdf8;
+    }
+  }
+
+  .gudang-form {
+    background: transparent;
+    padding: 1rem 0.5rem;
+  }
+
+  .form-label {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+
+    i {
+      color: #60a5fa;
+    }
+  }
+
+  .form-input,
+  .form-dropdown {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+    border-radius: 8px;
+    width: 100%;
+
+    &:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+
+  .p-dropdown-label {
+    color: #f1f5f9 !important;
+  }
+
+  .form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+
+    .btn-cancel {
+      background-color: #334155 !important;
+      color: #e2e8f0 !important;
+      border: none !important;
+
+      &:hover {
+        background-color: #475569 !important;
+      }
+    }
+
+    .btn-submit {
+      background-color: #22c55e !important;
+      border: none !important;
+      color: #fff !important;
+
+      &:hover {
+        background-color: #16a34a !important;
+      }
+    }
+  }
+}
+
+// Tambahkan ini ke bagian bawah file gudang.scss Anda
+// Atau replace bagian .p-paginator yang sudah ada
+
+// Paginator Global Override
+:global {
+  .p-paginator {
+    background: #34495e !important;
+    border: none !important;
+    border-top: 2px solid #3d566e !important;
+    padding: 16px !important;
+    border-radius: 0 0 12px 12px !important;
+    color: #cbd5e1 !important;
+
+    .p-paginator-first,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-last {
+      color: #cbd5e1 !important;
+      background: transparent !important;
+      border: 1px solid #3d566e !important;
+      border-radius: 8px !important;
+      min-width: 2.5rem !important;
+      height: 2.5rem !important;
+      transition: all 0.3s ease !important;
+
+      &:not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+      }
+
+      &.p-disabled {
+        opacity: 0.3 !important;
+        color: #64748b !important;
+      }
+    }
+
+    .p-paginator-pages {
+      .p-paginator-page {
+        color: #cbd5e1 !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 8px !important;
+        min-width: 2.5rem !important;
+        height: 2.5rem !important;
+        margin: 0 0.25rem !important;
+        transition: all 0.3s ease !important;
+        font-weight: 600 !important;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+          border-color: rgba(59, 130, 246, 0.3) !important;
+          color: #3b82f6 !important;
+        }
+
+        &.p-highlight {
+          background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+          border-color: #3b82f6 !important;
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+          transform: scale(1.05) !important;
+        }
+      }
+    }
+
+    .p-paginator-current {
+      color: #94a3b8 !important;
+      background: transparent !important;
+    }
+
+    .p-dropdown {
+      background: #1e293b !important;
+      border: 1px solid #3d566e !important;
+      color: #e2e8f0 !important;
+
+      .p-dropdown-label {
+        color: #e2e8f0 !important;
+      }
+
+      .p-dropdown-trigger {
+        color: #94a3b8 !important;
+      }
+
+      &:hover {
+        border-color: #3b82f6 !important;
+      }
+    }
+  }
+
+  // Dropdown Panel untuk Rows per page
+  .p-paginator .p-dropdown-panel {
+    background: #1e293b !important;
+    border: 1px solid #3d566e !important;
+
+    .p-dropdown-items {
+      background: #1e293b !important;
+
+      .p-dropdown-item {
+        color: #94a3b8 !important;
+        background: transparent !important;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+          color: #e2e8f0 !important;
+        }
+
+        &.p-highlight {
+          background: rgba(59, 130, 246, 0.25) !important;
+          color: #e2e8f0 !important;
+        }
+      }
+    }
+  }
+}
+
+// Jika di dalam .gudang-content
+.gudang-content {
+  :global(.p-paginator) {
+    background: #34495e !important;
+    border-top: 2px solid #3d566e !important;
+    color: #cbd5e1 !important;
+  }
 }

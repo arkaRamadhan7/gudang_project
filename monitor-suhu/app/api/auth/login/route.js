@@ -34,23 +34,17 @@ export async function POST(req) {
       );
     }
     
-    const response = NextResponse.json(data, { 
-      status: res.status,
-      headers: {
-        'Set-Cookie': `token=${data.token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${365 * 24 * 60 * 60}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-      }
-    });
-    
+    const response = NextResponse.json(data, { status: res.status });
+
+    // ✅ Hanya set cookie via API NextResponse (tanpa Max-Age)
     response.cookies.set('token', data.token, {
       httpOnly: true,
       path: '/',
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
+      // ❌ tidak pakai maxAge -> otomatis session cookie
     });
-    
-   
-    console.log('Cookie value preview:', data.token.substring(0, 20) + '...');
-    
+
     return response;
     
   } catch (error) {

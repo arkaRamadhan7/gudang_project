@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -9,6 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import ToastNotifier from '@/app/components/ToastNotifier';
+import JenisGudangDropdown from '@/app/(main)/master/gudang/components/gudangDialogForm.js';
 import '@/styles/page/gudang.scss'
 
 const defaultForm = {
@@ -26,11 +26,6 @@ const GudangContent = () => {
   const [form, setForm] = useState(defaultForm);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [jenisGudangList, setJenisGudangList] = useState([
-    { label: 'Gudang Bahan Baku', value: 'Gudang Bahan Baku' },
-    { label: 'Gudang Barang Jadi', value: 'Gudang Barang Jadi' },
-    { label: 'Gudang Transit', value: 'Gudang Pendingin' },
-  ]);
 
   const fetchGudang = async () => {
     setIsLoading(true);
@@ -229,7 +224,9 @@ const GudangContent = () => {
       }
       visible={dialogMode !== null}
       onHide={resetFormAndCloseDialog}
-      className="gudang-dialog"
+      className="gudang-dialog custom-dialog"
+      contentClassName="dialog-content-dark"
+      blockScroll={true}
     >
       <form
         className="gudang-form"
@@ -250,6 +247,11 @@ const GudangContent = () => {
             onChange={handleChange}
             className="form-input"
             placeholder="Masukkan kode gudang"
+            style={{
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0',
+              border: '1px solid #3d566e'
+            }}
           />
         </div>
 
@@ -265,6 +267,11 @@ const GudangContent = () => {
             onChange={handleChange}
             className="form-input"
             placeholder="Masukkan nama gudang"
+            style={{
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0',
+              border: '1px solid #3d566e'
+            }}
           />
         </div>
 
@@ -280,6 +287,11 @@ const GudangContent = () => {
             onChange={handleChange}
             className="form-input"
             placeholder="Masukkan alamat gudang"
+            style={{
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0',
+              border: '1px solid #3d566e'
+            }}
           />
         </div>
 
@@ -288,15 +300,9 @@ const GudangContent = () => {
             <i className="pi pi-info-circle"></i>
             Jenis Gudang
           </label>
-          <Dropdown
-            id="KETERANGAN"
-            name="KETERANGAN"
-            value={form.KETERANGAN} 
-            options={jenisGudangList}
-            onChange={(e) => setForm(prev => ({ ...prev, KETERANGAN: e.value }))}
-            className="form-dropdown"
-            optionLabel="label"
-            optionValue="value"
+          <JenisGudangDropdown
+            value={form.KETERANGAN}
+            onChange={(value) => setForm(prev => ({ ...prev, KETERANGAN: value }))}
             placeholder="Pilih jenis gudang"
           />
         </div>
@@ -323,6 +329,120 @@ const GudangContent = () => {
     </Dialog>
 
     <ToastNotifier ref={toastRef} />
+    
+    <style jsx global>{`
+      .gudang-dialog .p-dialog-content {
+        background-color: #2c3e50 !important;
+      }
+      
+      .gudang-dialog .p-dialog-header {
+        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+      }
+      
+      .gudang-form .form-input {
+        background-color: #1e293b !important;
+        color: #e2e8f0 !important;
+        border: 1px solid #3d566e !important;
+      }
+      
+      .gudang-form .form-input:focus {
+        background-color: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+      }
+      
+      .gudang-form .form-input::placeholder {
+        color: #64748b !important;
+      }
+      
+      .p-dropdown-panel {
+        background: #1e293b !important;
+        border: 1px solid #3d566e !important;
+      }
+      
+      .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+        color: #94a3b8 !important;
+        background: transparent !important;
+      }
+      
+      .p-dropdown-panel .p-dropdown-items .p-dropdown-item:hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #e2e8f0 !important;
+      }
+      
+      .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+        background: rgba(59, 130, 246, 0.25) !important;
+        color: #e2e8f0 !important;
+      }
+      
+      /* Paginator Fix */
+      .p-paginator {
+        background: #34495e !important;
+        border: none !important;
+        border-top: 2px solid #3d566e !important;
+        padding: 16px !important;
+        border-radius: 0 0 12px 12px !important;
+      }
+      
+      .p-paginator .p-paginator-first,
+      .p-paginator .p-paginator-prev,
+      .p-paginator .p-paginator-next,
+      .p-paginator .p-paginator-last {
+        color: #cbd5e1 !important;
+        background: transparent !important;
+        border: 1px solid #3d566e !important;
+        border-radius: 8px !important;
+      }
+      
+      .p-paginator .p-paginator-first:not(.p-disabled):hover,
+      .p-paginator .p-paginator-prev:not(.p-disabled):hover,
+      .p-paginator .p-paginator-next:not(.p-disabled):hover,
+      .p-paginator .p-paginator-last:not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+      }
+      
+      .p-paginator .p-paginator-pages .p-paginator-page {
+        color: #cbd5e1 !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 8px !important;
+        min-width: 2.5rem !important;
+        height: 2.5rem !important;
+      }
+      
+      .p-paginator .p-paginator-pages .p-paginator-page:hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+        color: #3b82f6 !important;
+      }
+      
+      .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+        background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+        border-color: #3b82f6 !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+      }
+      
+      .p-paginator .p-paginator-current {
+        color: #94a3b8 !important;
+      }
+      
+      .p-paginator .p-dropdown {
+        background: #1e293b !important;
+        border: 1px solid #3d566e !important;
+      }
+      
+      .p-paginator .p-dropdown .p-dropdown-label {
+        color: #e2e8f0 !important;
+      }
+      
+      .p-paginator .p-dropdown .p-dropdown-trigger {
+        color: #94a3b8 !important;
+      }
+    `}</style>
   </div>
 );
 };
