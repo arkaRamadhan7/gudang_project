@@ -9,65 +9,53 @@
 @import "./_responsive";
 @import "./_utils";
 @import "./_typography";
+
 body {
-    /* 1. Warna background utama Anda */
-    --surface-ground: #303c4e; 
-
-    /* 2. Warna untuk Card, Sidebar, Dialog, dll. */
-    /* Saya buat sedikit lebih terang agar ada kontras */
-    --surface-card: #364559; 
-
-    /* Menyelaraskan variabel tema PrimeReact lainnya */
-    --surface-a: #303c4e;     /* Alias untuk background body */
-    --surface-b: #364559;     /* Alias untuk background Card/komponen */
-    
+    --surface-ground: #303c4e;
+    --surface-card: #364559;
+    --surface-a: #303c4e;
+    --surface-b: #364559;
 }
+
 .card {
     background: #303c4e !important;
+    margin-bottom: 0 !important;
 }
+
 .p-button {
     transition: all 0.2s ease-out;
 }
 
-/* 2. State hover: Saat kursor menyentuh */
 .p-button:hover {
-    /* "Timbul ke atas" */
     transform: translateY(-2px);
-
-    /* Bonus: Bayangan agar terlihat "mengambang" */
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
-
-    /* "Kontras naik" (hanya untuk background, ikon tetap putih)
-       Kita menimpa background dengan lapisan gradien putih transparan 15%.
-       Ini secara efektif mencerahkan warna asli tombol TANPA mempengaruhi ikon. */
     background-image: linear-gradient(
         rgba(255, 255, 255, 0.15), 
         rgba(255, 255, 255, 0.15)
     );
 }
+
 .p-datatable {
     background: #2A3A4D !important;
 }
 
-/* Header Tabel */
 .p-datatable .p-datatable-header {
     background: #2A3A4D !important;
     color: #E0E0E0 !important;
     border-bottom: 1px solid #35465C !important;
 }
 
-/* Body Tabel (setiap baris) */
 .p-datatable .p-datatable-tbody > tr {
     background: #2A3A4D !important;
     color: #E0E0E0 !important;
 }
 
-/* Paginator (nomor halaman di bawah) */
 .p-datatable .p-paginator {
     background: #2A3A4D !important;
     color: #E0E0E0 !important;
     border-top: 1px solid #35465C !important;
 }
+
 // Dashboard Variables - Dark Blue Theme
 $primary-color: #1e40af;
 $primary-dark: #1e3a8a;
@@ -89,6 +77,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: linear-gradient(135deg, $bg-dark 0%, $primary-dark 100%);
     min-height: 100vh;
     position: relative;
+    margin: 0;
+    row-gap: 1rem;
 
     &::before {
         content: '';
@@ -105,22 +95,18 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         padding-bottom: 0;
         margin-bottom: 0;
     }
-
-    margin: 0;
-    row-gap: 1rem;
 }
 
 // Welcome Card - Gradient Blue
 .card {
     border-radius: $border-radius;
     box-shadow: $card-shadow;
-    padding: 2rem;
+    padding: 1.5rem;
     background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
     border: 1px solid rgba(59, 130, 246, 0.3);
     transition: $transition;
     position: relative;
     overflow: hidden;
-    margin-bottom: 0 !important;
 
     &::before {
         content: '';
@@ -135,7 +121,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     h5 {
         color: white;
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 700;
         margin: 0;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -155,9 +141,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: $bg-card !important;
     border: 1px solid $border-color !important;
     backdrop-filter: blur(10px);
+    padding: 1.25rem !important;
+    border-radius: 12px !important;
     
     &:hover {
-        transform: translateY(-8px) scale(1.02);
+        transform: translateY(-6px) scale(1.02);
         border-color: $primary-light !important;
         box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3) !important;
     }
@@ -166,7 +154,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
     }
 
     .stats-info {
@@ -176,28 +164,28 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .stats-label {
         display: block;
         color: $text-secondary;
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
     }
 
     .stats-value {
         color: $text-primary;
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 800;
         line-height: 1.2;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .stats-icon {
-        width: 3.5rem;
-        height: 3.5rem;
+        width: 3rem;
+        height: 3rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
+        border-radius: 10px;
         flex-shrink: 0;
         position: relative;
         overflow: hidden;
@@ -212,7 +200,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         i {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             position: relative;
             z-index: 1;
         }
@@ -222,13 +210,14 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding-top: 1rem;
+        padding-top: 0.75rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 0.75rem;
     }
 
     .stats-change {
         font-weight: 700;
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         display: flex;
         align-items: center;
         gap: 0.25rem;
@@ -236,13 +225,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 
         i {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
     }
 
     .stats-note {
         color: $text-secondary;
-        font-size: 0.875rem;
+        font-size: 0.8rem;
     }
 }
 
@@ -250,7 +239,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .table-card {
     background: $bg-card !important;
     border: 1px solid $border-color !important;
-    padding: 1.5rem !important;
+    padding: 1.25rem !important;
+    border-radius: 12px !important;
 
     &:hover {
         border-color: rgba(59, 130, 246, 0.4) !important;
@@ -259,9 +249,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     h5 {
         color: $text-primary !important;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        margin: 0;
+        margin: 0 0 1rem 0;
         text-shadow: none;
     }
 }
@@ -275,13 +265,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .p-datatable-header {
         background: rgba(30, 41, 59, 0.5) !important;
         border: none !important;
-        padding: 1.25rem !important;
+        padding: 1rem !important;
         border-radius: 12px 12px 0 0;
-        border-bottom: 2px solid $border-color !important;
+        border-bottom: 1px solid $border-color !important;
 
         h5 {
             color: $text-primary;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin: 0;
         }
@@ -291,11 +281,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 background: $bg-secondary;
                 border: 1px solid $border-color;
                 color: $text-primary;
-                padding: 0.75rem 1rem 0.75rem 2.5rem;
-                border-radius: 10px;
-                font-size: 0.95rem;
+                padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+                border-radius: 8px;
+                font-size: 0.9rem;
                 transition: $transition;
-                width: 300px;
+                width: 280px;
 
                 &::placeholder {
                     color: $text-secondary;
@@ -310,15 +300,15 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 &:focus {
                     outline: none;
                     border-color: $primary-light;
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
                     background: rgba(30, 41, 59, 0.9);
                 }
             }
 
             i {
                 color: $text-secondary;
-                left: 0.75rem;
-                font-size: 1rem;
+                left: 0.6rem;
+                font-size: 0.9rem;
             }
         }
     }
@@ -328,20 +318,20 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: $bg-secondary !important;
         color: $text-primary !important;
         font-weight: 700;
-        border-bottom: 2px solid $border-color !important;
+        border-bottom: 1px solid $border-color !important;
         border-top: none !important;
-        padding: 1.25rem 1rem !important;
+        padding: 0.9rem 0.8rem !important;
         text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
         white-space: nowrap;
 
         &:first-child {
-            padding-left: 1.5rem !important;
+            padding-left: 1.2rem !important;
         }
 
         &:last-child {
-            padding-right: 1.5rem !important;
+            padding-right: 1.2rem !important;
         }
 
         .p-column-title {
@@ -351,8 +341,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         .p-sortable-column-icon {
             color: $text-secondary;
-            margin-left: 0.5rem;
-            font-size: 0.875rem;
+            margin-left: 0.4rem;
+            font-size: 0.8rem;
         }
 
         &.p-highlight {
@@ -375,18 +365,18 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         > tr {
             transition: $transition;
             background: transparent;
-            border-bottom: 1px solid rgba(71, 85, 105, 0.3) !important;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.2) !important;
 
             &:hover {
                 background: rgba(59, 130, 246, 0.08) !important;
-                transform: scale(1.005);
+                transform: scale(1.003);
                 box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
                 position: relative;
                 z-index: 1;
             }
 
             &:nth-child(even) {
-                background: rgba(15, 23, 42, 0.3);
+                background: rgba(15, 23, 42, 0.2);
 
                 &:hover {
                     background: rgba(59, 130, 246, 0.1) !important;
@@ -394,20 +384,20 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             td {
-                padding: 1rem !important;
+                padding: 0.85rem 0.8rem !important;
                 color: $text-secondary;
                 border: none !important;
-                font-size: 0.95rem;
+                font-size: 0.9rem;
                 vertical-align: middle;
 
                 &:first-child {
-                    padding-left: 1.5rem !important;
+                    padding-left: 1.2rem !important;
                     color: $text-primary;
                     font-weight: 600;
                 }
 
                 &:last-child {
-                    padding-right: 1.5rem !important;
+                    padding-right: 1.2rem !important;
                 }
             }
         }
@@ -416,9 +406,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     // Empty Message
     .p-datatable-emptymessage td {
         text-align: center;
-        padding: 3rem 1rem !important;
+        padding: 2rem 1rem !important;
         color: $text-secondary;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-style: italic;
     }
 
@@ -430,15 +420,15 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     .p-datatable-loading-icon {
         color: $primary-light !important;
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
 
     // Paginator
     .p-paginator {
         background: rgba(30, 41, 59, 0.5) !important;
         border: none !important;
-        border-top: 2px solid $border-color !important;
-        padding: 1rem 1.5rem !important;
+        border-top: 1px solid $border-color !important;
+        padding: 0.9rem 1.2rem !important;
         border-radius: 0 0 12px 12px;
         
         .p-paginator-first,
@@ -448,10 +438,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: $text-secondary !important;
             background: transparent !important;
             border: 1px solid $border-color !important;
-            border-radius: 8px;
-            min-width: 2.5rem;
-            height: 2.5rem;
+            border-radius: 6px;
+            min-width: 2.2rem;
+            height: 2.2rem;
             transition: $transition;
+            font-size: 0.85rem;
 
             &:not(.p-disabled):hover {
                 background: rgba(59, 130, 246, 0.15) !important;
@@ -469,12 +460,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 color: $text-secondary !important;
                 background: transparent !important;
                 border: 1px solid transparent;
-                border-radius: 8px;
-                min-width: 2.5rem;
-                height: 2.5rem;
-                margin: 0 0.25rem;
+                border-radius: 6px;
+                min-width: 2.2rem;
+                height: 2.2rem;
+                margin: 0 0.15rem;
                 transition: $transition;
                 font-weight: 600;
+                font-size: 0.85rem;
 
                 &:hover {
                     background: rgba(59, 130, 246, 0.15) !important;
@@ -495,7 +487,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         .p-dropdown {
             background: $bg-secondary !important;
             border: 1px solid $border-color !important;
-            border-radius: 8px;
+            border-radius: 6px;
             color: $text-primary !important;
             transition: $transition;
 
@@ -506,7 +498,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
             .p-dropdown-label {
                 color: $text-primary !important;
-                padding: 0.5rem 0.75rem;
+                padding: 0.5rem 0.6rem;
+                font-size: 0.9rem;
             }
 
             .p-dropdown-trigger {
@@ -516,11 +509,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         .p-paginator-current {
             color: $text-secondary !important;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             background: rgba(59, 130, 246, 0.08);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
         }
     }
 }
@@ -529,14 +522,15 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .p-dropdown-panel {
     background: $bg-secondary !important;
     border: 1px solid $border-color !important;
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
 
     .p-dropdown-items {
         .p-dropdown-item {
             color: $text-secondary !important;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 0.9rem;
             transition: $transition;
+            font-size: 0.9rem;
 
             &:hover {
                 background: rgba(59, 130, 246, 0.15) !important;
@@ -558,8 +552,10 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: 1px solid $border-color;
         color: $text-primary;
         box-shadow: $card-shadow-hover;
-        border-radius: 12px;
+        border-radius: 8px;
         backdrop-filter: blur(10px);
+        padding: 1rem;
+        font-size: 0.9rem;
 
         .p-toast-message-icon,
         .p-toast-icon-close {
@@ -602,24 +598,24 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .card {
-        padding: 1.5rem;
+        padding: 1.25rem;
 
         h5 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
         }
     }
 
     .stats-card {
         .stats-value {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
         }
 
         .stats-icon {
-            width: 3rem;
-            height: 3rem;
+            width: 2.75rem;
+            height: 2.75rem;
 
             i {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
         }
     }
@@ -636,23 +632,24 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 @media (max-width: 576px) {
     .grid {
         padding: 0.75rem;
+        row-gap: 0.75rem;
     }
 
     .card {
-        padding: 1.25rem;
+        padding: 1rem;
 
         h5 {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
         }
     }
 
     .stats-card {
         .stats-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
 
         .stats-value {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
         }
 
         .stats-icon {
@@ -660,50 +657,50 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             height: 2.5rem;
 
             i {
-                font-size: 1.25rem;
+                font-size: 1.15rem;
             }
         }
 
         .stats-footer {
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
     }
 
     .table-card {
-        padding: 1rem !important;
+        padding: 0.9rem !important;
     }
 
     .custom-datatable {
         .p-datatable-header {
-            padding: 1rem !important;
+            padding: 0.8rem !important;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
 
             h5 {
-                font-size: 1.25rem;
+                font-size: 1.1rem;
             }
         }
 
         .p-datatable-thead > tr > th,
         .p-datatable-tbody > tr > td {
-            padding: 0.75rem 0.5rem !important;
-            font-size: 0.85rem;
+            padding: 0.6rem 0.5rem !important;
+            font-size: 0.8rem;
 
             &:first-child {
-                padding-left: 1rem !important;
+                padding-left: 0.9rem !important;
             }
 
             &:last-child {
-                padding-right: 1rem !important;
+                padding-right: 0.9rem !important;
             }
         }
 
         .p-paginator {
-            padding: 1rem !important;
+            padding: 0.8rem !important;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.4rem;
 
             .p-paginator-current {
                 width: 100%;
@@ -739,29 +736,29 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         z-index: 1;
         background: $bg-card;
-        padding: 3rem;
+        padding: 2.5rem;
         border-radius: $border-radius;
         box-shadow: $card-shadow-hover;
         border: 1px solid $border-color;
 
         .pi-spinner {
             color: $primary-light;
-            font-size: 3rem !important;
+            font-size: 2.5rem !important;
             margin-bottom: 1rem;
         }
 
         p {
             color: $text-primary;
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            margin: 1rem 0;
+            margin: 0.75rem 0;
         }
 
         small {
             color: $text-secondary !important;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             display: block;
-            margin-top: 1rem;
+            margin-top: 0.75rem;
         }
     }
 }
@@ -804,7 +801,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 .table-card {
     animation: fadeIn 0.6s ease-out;
-    animation-delay: 0.5s;
+    animation-delay: 0.4s;
 }
 
 .mb-0 {

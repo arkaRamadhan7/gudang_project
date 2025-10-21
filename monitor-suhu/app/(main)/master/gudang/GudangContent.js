@@ -9,7 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import ToastNotifier from '@/app/components/ToastNotifier';
 import JenisGudangDropdown from '@/app/(main)/master/gudang/components/gudangDialogForm.js';
-import '@/styles/page/gudang.scss'
+import '@/styles/page/gudang.scss';
 
 const defaultForm = {
   KODE: '',
@@ -213,120 +213,83 @@ const GudangContent = () => {
         />
       </DataTable>
     </div>
+<Dialog
+  key={dialogMode}
+  header={dialogMode === 'add' ? 'Tambah Gudang' : 'Edit Gudang'}
+  visible={dialogMode !== null}
+  style={{ width: '400px' }}
+  modal
+  onHide={() => setDialogMode(null)}
+>
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      handleSubmit();
+    }}
+  >
+    <div className="mb-3">
+      <label htmlFor="KODE">Kode Gudang</label>
+      <InputText
+        id="KODE"
+        name="KODE"
+        value={form.KODE}
+        onChange={handleChange}
+        type="text"
+        className="w-full mt-3"
+        placeholder="Masukkan kode gudang"
+      />
+    </div>
 
-    <Dialog
-      key={dialogMode}
-      header={
-        <div className="dialog-header">
-          <i className={`pi ${dialogMode === 'edit' ? 'pi-pencil' : 'pi-plus-circle'}`}></i>
-          <span>{dialogMode === 'edit' ? 'Edit Gudang' : 'Tambah Gudang'}</span>
-        </div>
-      }
-      visible={dialogMode !== null}
-      onHide={resetFormAndCloseDialog}
-      className="gudang-dialog custom-dialog"
-      contentClassName="dialog-content-dark"
-      blockScroll={true}
-    >
-      <form
-        className="gudang-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div className="form-group">
-          <label htmlFor="KODE" className="form-label">
-            <i className="pi pi-tag"></i>
-            Kode
-          </label>
-          <InputText
-            id="KODE"
-            name="KODE"
-            value={form.KODE}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="Masukkan kode gudang"
-            style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              border: '1px solid #3d566e'
-            }}
-          />
-        </div>
+    <div className="mb-3">
+      <label htmlFor="nama">Nama Gudang</label>
+      <InputText
+        id="nama"
+        name="nama"
+        value={form.nama}
+        onChange={handleChange}
+        type="text"
+        className="w-full mt-3"
+        placeholder="Masukkan nama gudang"
+      />
+    </div>
 
-        <div className="form-group">
-          <label htmlFor="nama" className="form-label">
-            <i className="pi pi-building"></i>
-            Nama
-          </label>
-          <InputText
-            id="nama"
-            name="nama"
-            value={form.nama}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="Masukkan nama gudang"
-            style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              border: '1px solid #3d566e'
-            }}
-          />
-        </div>
+    <div className="mb-3">
+      <label htmlFor="alamat">Alamat</label>
+      <InputText
+        id="alamat"
+        name="alamat"
+        value={form.alamat}
+        onChange={handleChange}
+        type="text"
+        className="w-full mt-3"
+        placeholder="Masukkan alamat gudang"
+      />
+    </div>
 
-        <div className="form-group">
-          <label htmlFor="alamat" className="form-label">
-            <i className="pi pi-map-marker"></i>
-            Alamat
-          </label>
-          <InputText
-            id="alamat"
-            name="alamat"
-            value={form.alamat}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="Masukkan alamat gudang"
-            style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              border: '1px solid #3d566e'
-            }}
-          />
-        </div>
+    <div className="mb-3">
+      <label htmlFor="KETERANGAN">Jenis Gudang</label>
+      <JenisGudangDropdown
+        value={form.KETERANGAN}
+        onChange={(value) => setForm((prev) => ({ ...prev, KETERANGAN: value }))}
+        placeholder="Pilih jenis gudang"
+      />
+    </div>
 
-        <div className="form-group">
-          <label htmlFor="KETERANGAN" className="form-label">
-            <i className="pi pi-info-circle"></i>
-            Jenis Gudang
-          </label>
-          <JenisGudangDropdown
-            value={form.KETERANGAN}
-            onChange={(value) => setForm(prev => ({ ...prev, KETERANGAN: value }))}
-            placeholder="Pilih jenis gudang"
-          />
-        </div>
 
-        <div className="form-footer">
-          <Button
-            type="button"
-            label="Batal"
-            icon="pi pi-times"
-            severity="secondary"
-            className="btn-cancel"
-            onClick={resetFormAndCloseDialog}
-          />
-          <Button
-            type="submit"
-            label="Simpan"
-            icon="pi pi-save"
-            severity="success"
-            className="btn-submit"
-            disabled={isSubmitting}
-          />
-        </div>
-      </form>
-    </Dialog>
+    <div className="flex justify-end">
+      <Button
+        type="submit"
+        label="Submit"
+        severity="success"
+        icon="pi pi-save"
+        disabled={isSubmitting}
+      />
+    </div>
+  </form>
+</Dialog>
+
+<ToastNotifier ref={toastRef} />
+
 
     <ToastNotifier ref={toastRef} />
     

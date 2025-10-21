@@ -11,6 +11,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
 import { useAuth } from '@/app/(auth)/context/authContext';
+import '@/styles/page/kirim-barang.scss'; 
 
 export default function MutasiKirimData() {
   const [kirimData, setKirimData] = useState([]);
@@ -50,7 +51,7 @@ export default function MutasiKirimData() {
 
   const fetchGudang = useCallback(async () => {
     try {
-      const res = await fetch("/api/gudang/nama");
+      const res = await fetch("/api/nama-gudang");
       const json = await res.json();
       if (json.status === "00") {
         setGudangOptions(json.namaGudang.map(nama => ({ label: nama, value: nama })));
@@ -74,12 +75,10 @@ export default function MutasiKirimData() {
     }
   }, []);
 
-  // Fungsi untuk fetch produk berdasarkan gudang
   const fetchProdukByGudang = useCallback(async (gudangKirim = null) => {
     try {
       let url = "/api/stock";
       if (gudangKirim) {
-        // Tambahkan parameter gudang ke URL
         url = `/api/stock?gudang=${encodeURIComponent(gudangKirim)}`;
       }
       
@@ -87,7 +86,7 @@ export default function MutasiKirimData() {
       const json = await res.json();
       if (json.status === "00") {
         const produkData = json.data
-          .filter(item => item.GUDANG) // Filter hanya produk yang memiliki gudang
+          .filter(item => item.GUDANG)
           .map(item => ({
             ID: item.ID,
             KODE: item.KODE,
@@ -118,7 +117,7 @@ export default function MutasiKirimData() {
       const json = await res.json();
       if (json.status === "00") {
         const produkData = json.data
-          .filter(item => item.GUDANG) // Filter hanya produk yang memiliki gudang
+          .filter(item => item.GUDANG)
           .map(item => ({
             ID: item.ID,
             KODE: item.KODE,
@@ -174,19 +173,13 @@ export default function MutasiKirimData() {
     fetchKirimData();
   }, []);
 
-  // Filter produk saat gudang kirim berubah
   useEffect(() => {
     if (formData.GUDANG_KIRIM) {
-      // Filter produk berdasarkan gudang kirim, hanya produk yang memiliki gudang
       const filtered = produkList.filter(produk => 
         produk.GUDANG && produk.GUDANG === formData.GUDANG_KIRIM
       );
       setFilteredProdukList(filtered);
-      
-      // Atau fetch ulang dari API dengan parameter gudang
-      // fetchProdukByGudang(formData.GUDANG_KIRIM);
     } else {
-      // Jika tidak ada gudang dipilih, tampilkan semua produk yang memiliki gudang
       const productsWithGudang = produkList.filter(produk => produk.GUDANG);
       setFilteredProdukList(productsWithGudang);
     }
@@ -195,7 +188,6 @@ export default function MutasiKirimData() {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Reset barcode input jika gudang kirim berubah
     if (field === 'GUDANG_KIRIM') {
       setFormData(prev => ({ ...prev, BARCODE: '' }));
     }
@@ -225,7 +217,6 @@ export default function MutasiKirimData() {
   };
 
   const handleSelect = (selectedProduct) => {
-    // Validasi gudang kirim harus sudah dipilih
     if (!formData.GUDANG_KIRIM) {
       toast.current?.show({
         severity: 'warn',
@@ -284,7 +275,6 @@ export default function MutasiKirimData() {
   const handleBarcodeEnter = (e) => {
     if (e.key !== 'Enter') return;
     
-    // Validasi gudang kirim harus sudah dipilih
     if (!formData.GUDANG_KIRIM) {
       toast.current?.show({
         severity: 'warn',
@@ -297,8 +287,7 @@ export default function MutasiKirimData() {
 
     const code = (formData.BARCODE || '').toString().trim();
     if (!code) return;
-    
-    // Cari dari filtered list (berdasarkan gudang) dan pastikan produk memiliki gudang
+  
     const found = filteredProdukList.find(p => 
       (p.BARCODE || '').toString() === code && p.GUDANG
     );
@@ -427,66 +416,77 @@ export default function MutasiKirimData() {
   };
 
   return (
-    <div className="card p-4">
+    // ✅ GUNAKAN CLASS BIASA, BUKAN styles.namaClass
+    <div className="mutasi-container">
       <Toast ref={toast} />
-      <h2 className="text-xl font-bold mb-4">Kirim Barang</h2>
+      
+      {/* HEADER SECTION */}
+      <div className="mutasi-header">
+        <h2>Kirim Barang</h2>
+      </div>
 
-      <div className="mb-4 p-4 border rounded-lg bg-gray-50">
-        {/* Form Input */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">Dari Gudang *</label>
+      {/* FORM SECTION */}
+      <div className="mutasi-form">
+        
+        {/* Grid 2 Kolom - Gudang */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          <div className="mutasi-form-group">
+            <label>Dari Gudang</label>
             <Dropdown 
               placeholder="Pilih Gudang" 
               options={gudangOptions} 
               value={formData.GUDANG_KIRIM} 
               onChange={(e) => handleInputChange('GUDANG_KIRIM', e.value)} 
               showClear 
-              className="w-full"
             />
             {!formData.GUDANG_KIRIM && (
-              <small className="text-orange-600">Pilih gudang untuk memfilter produk</small>
+              <small className="text-warning">
+                Pilih gudang untuk memfilter produk
+              </small>
             )}
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Ke Gudang</label>
+
+          <div className="mutasi-form-group">
+            <label>Ke Gudang</label>
             <Dropdown 
               placeholder="Pilih Gudang" 
               options={gudangOptions} 
               value={formData.GUDANG_TERIMA} 
               onChange={(e) => handleInputChange('GUDANG_TERIMA', e.value)} 
               showClear 
-              className="w-full"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">Tanggal</label>
+        {/* Grid 3 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-3">
+          <div className="mutasi-form-group">
+            <label>Tanggal</label>
             <Calendar 
               placeholder="Tanggal Kirim" 
               value={formData.TGL} 
               onChange={(e) => handleInputChange('TGL', e.value)} 
               showIcon 
               dateFormat="dd/mm/yy" 
-              className="w-full" 
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Faktur</label>
+
+          <div className="mutasi-form-group">
+            <label>Faktur</label>
             <InputText 
               placeholder="Faktur" 
               value={formData.FAKTUR} 
               onChange={(e) => handleInputChange('FAKTUR', e.target.value)} 
-              className="w-full" 
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
+
+          <div className="mutasi-form-group">
+            <label>
               BARCODE 
               {formData.GUDANG_KIRIM && (
-                <span className="text-green-600 text-xs ml-1">({formData.GUDANG_KIRIM})</span>
+                <small className="text-success">
+                  ({formData.GUDANG_KIRIM})
+                </small>
               )}
             </label>
             <div className="p-inputgroup">
@@ -505,43 +505,31 @@ export default function MutasiKirimData() {
               />
             </div>
             {filteredProdukList.length > 0 && formData.GUDANG_KIRIM && (
-              <small className="text-blue-600">
+              <small className="text-info">
                 {filteredProdukList.length} produk tersedia di {formData.GUDANG_KIRIM}
               </small>
             )}
           </div>
         </div>
 
-        {/* Dialog Pilih Produk */}
-        <Dialog 
-          header={`Pilih Produk - ${formData.GUDANG_KIRIM || 'Semua Gudang'}`} 
-          visible={visible} 
-          style={{ width: '70vw' }} 
-          onHide={() => setVisible(false)} 
-          position="center"
-        >
-          <DataTable value={filteredProdukList} paginator rows={10} size="small">
-            <Column field="KODE" header="KODE" sortable/>
-            <Column field="BARCODE" header="BARCODE"/>
-            <Column field="NAMA" header="NAMA"/>
-            <Column field="QTY" header="STOCK"/>
-            <Column field="SATUAN" header="SATUAN"/>
-            <Column field="GUDANG" header="GUDANG" />
-            <Column field="HJ" header="HARGA" body={(rowData) => `Rp ${(rowData.HJ ?? 0).toLocaleString('id-ID')}`} />
-            <Column header="AKSI" body={(rowData) => <Button label="Pilih" icon="pi pi-check" size="small" onClick={() => handleSelect(rowData)} />} />
-          </DataTable>
-        </Dialog>
-
-        {/* Tabel Kirim Data */}
-        <div className='mt-3'>
-          <DataTable value={kirimData} paginator rows={10} size="small" loading={loading} scrollable emptyMessage="Tidak ada data yang ditemukan">
+        {/* TABLE SECTION */}
+        <div className="mutasi-table">
+          <DataTable 
+            value={kirimData} 
+            paginator 
+            rows={10} 
+            size="small" 
+            loading={loading} 
+            scrollable 
+            emptyMessage="Tidak ada data yang ditemukan"
+          >
             <Column field='NAMA' header="NAMA" style={{ minWidth: '200px' }} />
             <Column field="FAKTUR" header="FAKTUR" style={{ minWidth: '120px' }} />
             <Column field="TGL" header="TANGGAL" style={{ minWidth: '100px' }} />
             <Column field="GUDANG_KIRIM" header="DARI GUDANG" style={{ minWidth: '120px' }} />
             <Column field="GUDANG_TERIMA" header="KE GUDANG" style={{ minWidth: '120px' }} />
             <Column field="KODE" header="KODE" style={{ minWidth: '80px' }} />
-            <Column field="QTY" header="QTY" body={qtyBodyTemplate} style={{ minWidth: '80px', padding: '0 8px' }} />
+            <Column field="QTY" header="QTY" body={qtyBodyTemplate} style={{ minWidth: '80px' }} />
             <Column field="BARCODE" header="BARCODE" style={{ minWidth: '100px' }} /> 
             <Column field="SATUAN" header="SATUAN" style={{ minWidth: '80px' }} />    
             <Column field="USERNAME" header="USER" style={{ minWidth: '100px' }} />
@@ -558,17 +546,59 @@ export default function MutasiKirimData() {
               )}
             />
           </DataTable>
-          <div className="w-full flex mt-3 justify-end gap-2">
+
+          {/* Submit Button */}
+          <div className="mutasi-button-wrapper">
             <Button
               label="Simpan"
               icon="pi pi-check"
               onClick={handleSubmit}
               loading={submitLoading}
-              className="p-button-success ml-auto"
+              className="p-button-success"
             />
           </div>
         </div>
       </div>
+
+      {/* DIALOG */}
+      <Dialog 
+        header={`Pilih Produk - ${formData.GUDANG_KIRIM || 'Semua Gudang'}`} 
+        visible={visible} 
+        style={{ width: '70vw' }} 
+        onHide={() => setVisible(false)} 
+        position="center"
+        className="mutasi-dialog"
+      >
+        <DataTable 
+          value={filteredProdukList} 
+          paginator 
+          rows={10} 
+          size="small"
+        >
+          <Column field="KODE" header="KODE" sortable/>
+          <Column field="BARCODE" header="BARCODE"/>
+          <Column field="NAMA" header="NAMA"/>
+          <Column field="QTY" header="STOCK"/>
+          <Column field="SATUAN" header="SATUAN"/>
+          <Column field="GUDANG" header="GUDANG" />
+          <Column 
+            field="HJ" 
+            header="HARGA" 
+            body={(rowData) => `Rp ${(rowData.HJ ?? 0).toLocaleString('id-ID')}`} 
+          />
+          <Column 
+            header="AKSI" 
+            body={(rowData) => (
+              <Button 
+                label="Pilih" 
+                icon="pi pi-check" 
+                size="small" 
+                onClick={() => handleSelect(rowData)} 
+              />
+            )} 
+          />
+        </DataTable>
+      </Dialog>
     </div>
   );
-}
+};

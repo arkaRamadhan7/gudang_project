@@ -216,7 +216,7 @@ const AppMenu = () => {
                 },
                 {
                     label: "Laporan Penjualan Toko",
-                    icon: "pi-cart",
+                    icon: "pi pi-chart-line",
                     to: "/laporan/data-penjualan"
                 }
             ]
