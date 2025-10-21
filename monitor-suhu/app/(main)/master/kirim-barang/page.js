@@ -427,13 +427,13 @@ export default function MutasiKirimData() {
   };
 
   return (
-    <div className="card p-4">
+    <div className="card">
       <Toast ref={toast} />
       <h2 className="text-xl font-bold mb-4">Kirim Barang</h2>
 
       <div className="mb-4 p-4 border rounded-lg bg-gray-50">
         {/* Form Input */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div>
           <div>
             <label className="block text-sm font-medium mb-1">Dari Gudang *</label>
             <Dropdown 
@@ -461,7 +461,7 @@ export default function MutasiKirimData() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div>
           <div>
             <label className="block text-sm font-medium mb-1">Tanggal</label>
             <Calendar 
