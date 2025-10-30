@@ -1,0 +1,645 @@
+// ===================================
+// PROFILE PAGE - STYLE KIRIM BARANG
+// Simpan di: styles/page/profile.scss
+// ===================================
+
+// Variables - Dark Blue Theme (sama dengan kirim-barang)
+$primary-color: #253c85;
+$primary-dark: #1e336d;
+$primary-light: #285091;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$info-color: #3b82f6;
+$bg-dark: #0f172a;
+$bg-secondary: #1e293b;
+$bg-card: #334155;
+$text-primary: #f1f5f9;
+$text-secondary: #cbd5e1;
+$border-color: #475569;
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ===================================
+// MAIN CONTAINER - COMPACT (sama dengan kirim-barang)
+// ===================================
+.profile-page-container {
+  background: linear-gradient(135deg, $bg-dark 0%, $primary-dark 100%);
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 250px;
+    background: linear-gradient(180deg, rgba(32, 51, 110, 0.2) 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
+
+// ===================================
+// HEADER - COMPACT (sama dengan kirim-barang)
+// ===================================
+.profile-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  border-radius: $border-radius;
+  padding: 14px 18px; // Compact
+  margin-bottom: 14px;
+  box-shadow: $shadow-lg;
+  border: 1px solid rgba(40, 72, 124, 0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+
+    .header-text {
+      h3 {
+        font-size: 19px; // Compact
+        font-weight: 700;
+        color: white;
+        margin: 0 0 4px 0;
+        letter-spacing: -0.3px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+
+      .p-button {
+        padding: 8px 16px !important;
+        font-size: 13px;
+        font-weight: 600;
+
+        &.p-button-secondary {
+          background: rgba(255, 255, 255, 0.2) !important;
+          border: 1px solid rgba(255, 255, 255, 0.3) !important;
+          color: rgb(69, 59, 126) !important;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+          }
+        }
+
+        &.p-button-success {
+          background: $success-color !important;
+          border: 1px solid $success-color !important;
+
+          &:hover {
+            background: darken($success-color, 8%) !important;
+          }
+        }
+
+        &.p-button-primary {
+          background: rgba(66, 87, 156, 0.9) !important;
+          border: 1px solid rgb(56, 46, 99) !important;
+          color: $primary-color !important;
+
+          &:hover {
+            background: white !important;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+}
+
+// ===================================
+// CARDS SECTION - COMPACT
+// ===================================
+.profile-cards {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ===================================
+// PROFILE CARD (LEFT) - COMPACT
+// ===================================
+.profile-avatar-card {
+  background: $bg-card;
+  border-radius: $border-radius;
+  padding: 20px; // Compact
+  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
+  height: fit-content;
+
+  &:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+  }
+
+  .avatar-wrapper {
+    text-align: center;
+    margin-bottom: 16px;
+
+    .avatar-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 12px;
+
+      .p-avatar {
+        width: 100px !important;
+        height: 100px !important;
+        background: linear-gradient(135deg, $primary-color, $primary-light) !important;
+        border: 3px solid rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+
+        img {
+          object-fit: cover;
+        }
+      }
+
+      .avatar-upload-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+
+        .p-fileupload-choose {
+          width: 36px !important;
+          height: 36px !important;
+          padding: 0 !important;
+          border-radius: 50% !important;
+          background: $primary-color !important;
+          border: 2px solid white !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+          .p-button-icon {
+            font-size: 14px;
+          }
+
+          &:hover {
+            background: $primary-light !important;
+            transform: scale(1.1);
+          }
+        }
+      }
+    }
+
+    h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 8px 0;
+    }
+
+    .p-badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .p-divider {
+    margin: 16px 0;
+    border-color: rgba(71, 85, 105, 0.3);
+  }
+
+  .profile-info {
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .info-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-secondary;
+        flex-shrink: 0;
+      }
+
+      .info-value {
+        font-size: 13px;
+        color: $text-primary;
+        text-align: right;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+// ===================================
+// FORM CARD (RIGHT) - COMPACT
+// ===================================
+.profile-form-card {
+  background: $bg-card;
+  border-radius: $border-radius;
+  padding: 20px; // Compact
+  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
+
+  &:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+  }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px; // Compact
+    margin-bottom: 14px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .form-field {
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 5px;
+
+        .text-red-500 {
+          color: $danger-color;
+          margin-left: 2px;
+        }
+      }
+
+      .p-inputtext,
+      .p-dropdown {
+        width: 100%;
+        background: $bg-secondary !important;
+        border: 1px solid $border-color !important;
+        color: $text-primary !important;
+        border-radius: 8px;
+        font-size: 13px;
+        padding: 8px 12px !important;
+        transition: $transition;
+
+        &:enabled:focus,
+        &:not(.p-disabled).p-focus {
+          outline: none !important;
+          border-color: $primary-light !important;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+          background: $bg-secondary !important;
+        }
+
+        &:enabled:hover,
+        &:not(.p-disabled):hover {
+          border-color: $primary-light !important;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          background: rgba(15, 23, 42, 0.5) !important;
+          cursor: not-allowed;
+        }
+
+        &::placeholder {
+          color: #64748b !important;
+          opacity: 0.7;
+        }
+      }
+
+      // Full width field
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  // Logout Button Section
+  .logout-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(71, 85, 105, 0.3);
+
+    .p-button-danger {
+      background: $danger-color !important;
+      border: 1px solid $danger-color !important;
+      padding: 10px 20px !important;
+      font-size: 14px;
+      font-weight: 600;
+
+      &:hover:not(:disabled) {
+        background: darken($danger-color, 8%) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  // Changes Warning
+  .changes-warning {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    i {
+      color: $warning-color;
+      font-size: 16px;
+    }
+
+    span {
+      color: #fbbf24;
+      font-size: 13px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ===================================
+// LOADING STATE
+// ===================================
+.profile-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: linear-gradient(135deg, $bg-dark 0%, $primary-dark 100%);
+  border-radius: $border-radius;
+
+  .p-progress-spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  p {
+    margin-top: 16px;
+    color: $text-secondary;
+    font-size: 14px;
+  }
+}
+
+// ===================================
+// TOAST CUSTOM STYLING
+// ===================================
+.p-toast {
+  .p-toast-message {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-primary;
+    box-shadow: $shadow-lg;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    padding: 12px 14px;
+    font-size: 13px;
+
+    .p-toast-message-icon,
+    .p-toast-icon-close {
+      color: $text-primary;
+    }
+
+    &.p-toast-message-success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+
+      .p-toast-message-icon {
+        color: $success-color;
+      }
+    }
+
+    &.p-toast-message-error {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+
+      .p-toast-message-icon {
+        color: $danger-color;
+      }
+    }
+
+    &.p-toast-message-warn {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+
+      .p-toast-message-icon {
+        color: $warning-color;
+      }
+    }
+
+    &.p-toast-message-info {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+
+      .p-toast-message-icon {
+        color: $info-color;
+      }
+    }
+  }
+}
+
+// ===================================
+// CONFIRM DIALOG
+// ===================================
+.p-confirm-dialog {
+  background: $bg-card !important;
+  border: 1px solid $border-color !important;
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+
+  .p-dialog-header {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    color: white;
+    border-radius: $border-radius $border-radius 0 0;
+    padding: 14px 18px;
+    border: none;
+
+    .p-dialog-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .p-dialog-header-icon {
+      color: white !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    background: $bg-card !important;
+    color: $text-primary !important;
+    padding: 20px !important;
+    font-size: 14px;
+    border-radius: 0 0 $border-radius $border-radius;
+
+    .p-confirm-dialog-icon {
+      color: $warning-color !important;
+      font-size: 2.5rem !important;
+    }
+
+    .p-confirm-dialog-message {
+      color: $text-primary !important;
+      margin-left: 1rem;
+    }
+  }
+
+  .p-dialog-footer {
+    background: $bg-card !important;
+    border-top: 1px solid rgba(71, 85, 105, 0.3);
+    padding: 12px 18px !important;
+
+    .p-button {
+      padding: 8px 16px !important;
+      font-size: 13px;
+      font-weight: 600;
+
+      &.p-button-success {
+        background: $success-color !important;
+        border-color: $success-color !important;
+      }
+
+      &.p-button-danger {
+        background: $danger-color !important;
+        border-color: $danger-color !important;
+      }
+    }
+  }
+}
+
+// ===================================
+// BADGE COLORS
+// ===================================
+.p-badge {
+  &.p-badge-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+  }
+
+  &.p-badge-warning {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+  }
+
+  &.p-badge-info {
+    background: linear-gradient(135deg, $primary-color, $primary-light);
+  }
+}
+
+// ===================================
+// RESPONSIVE DESIGN
+// ===================================
+@media (max-width: 768px) {
+  .profile-page-container {
+    padding: 12px;
+  }
+
+  .profile-header {
+    padding: 12px 14px;
+
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+
+      .header-text h3 {
+        font-size: 17px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  .profile-avatar-card,
+  .profile-form-card {
+    padding: 16px;
+  }
+
+  .profile-avatar-card {
+    .avatar-wrapper .avatar-container .p-avatar {
+      width: 80px !important;
+      height: 80px !important;
+    }
+  }
+
+  .profile-form-card {
+    .card-title {
+      font-size: 16px;
+    }
+  }
+}
+
+// ===================================
+// ANIMATIONS
+// ===================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-page-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.profile-cards {
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.15s;
+}

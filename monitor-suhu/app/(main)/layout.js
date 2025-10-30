@@ -1,4 +1,8 @@
 import Layout from '../../layout/layout';
+import 'primereact/resources/themes/lara-light-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import '@/styles/global.scss';
 
 export const metadata = {
   title: 'Inventory Management System',
@@ -58,7 +62,7 @@ export default function AppLayout({ children }) {
           .layout-topbar *,
           .layout-topbar-logo,
           .layout-topbar-button {
-            color: #f1f5f9 !important;
+            color: #eaeef3ff !important;
           }
           h1, h2, h3, h4, h5, h6 {
             color: #f1f5f9 !important;

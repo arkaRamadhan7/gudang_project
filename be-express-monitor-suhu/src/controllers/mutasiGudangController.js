@@ -1,4 +1,4 @@
-
+cd
 import {db} from "../core/config/knex.js";
 import { format } from "date-fns";
 import { parse } from "dotenv";

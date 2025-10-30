@@ -53,7 +53,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
     border-radius: $border-radius;
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
     box-shadow: $shadow-lg;
     border: 1px solid rgba(59, 130, 246, 0.3);
     position: relative;
@@ -130,7 +130,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   .gudang-content {
     background: #2c3e50;
     border-radius: $border-radius;
-    padding: 24px;
+    padding: 12px 24px;
     box-shadow: $shadow-md;
     border: 1px solid #34495e;
     position: relative;
@@ -169,7 +169,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-top: none !important;
         border-left: none !important;
         border-right: none !important;
-        padding: 14px 12px;
+        padding: 10px 8px;
       }
 
       // Table Body
@@ -198,7 +198,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
           > td {
-            padding: 14px 12px;
+            padding: 10px 8px;
             color: #94a3b8 !important;
             font-size: 0.95rem;
             border: none !important;
@@ -282,7 +282,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: #34495e !important;
         border: none !important;
         border-top: 2px solid #3d566e !important;
-        padding: 16px;
+        padding: 12px;
         border-radius: 0 0 12px 12px;
 
         :global(.p-paginator-first),
@@ -342,7 +342,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         text-align: center;
         color: $text-secondary;
         font-style: italic;
-        padding: 32px;
+        padding: 24px;
       }
     }
   }
@@ -357,9 +357,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   :global(.p-dialog-header) {
     background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
-    color: white;
+    color: rgb(39, 52, 95);
     border-radius: $border-radius $border-radius 0 0;
-    padding: 20px 24px;
+    padding: 16px 24px;
     border: none;
 
     .dialog-header {
@@ -391,7 +391,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   :global(.p-dialog-content) {
-    padding: 24px;
+    padding: 16px;
     background: #2c3e50 !important;
     border-radius: 0 0 $border-radius $border-radius;
   }
@@ -399,7 +399,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   // Form Styles
   .gudang-form {
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 12px;
 
       .form-label {
         display: flex;
@@ -407,7 +407,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         gap: 8px;
         font-weight: 600;
         color: #e2e8f0 !important;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-size: 14px;
 
         .pi {
@@ -420,9 +420,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
         border: 1px solid #3d566e !important;
         background: #1e293b !important;
-        color: #e2e8f0 !important;
-        border-radius: 10px;
-        padding: 12px;
+        color: #44648d !important;
+        border-radius: 8px;
+        padding: 10px;
         font-size: 14px;
         transition: $transition;
 
@@ -448,7 +448,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
         background: #1e293b !important;
         border: 1px solid #3d566e !important;
-        border-radius: 10px;
+        border-radius: 8px;
         transition: $transition;
 
         &:not(:global(.p-disabled)):hover {
@@ -462,7 +462,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         :global(.p-dropdown-label) {
-          padding: 12px;
+          padding: 10px;
           color: #e2e8f0 !important;
           background: transparent !important;
 
@@ -482,19 +482,20 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .form-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 2px solid #3d566e;
+      gap: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #3d566e;
 
       .btn-cancel,
       .btn-submit {
-        padding: 12px 24px;
+        padding: 10px 20px;
         font-weight: 600;
-        border-radius: 10px;
+        border-radius: 8px;
         transition: $transition;
         border: none;
         box-shadow: $shadow-sm;
+        font-size: 14px;
 
         &:enabled:hover {
           transform: translateY(-2px);
@@ -536,7 +537,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 :global(.p-dropdown-panel) {
   background: #1e293b !important;
   border: 1px solid #3d566e !important;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
 
   :global(.p-dropdown-items) {
@@ -544,7 +545,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     :global(.p-dropdown-item) {
       color: #94a3b8 !important;
-      padding: 0.75rem 1rem;
+      padding: 8px 12px;
       transition: $transition;
       background: transparent !important;
 
@@ -572,8 +573,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid $border-color;
     color: $text-primary;
     box-shadow: $shadow-lg;
-    border-radius: 12px;
+    border-radius: 8px;
     backdrop-filter: blur(10px);
+    padding: 12px 16px;
 
     :global(.p-toast-message-icon),
     :global(.p-toast-icon-close) {
@@ -637,7 +639,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .gudang-content {
-      padding: 16px;
+      padding: 12px 16px;
       overflow-x: auto;
     }
   }
@@ -649,6 +651,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .gudang-form {
       .form-footer {
         flex-direction: column;
+        gap: 8px;
 
         .btn-cancel,
         .btn-submit {
@@ -683,4 +686,235 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .gudang-content {
   animation: fadeIn 0.6s ease-out;
   animation-delay: 0.2s;
+}
+
+// Custom Dialog
+:global(.custom-dialog) {
+  background-color: #0f172a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6) !important;
+  color: #e2e8f0 !important;
+
+  .p-dialog-header {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 16px 24px;
+
+    i {
+      color: #38bdf8;
+    }
+  }
+
+  .gudang-form {
+    background: transparent;
+    padding: 0;
+  }
+
+  .form-label {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 6px;
+
+    i {
+      color: #60a5fa;
+    }
+  }
+
+  .form-input,
+  .form-dropdown {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+    border-radius: 8px;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+
+    &:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+
+  .p-dropdown-label {
+    color: #f1f5f9 !important;
+    padding: 10px;
+  }
+
+  .form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #3d566e;
+
+    .btn-cancel {
+      background-color: #334155 !important;
+      color: #e2e8f0 !important;
+      border: none !important;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: $transition;
+
+      &:hover {
+        background-color: #475569 !important;
+      }
+    }
+
+    .btn-submit {
+      background-color: #22c55e !important;
+      border: none !important;
+      color: #fff !important;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: $transition;
+
+      &:hover {
+        background-color: #16a34a !important;
+      }
+    }
+  }
+}
+
+// Paginator Global Override
+:global {
+  .p-paginator {
+    background: #34495e !important;
+    border: none !important;
+    border-top: 2px solid #3d566e !important;
+    padding: 12px !important;
+    border-radius: 0 0 12px 12px !important;
+    color: #cbd5e1 !important;
+
+    .p-paginator-first,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-last {
+      color: #cbd5e1 !important;
+      background: transparent !important;
+      border: 1px solid #3d566e !important;
+      border-radius: 6px !important;
+      min-width: 2.2rem !important;
+      height: 2.2rem !important;
+      transition: all 0.3s ease !important;
+      font-size: 13px !important;
+
+      &:not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+      }
+
+      &.p-disabled {
+        opacity: 0.3 !important;
+        color: #64748b !important;
+      }
+    }
+
+    .p-paginator-pages {
+      .p-paginator-page {
+        color: #cbd5e1 !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 6px !important;
+        min-width: 2.2rem !important;
+        height: 2.2rem !important;
+        margin: 0 0.15rem !important;
+        transition: all 0.3s ease !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+          border-color: rgba(59, 130, 246, 0.3) !important;
+          color: #3b82f6 !important;
+        }
+
+        &.p-highlight {
+          background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+          border-color: #3b82f6 !important;
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+          transform: scale(1.05) !important;
+        }
+      }
+    }
+
+    .p-paginator-current {
+      color: #94a3b8 !important;
+      background: transparent !important;
+      font-size: 13px !important;
+    }
+
+    .p-dropdown {
+      background: #1e293b !important;
+      border: 1px solid #3d566e !important;
+      color: #e2e8f0 !important;
+
+      .p-dropdown-label {
+        color: #e2e8f0 !important;
+        padding: 8px !important;
+        font-size: 13px !important;
+      }
+
+      .p-dropdown-trigger {
+        color: #94a3b8 !important;
+      }
+
+      &:hover {
+        border-color: #3b82f6 !important;
+      }
+    }
+  }
+
+  // Dropdown Panel untuk Rows per page
+  .p-paginator .p-dropdown-panel {
+    background: #1e293b !important;
+    border: 1px solid #3d566e !important;
+
+    .p-dropdown-items {
+      background: #1e293b !important;
+
+      .p-dropdown-item {
+        color: #94a3b8 !important;
+        background: transparent !important;
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+          color: #e2e8f0 !important;
+        }
+
+        &.p-highlight {
+          background: rgba(59, 130, 246, 0.25) !important;
+          color: #e2e8f0 !important;
+        }
+      }
+    }
+  }
+}
+
+// Gudang Content Global
+.gudang-content {
+  :global(.p-paginator) {
+    background: #34495e !important;
+    border-top: 2px solid #3d566e !important;
+    color: #cbd5e1 !important;
+  }
 }

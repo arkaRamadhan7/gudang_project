@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
@@ -12,12 +12,14 @@ import { FileUpload } from 'primereact/fileupload';
 import { Badge } from 'primereact/badge';
 import { useAuth } from '@/app/(auth)/context/authContext';
 import { useRouter } from 'next/navigation';
-import { base64url } from 'jose';
+
+// ✅ IMPORT SCSS
+import '@/styles/page/profile.scss';
 
 const ProfilePage = () => {
   const toast = useRef(null);
   const fileUploadRef = useRef(null);
-  const { user, setUser, initialized, logout,  loading: authLoading} = useAuth();
+  const { user, setUser, initialized, logout, loading: authLoading} = useAuth();
   const redirectedRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -26,61 +28,50 @@ const ProfilePage = () => {
   const [originalUserInfo, setOriginalUserInfo] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const router = useRouter();  
-   const handleLogout = async () => {
-          try {
-              setIsLoggingOut(true);
-              
-              const result = await logout();
-              
-              if (result.success) {
-                  toast.current?.show({
-                      severity: 'success',
-                      summary: 'Logout Berhasil',
-                      detail: result.message || 'Anda telah berhasil keluar dari sistem',
-                      life: 3000
-                  });
-  
-                  setTimeout(() => {
-                      router.push('/auth/login');
-                  }, 1000);
-  
-              } else {
-                  throw new Error(result.error || 'Logout gagal');
-              }
-  
-          } catch (error) {
-              console.error('Logout error:', error);
-              toast.current?.show({
-                  severity: 'error',
-                  summary: 'Logout Gagal',
-                  detail: error.message || 'Terjadi kesalahan saat logout',
-                  life: 5000
-              });
-              
-              setTimeout(() => {
-                  router.push('/auth/login');
-              }, 2000);
-              
-          } finally {
-              setIsLoggingOut(false);
-          }
-      };
-  
-      useEffect(() => {
-          console.log('Dashboard useEffect:', { 
-              initialized, 
-              loading, 
-              hasUser: !!user,
-              redirected: redirectedRef.current 
-          });
-  
-          if (initialized && !loading && !user && !redirectedRef.current) {
-              redirectedRef.current = true;
-              router.push('/auth/login');
-          }
-      }, [initialized, loading, user, router]);
+  const router = useRouter();
 
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const result = await logout();
+      
+      if (result.success) {
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Logout Berhasil',
+          detail: result.message || 'Anda telah berhasil keluar dari sistem',
+          life: 3000
+        });
+
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 1000);
+      } else {
+        throw new Error(result.error || 'Logout gagal');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Logout Gagal',
+        detail: error.message || 'Terjadi kesalahan saat logout',
+        life: 5000
+      });
+      
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 2000);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  useEffect(() => {
+    if (initialized && !loading && !user && !redirectedRef.current) {
+      redirectedRef.current = true;
+      router.push('/auth/login');
+    }
+  }, [initialized, loading, user, router]);
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -94,7 +85,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user && !authLoading) {
-      console.log('Initializing user data', user.username);
       setUserInfo(user);
       setOriginalUserInfo({ ...user });
       
@@ -137,41 +127,37 @@ const ProfilePage = () => {
     return true;
   };
 
- const handleImageUpload = (event) => {
-  const file = event.files[0];
-  if (file) {
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('error', 'Error', 'Ukuran file maksimal 2MB');
-      return;
+  const handleImageUpload = (event) => {
+    const file = event.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('error', 'Error', 'Ukuran file maksimal 2MB');
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        showToast('error', 'Error', 'File harus berupa gambar');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Image = e.target.result;
+        setProfileImage(base64Image);
+        setUserInfo((prev) => ({
+          ...prev,
+          profile_image: base64Image,
+        }));
+
+        showToast(
+          'success',
+          'Berhasil',
+          'Foto profil berhasil dipilih. Klik Simpan untuk menyimpan perubahan.'
+        );
+      };
+      reader.readAsDataURL(file);
     }
-
-    if (!file.type.startsWith('image/')) {
-      showToast('error', 'Error', 'File harus berupa gambar');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64Image = e.target.result;
-
-      setProfileImage(base64Image);
-
-      setUserInfo((prev) => ({
-        ...prev,
-        profile_image: base64Image, // tambahkan ke payload
-      }));
-
-      showToast(
-        'success',
-        'Berhasil',
-        'Foto profil berhasil dipilih. Klik Simpan untuk menyimpan perubahan.'
-      );
-    };
-    reader.readAsDataURL(file); 
-    console.log({base64url})
-  }
-};
-
+  };
 
   const handleSaveProfile = async () => {
     if (!validateForm()) return;
@@ -208,8 +194,6 @@ const ProfilePage = () => {
             showToast('success', 'Berhasil', result.message || 'Profil berhasil diperbarui');
             setEditMode(false);
             setOriginalUserInfo({ ...userInfo });
-            
-            console.log('Updating user data in context');
             setUser(userInfo);
           } else {
             showToast('error', 'Error', result.message || 'Gagal memperbarui profil');
@@ -223,16 +207,6 @@ const ProfilePage = () => {
       }
     });
   };
-  useEffect(() => {
-  if (user && !authLoading) {
-    setUserInfo(user);
-    setOriginalUserInfo({ ...user });
-    
-    if (user.profile_image) {
-      setProfileImage(user.profile_image);
-    }
-  }
-}, [user, authLoading]);
 
   const handleCancelEdit = () => {
     confirmDialog({
@@ -262,198 +236,181 @@ const ProfilePage = () => {
 
   if (authLoading || !user) {
     return (
-      <div className="flex flex-column align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+      <div className="profile-loading">
         <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
-        <p className="mt-3 text-600">
-          {authLoading ? 'Memuat data autentikasi...' : 'Memuat data profil...'}
-        </p>
+        <p>{authLoading ? 'Memuat data autentikasi...' : 'Memuat data profil...'}</p>
       </div>
     );
   }
 
   return (
-    <div className="grid">
+    // ✅ WRAPPER CONTAINER
+    <div className="profile-page-container">
       <Toast ref={toast} />
       <ConfirmDialog />
       
-      <div className="col-12">
-        <div className="card">
-          <div className="flex align-items-center justify-content-between mb-4">
-            <div>
-              <h3 className="m-0 text-900">Profil Pengguna</h3>
-              <p className="text-600 mt-1">Kelola informasi profil dan keamanan akun Anda</p>
-            </div>
-            <div className="flex gap-2">
-              {editMode && (
-                <Button 
-                  icon="pi pi-times" 
-                  label="Batal" 
-                  onClick={handleCancelEdit}
-                  className="p-button-secondary" 
-                  disabled={saving}
-                />
-              )}
+      {/* ✅ HEADER SECTION */}
+      <div className="profile-header">
+        <div className="header-content">
+          <div className="header-text">
+            <h3>Profil Pengguna</h3>
+            <p>Kelola informasi profil dan keamanan akun Anda</p>
+          </div>
+          <div className="header-actions">
+            {editMode && (
               <Button 
-                icon={editMode ? "pi pi-check" : "pi pi-pencil"}
-                label={editMode ? "Simpan" : "Edit Profil"}
-                onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
-                className={editMode ? "p-button-success" : "p-button-primary"}
-                loading={saving}
-                disabled={saving || (editMode && !hasChanges())}
+                icon="pi pi-times" 
+                label="Batal" 
+                onClick={handleCancelEdit}
+                className="p-button-secondary" 
+                disabled={saving}
+              />
+            )}
+            <Button 
+              icon={editMode ? "pi pi-check" : "pi pi-pencil"}
+              label={editMode ? "Simpan" : "Edit Profil"}
+              onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
+              className={editMode ? "p-button-success" : "p-button-primary"}
+              loading={saving}
+              disabled={saving || (editMode && !hasChanges())}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ CARDS GRID */}
+      <div className="profile-cards">
+        {/* LEFT CARD - AVATAR */}
+        <div className="profile-avatar-card">
+          <div className="avatar-wrapper">
+            <div className="avatar-container">
+              <Avatar 
+                image={profileImage}
+                icon={!profileImage ? "pi pi-user" : null}
+                size="xlarge" 
+                shape="circle"
+              />
+              {editMode && (
+                <div className="avatar-upload-btn">
+                  <FileUpload
+                    ref={fileUploadRef}
+                    mode="basic"
+                    accept="image/*"
+                    maxFileSize={2000000}
+                    customUpload
+                    uploadHandler={handleImageUpload}
+                    chooseOptions={{
+                      icon: 'pi pi-camera',
+                      className: 'p-button-rounded p-button-sm p-button-primary'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <h4>{userInfo.username}</h4>
+            
+            <Badge 
+              value={userInfo.role?.toUpperCase()} 
+              severity={getRoleBadge(userInfo.role).severity}
+            />
+          </div>
+
+          <Divider />
+
+          <div className="profile-info">
+            <div className="info-row">
+              <span className="info-label">Email:</span>
+              <span className="info-value">{userInfo.email}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Telepon:</span>
+              <span className="info-value">{userInfo.no_hp || '-'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT CARD - FORM */}
+        <div className="profile-form-card">
+          <h4 className="card-title">Informasi Personal</h4>
+
+          <div className="form-grid">
+            {/* Username */}
+            <div className="form-field">
+              <label htmlFor="username">
+                Username <span className="text-red-500">*</span>
+              </label>
+              <InputText 
+                id="username"
+                value={userInfo.username || ''}
+                onChange={(e) => setUserInfo({...userInfo, username: e.target.value})}
+                disabled={!editMode}
+                placeholder="Masukkan username"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="form-field">
+              <label htmlFor="email">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <InputText 
+                id="email"
+                value={userInfo.email || ''}
+                onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
+                disabled={!editMode}
+                placeholder="nama@email.com"
+                type="email"
+              />
+            </div>
+
+            {/* No. Telepon */}
+            <div className="form-field">
+              <label htmlFor="no_hp">No. Telepon</label>
+              <InputText 
+                id="no_hp"
+                value={userInfo.no_hp || ''}
+                onChange={(e) => setUserInfo({...userInfo, no_hp: e.target.value})}
+                disabled={!editMode}
+                placeholder="08XXXXXXXXXX"
+              />
+            </div>
+
+            {/* Role */}
+            <div className="form-field">
+              <label htmlFor="role">
+                Role <span className="text-red-500">*</span>
+              </label>
+              <InputText 
+                id="role"
+                value={userInfo.role || ''}
+                disabled
+                placeholder="Role"
               />
             </div>
           </div>
 
-          <div className="grid">
-            <div className="col-12 md:col-4">
-              <Card className="h-full">
-                <div className="flex flex-column align-items-center text-center">
-                  <div className="relative mb-3">
-                    <Avatar 
-                      image={profileImage}
-                      icon={!profileImage ? "pi pi-user" : null}
-                      size="xlarge" 
-                      shape="circle"
-                      className="border-3 border-primary"
-                      style={{ 
-                        backgroundColor: !profileImage ? '#6366f1' : 'transparent',
-                        color: 'white', 
-                        width: '120px', 
-                        height: '120px',
-                        fontSize: '2rem'
-                      }} 
-                    />
-                    {editMode && (
-                      <div className="absolute" style={{ bottom: '0', right: '0' }}>
-                        <FileUpload
-                          ref={fileUploadRef}
-                          mode="basic"
-                          accept="image/*"
-                          maxFileSize={2000000}
-                          customUpload
-                          uploadHandler={handleImageUpload}
-                          chooseOptions={{
-                            icon: 'pi pi-camera',
-                            className: 'p-button-rounded p-button-sm p-button-primary'
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <h4 className="m-0 mb-2 text-900">{userInfo.username}</h4>
-                  
-                  <Badge 
-                    value={userInfo.role?.toUpperCase()} 
-                    severity={getRoleBadge(userInfo.role).severity}
-                    className="mb-3"
-                  />
-
-                  <div className="w-full">
-                    <Divider />
-                    <div className="flex justify-content-between mb-2">
-                      <span className="font-semibold text-700">Email:</span>
-                      <span className="text-sm text-900" style={{ wordBreak: 'break-all' }}>
-                        {userInfo.email}
-                      </span>
-                    </div>
-                    <div className="flex justify-content-between mb-2">
-                      <span className="font-semibold text-700">Telepon:</span>
-                      <span className="text-sm text-900">
-                        {userInfo.no_hp || '-'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <div className="col-12 md:col-8">
-              <Card title="Informasi Personal" className="h-full">
-                <div className="grid">
-                  <div className="col-12 md:col-6">
-                    <label htmlFor="username" className="block text-900 font-medium mb-2">
-                      Username <span className="text-red-500">*</span>
-                    </label>
-                    <InputText 
-                      id="username"
-                      value={userInfo.username || ''}
-                      onChange={(e) => setUserInfo({...userInfo, username: e.target.value})}
-                      disabled={!editMode}
-                      className="w-full"
-                      placeholder="Masukkan username"
-                    />
-                  </div>
-
-                  <div className="col-12 md:col-6">
-                    <label htmlFor="email" className="block text-900 font-medium mb-2">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <InputText 
-                      id="email"
-                      value={userInfo.email || ''}
-                      onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
-                      disabled={!editMode}
-                      className="w-full"
-                      placeholder="nama@email.com"
-                      type="email"
-                    />
-                  </div>
-
-                  <div className="col-12 md:col-6">
-                    <label htmlFor="no_hp" className="block text-900 font-medium mb-2">
-                      No. Telepon
-                    </label>
-                    <InputText 
-                      id="no_hp"
-                      value={userInfo.no_hp || ''}
-                      onChange={(e) => setUserInfo({...userInfo, no_hp: e.target.value})}
-                      disabled={!editMode}
-                      className="w-full"
-                     
-                    />
-                  </div>
-
-                  <div className="col-12 md:col-6">
-                    <label htmlFor="role" className="block text-900 font-medium mb-2">
-                      Role <span className="text-red-500">*</span>
-                    </label>
-                    <InputText 
-                      id="role"
-                      value={userInfo.role || ''}
-                      onChange={(e) => setUserInfo({...userInfo, role: e.value})}
-                      disabled
-                      className="w-full"
-                      placeholder="Pilih Role"                     
-                    />
-                  </div>
-                </div>
-                <div>
-                     <Button
-                      id="logout"
-                      name="logout"
-                      label={isLoggingOut ? 'Logging out...' : 'Logout'}
-                      icon={isLoggingOut ? 'pi pi-spin pi-spinner' : 'pi pi-sign-out'}
-                      className="p-button-danger mt-5"
-                      loading={isLoggingOut}
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                        />
-                </div>
-
-                {hasChanges() && editMode && (
-                  <div className="mt-4 p-3 border-1 border-orange-200 bg-orange-50 border-round">
-                    <div className="flex align-items-center">
-                      <i className="pi pi-info-circle text-orange-600 mr-2"></i>
-                      <span className="text-orange-800 text-sm">
-                        Anda memiliki perubahan yang belum disimpan
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </div>
+          {/* Logout Section */}
+          <div className="logout-section">
+            <Button
+              id="logout"
+              name="logout"
+              label={isLoggingOut ? 'Logging out...' : 'Logout'}
+              icon={isLoggingOut ? 'pi pi-spin pi-spinner' : 'pi pi-sign-out'}
+              className="p-button-danger"
+              loading={isLoggingOut}
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            />
           </div>
+
+          {/* Changes Warning */}
+          {hasChanges() && editMode && (
+            <div className="changes-warning">
+              <i className="pi pi-info-circle"></i>
+              <span>Anda memiliki perubahan yang belum disimpan</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
