@@ -248,36 +248,43 @@ const StockContent = () => {
     return true;
   };
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const method = dialogMode === 'add' ? 'POST' : 'PUT';
-      const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
-      
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      
-      const json = await res.json();
+// Letakkan di sini, sebelum handleSubmit
+const closeDialog = useCallback(() => {
+  setDialogMode(null);
+  setForm(initialFormState);
+  setSelectedStock(null);
+}, []);
 
-      if (res.ok && json.status === '00') {
-        toastRef.current?.showToast(json.status, json.message);
-        await fetchStock();
-        closeDialog();
-      } else {
-        toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menyimpan data');
-      }
-    } catch (err) {
-      console.error('Submit error:', err);
-      toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menyimpan data');
-    } finally {
-      setIsLoading(false);
+const handleSubmit = useCallback(async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  setIsLoading(true);
+
+  try {
+    const method = dialogMode === 'add' ? 'POST' : 'PUT';
+    const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    });
+    
+    const json = await res.json();
+
+    if (res.ok && json.status === '00') {
+      toastRef.current?.showToast(json.status, json.message);
+      await fetchStock();
+      closeDialog(); // sekarang aman
+    } else {
+      toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menyimpan data');
     }
-  }, [dialogMode, form, selectedStock, fetchStock]);
+  } catch (err) {
+    console.error('Submit error:', err);
+    toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menyimpan data');
+  } finally {
+    setIsLoading(false);
+  }
+}, [dialogMode, form, selectedStock, fetchStock, closeDialog]);
 
   const handleEdit = useCallback((row) => {
     console.log('Edit row data:', row);
@@ -334,12 +341,6 @@ const StockContent = () => {
 
   const openAddDialog = useCallback(() => {
     setDialogMode('add');
-    setForm(initialFormState);
-    setSelectedStock(null);
-  }, []);
-
-  const closeDialog = useCallback(() => {
-    setDialogMode(null);
     setForm(initialFormState);
     setSelectedStock(null);
   }, []);

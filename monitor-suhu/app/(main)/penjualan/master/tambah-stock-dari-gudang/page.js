@@ -112,7 +112,7 @@ const RequestStockPage = () => {
     const fetchStockByGudang = async (gudangId) => {
         setIsDialogLoading(true);
         try {
-            const res = await fetch(`/api/penjualan/tambahstock/${encodeURIComponent(gudangId)}`);
+            const res =  await fetch(`/api/penjualan/tambahstock/${encodeURIComponent(gudangId)}`);
             const json = await res.json();
             if (json.status === '00' && Array.isArray(json.data)) {
                 setStockFromGudang(json.data);
@@ -355,7 +355,7 @@ const RequestStockPage = () => {
                                                 <div className="text-center py-6">
                                                     <i className="pi pi-inbox text-4xl text-400 mb-3"></i>
                                                     <p className="text-600 font-medium">Belum ada produk yang di-request</p>
-                                                    <p className="text-500 text-sm">Klik tombol "Tambah Produk" untuk memulai</p>
+                                                    <p className="text-500 text-sm">Klik tombol (Tambah Produk) untuk memulai</p>
                                                 </div>
                                             }
                                             size="small" 

@@ -72,7 +72,18 @@ export const getStockByKodeToko = async (req, res) => {
 
 export const transaction = async (req, res) => {
     try {
-        const { items, username} = req.body;
+        // Ambil KODE_TOKO dari request body
+        const { items, username, KODE_TOKO } = req.body;
+        
+        // Validasi KODE_TOKO
+        if (!KODE_TOKO) {
+            return res.status(400).json({
+                status: "40",
+                message: "Kode Toko tidak boleh kosong"
+            });
+        }
+
+        // Validasi items
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 status: "40", 
@@ -84,21 +95,30 @@ export const transaction = async (req, res) => {
         await db.transaction(async (trx) => {
             for (const item of items) {
                 
-                const id = item.id
-                const  stock = await trx('stock_toko').where({ id }).first();
+                const id = item.id;
+                const stock = await trx('stock_toko').where({ id }).first();
+                
+                if (!stock) {
+                    throw new Error(`Stock dengan ID ${id} tidak ditemukan`);
+                }
+                
                 const qtyStock = Number(stock.QTY);
-                faktur = `PJ`+ datetime() + String(id).padStart(6, '0')
+                faktur = `PJ` + datetime() + String(id).padStart(6, '0');
+                
                 if (item.qty > qtyStock) {
-                    throw new Error("Stock tidak Cukup")
+                    throw new Error(`Stock tidak Cukup untuk ${item.nama}`);
                 }
 
                 const updateStock = qtyStock - item.qty;
                 const cekDiskon = await trx("stock").where({ id }).first();
-                console.log(cekDiskon.DISCOUNT)
+                console.log(cekDiskon?.DISCOUNT);
 
+                // INSERT dengan field TOKO
                 await trx("kartustock_toko").insert({
                     status: "0",
-                    faktur: faktur, 
+                    faktur: faktur,
+                    tgl: new Date(), // Tambahkan tanggal transaksi
+                    toko: KODE_TOKO, // FIELD TOKO DITAMBAHKAN DI SINI
                     kode: item.kode,     
                     qty: item.qty,       
                     harga: item.harga,   
@@ -108,7 +128,9 @@ export const transaction = async (req, res) => {
                     satuan: item.satuan, 
                     keterangan: "Penjualan " + item.nama 
                 });
-                await trx('stock_toko').where({ id }).update({ QTY: updateStock })
+                
+                // Update stock toko
+                await trx('stock_toko').where({ id }).update({ QTY: updateStock });
             }
         });
 
@@ -116,16 +138,15 @@ export const transaction = async (req, res) => {
             status: "00",
             message: "Transaksi Berhasil Disimpan",
             faktur: faktur,
-        
         });
     
     } catch (error) {
         console.error("Error pada transaksi:", error);
         return res.status(500).json({
-            status: status.BAD_REQUEST, 
-            message: "Terjadi Kesalahan Pada Sisi Server"
+            status: "99", 
+            message: error.message || "Terjadi Kesalahan Pada Sisi Server"
         });
-    };
+    }
 };
 
 export const updateHargaDiskon = async (req, res) => {
