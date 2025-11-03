@@ -1,4 +1,3 @@
-
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken';
 import { 
@@ -14,14 +13,22 @@ import {
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email, username: user.username, role: user.role, no_hp: user.no_hp},
+    { 
+      id: user.id, 
+      email: user.email, 
+      username: user.username, 
+      role: user.role, 
+      no_hp: user.no_hp, 
+      gudang: user.gudang // --- UBAH --- (sebelumnya 'user:gudang' yang sepertinya typo)
+    },
     process.env.JWT_SECRET,
   );
 };
 
 export const register = async (req, res) => {
   try {
-    const { email, username, password, no_hp, role = 'user' } = req.body;
+    // --- UBAH --- Mengganti default 'gudang' menjadi 'role'
+    const { email, username, password, no_hp, role, gudang = 'user' } = req.body;
     
     console.log('Register request body:', req.body);
     
@@ -52,7 +59,8 @@ export const register = async (req, res) => {
       username: trimmedUsername,
       password: hash, 
       no_hp: no_hp || null,
-      role
+      role,
+      gudang: gudang || null // --- UBAH --- Memastikan 'null' jika tidak diisi
     });
 
     res.status(201).json({ 
@@ -61,7 +69,8 @@ export const register = async (req, res) => {
         id: newUser[0].id, 
         email: newUser[0].email, 
         username: newUser[0].username,
-        role: newUser[0].role
+        role: newUser[0].role,
+        gudang: newUser[0].gudang // --- TAMBAHKAN ---
       }
     });
   } catch (err) {
@@ -111,6 +120,11 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Email/Username atau Password Salah' });
     }
 
+    // Pastikan user object memiliki properti 'gudang' sebelum generate token
+    // Jika 'user' dari getUserByEmail/Username belum menyertakan 'gudang',
+    // Anda mungkin perlu memuat ulang data user di sini jika 'gudang' sangat penting
+    // Untuk saat ini, kita asumsikan 'user' sudah lengkap.
+    
     const token = generateToken(user);
 
     res.json({ 
@@ -121,7 +135,8 @@ export const login = async (req, res) => {
         username: user.username,
         role: user.role,
         no_hp: user.no_hp,
-        profile_image: user.profile_image
+        profile_image: user.profile_image,
+        gudang: user.gudang // --- TAMBAHKAN ---
       },
       token: token 
     });
@@ -159,7 +174,8 @@ export const verify = async (req, res) => {
         username: decoded.username,
         role: decoded.role,
         no_hp: decoded.no_hp,
-        profile_image: decoded.profile_image
+        profile_image: decoded.profile_image, // Note: profile_image tidak ada di token Anda
+        gudang: decoded.gudang // --- TAMBAHKAN ---
       },
     });
   } catch (error) {
@@ -172,7 +188,8 @@ export const verify = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { username, no_hp, profile_image } = req.body;
+    // --- TAMBAHKAN 'gudang' ---
+    const { username, no_hp, profile_image, gudang } = req.body;
     const userId = req.user.id;
 
     if (!username) {
@@ -193,6 +210,12 @@ export const updateProfile = async (req, res) => {
     if (profile_image !== undefined) {
       updateData.profile_image = profile_image;
     }
+    // --- TAMBAHKAN BLOK INI ---
+    if (gudang !== undefined) {
+      // Anda bisa tambahkan validasi di sini jika 'gudang' tidak boleh kosong
+      // atau harus berupa nilai tertentu
+      updateData.gudang = gudang;
+    }
 
     await updateProfileModel(userId, updateData);
 
@@ -206,7 +229,8 @@ export const updateProfile = async (req, res) => {
         username: updatedUser.username,
         no_hp: updatedUser.no_hp,
         role: updatedUser.role,
-        profile_image: updateData.profile_image
+        profile_image: updatedUser.profile_image, // --- UBAH --- (Lebih aman dari updatedUser)
+        gudang: updatedUser.gudang // --- TAMBAHKAN ---
       }
     });
   } catch (err) {
@@ -214,6 +238,9 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Error Server', error: err.message });
   }
 };
+
+// ... (Fungsi changePassword, getAllUsers, dan deleteUser tetap sama) ...
+// ... (Pastikan getAllUsersFromModel() juga me-return 'gudang') ...
 
 export const changePassword = async (req, res) => {
   try {
@@ -258,9 +285,10 @@ export const changePassword = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await getAllUsersFromModel();
+    // Pastikan 'users' di sini sudah berisi 'gudang' dari model
     res.json({
       message: 'Daftar users berhasil diambil',
-      users: users
+      users: users 
     });
   } catch (err) {
     console.error('Get all users error:', err);

@@ -43,7 +43,7 @@ export const createNewUser = async (req, res) => {
   });
 }
 
-const { username, password, email, no_hp, role } = validation.data;
+const { username, password, email, no_hp, role, gudang } = validation.data;
 
 const existingUser = await getUserByEmail(email);
 if (existingUser) {
@@ -56,7 +56,7 @@ if (existingUser) {
 
 const hashedPassword = await hashPassword(password);
 
-const newUser = await addUser({ username, password: hashedPassword, email, no_hp, role });
+const newUser = await addUser({ username, password: hashedPassword, email, no_hp, role, gudang });
 
 return res.status(200).json({
   status: status.SUKSES,
@@ -68,6 +68,7 @@ return res.status(200).json({
     email: newUser.email,
     no_hp: newUser.no_hp,
     role: newUser.role,
+    gudang: newUser.gudang
 },
 });
 

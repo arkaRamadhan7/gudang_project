@@ -227,12 +227,11 @@ export const fetchNamaGudangOnly = async (req, res) => {
       });
     }
 
-    const namaList = data.map((item) => item.nama);
 
     return res.status(200).json({
       status: '00',
       message: 'Berhasil ambil nama-nama gudang',
-      namaGudang: namaList,
+      namaGudang: data,
     });
   } catch (error) {
     console.error('Gagal ambil nama gudang:', error);

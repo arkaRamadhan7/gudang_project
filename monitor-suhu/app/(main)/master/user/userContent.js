@@ -16,6 +16,8 @@ const defaultForm = {
   email: '',
   no_hp: '',
   role: '',
+  gudang:'',
+  toko:'',
 };
 
 const UserContent = () => {
@@ -27,6 +29,7 @@ const UserContent = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [form, setForm] = useState(defaultForm);
   const [roleOptions, setRoleOptions] = useState([]);
+  const [gudangOptions, setGudangOptions] = useState([]);
 
 const fetchRoles = async () => {
   try {
@@ -34,7 +37,6 @@ const fetchRoles = async () => {
     const json = await res.json();
 
     if (res.ok && Array.isArray(json.data)) {
-      // mapping data backend ke format primereact dropdown
       const mapped = json.data.map((r) => ({
         label: r.role, // label yang tampil
         value: r.role, // value yang dikirim ke form
@@ -48,6 +50,28 @@ const fetchRoles = async () => {
     toastRef.current?.showToast('99', 'Gagal memuat role');
   }
 };
+
+const fetchGudang = async () => {
+  try {
+    const res = await fetch("/api/gudang/nama");
+    const json = await res.json();
+    
+    if (res.ok && Array.isArray(json.namaGudang)) {
+      const map = json.namaGudang.map((g) => ({
+        label: g.nama, // Ambil properti 'nama'
+        value: g.nama  // Ambil properti 'nama'
+      }));
+      setGudangOptions(map);
+
+    } else {
+      // Tampilkan error jika data tidak ditemukan atau format salah
+      toastRef.current?.showToast('99', json.message || 'Gagal memuat gudang');
+    }
+  } catch (error) {
+    console.error('error get nama gudang', error);
+    toastRef.current?.showToast('99', 'Gagal memuat gudang');
+  }
+}
 
 
 const fetchUser = async () => {
@@ -101,6 +125,8 @@ const fetchUser = async () => {
           email: form.email,
           no_hp: form.no_hp,
           role: form.role,
+          gudang: form.gudang,
+          toko: form.toko
         };
 
         if (form.password !== '') payload.password = form.password;
@@ -162,6 +188,7 @@ const fetchUser = async () => {
   useEffect(() => {
     fetchUser();
     fetchRoles();
+    fetchGudang();
   }, []);
 
   return (
@@ -214,6 +241,8 @@ const fetchUser = async () => {
                     password: '',
                     no_hp: row.no_hp,
                     role: row.role,
+                    gudang: row.gudang,
+                    toko: row.toko
                   });
                 }}
               />
@@ -306,6 +335,23 @@ const fetchUser = async () => {
               onChange={(e) => setForm((prev) => ({ ...prev, role: e.value }))}
               className="w-full mt-3"
               placeholder="Pilih Role"
+            />
+          </div>
+          
+          {/* =================================== */}
+          {/* PERBAIKAN PADA DROPDOWN INI         */}
+          {/* =================================== */}
+          <div className="mb-3">
+            <label htmlFor="gudang">Gudang</label>
+            <Dropdown
+              id="gudang"
+              name="gudang"
+              value={form.gudang}
+              options={gudangOptions}
+              onChange={(e) => setForm((prev) => ({ ...prev, gudang: e.value }))}
+              className="w-full mt-3"
+              placeholder="Pilih Gudang"
+              
             />
           </div>
             <div className="flex justify-end">
