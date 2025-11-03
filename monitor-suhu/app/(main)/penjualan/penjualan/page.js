@@ -39,7 +39,7 @@ export default function PenjualanPage() {
       }
     } catch (error) {
       console.error("Gagal Ambil Kode Toko", error);
-      setTokoOptions([]);
+      setDaftarToko([]);
       showError("Terjadi kesalahan saat mengambil data toko");
     }
   }, []);

@@ -105,7 +105,7 @@ const LoginPage = () => {
                     </div>
                     
                     <h2 className="redirect-title">Already Logged In!</h2>
-                    <p className="redirect-description">You're already authenticated</p>
+                    <p className="redirect-description">You are already authenticated</p>
                     
                     <div className="redirect-loader">
                         <div className="loader-bar"></div>

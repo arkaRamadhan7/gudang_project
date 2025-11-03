@@ -183,12 +183,13 @@ const handleSelectFaktur = (fakturData) => {
   },[]);
 
   useEffect(() => {
-    fetchGudang();
-    fetchSatuan();
-    fetchProduk();
-    fetchTerimaData();
-    fetchFaktur();
-  }, []);
+  fetchGudang();
+  fetchSatuan();
+  fetchProduk();
+  fetchTerimaData();
+  fetchFaktur();
+}, [fetchGudang, fetchSatuan, fetchProduk, fetchTerimaData, fetchFaktur]);
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));

@@ -171,7 +171,8 @@ export default function MutasiKirimData() {
     fetchSatuan();
     fetchProduk();
     fetchKirimData();
-  }, []);
+  }, [fetchGudang, fetchSatuan, fetchProduk, fetchKirimData]);
+
 
   useEffect(() => {
     if (formData.GUDANG_KIRIM) {
