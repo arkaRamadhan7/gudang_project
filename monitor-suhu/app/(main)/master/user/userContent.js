@@ -16,8 +16,8 @@ const defaultForm = {
   email: '',
   no_hp: '',
   role: '',
-  gudang:'',
-  toko:'',
+  gudang: null,
+  toko: null,
 };
 
 const UserContent = () => {
@@ -30,6 +30,7 @@ const UserContent = () => {
   const [form, setForm] = useState(defaultForm);
   const [roleOptions, setRoleOptions] = useState([]);
   const [gudangOptions, setGudangOptions] = useState([]);
+  const [tokoOptions, setTokoOptions] = useState([]);
 
 const fetchRoles = async () => {
   try {
@@ -51,6 +52,18 @@ const fetchRoles = async () => {
   }
 };
 
+const fetchToko = async () => {
+  try {
+    const res = await fetch("/api/toko");
+    const json = await res.json()
+    
+   
+      setTokoOptions(json.data)
+  } catch (error) {
+    console.error("Fetch Toko Error:", error);
+    toastRef.current?.showToast('99', 'Gagal memuat Toko')
+  }
+}
 const fetchGudang = async () => {
   try {
     const res = await fetch("/api/gudang/nama");
@@ -125,8 +138,8 @@ const fetchUser = async () => {
           email: form.email,
           no_hp: form.no_hp,
           role: form.role,
-          gudang: form.gudang,
-          toko: form.toko
+          gudang: form.gudang || null, 
+          toko: form.toko || null
         };
 
         if (form.password !== '') payload.password = form.password;
@@ -189,6 +202,7 @@ const fetchUser = async () => {
     fetchUser();
     fetchRoles();
     fetchGudang();
+    fetchToko();
   }, []);
 
   return (
@@ -220,9 +234,11 @@ const fetchUser = async () => {
 
           <Column field="username" header="Username" filter />
           <Column field="email" header="Email" />
-       {/* kalau mau tampilkan, hati-hati sensitif */}
           <Column field="no_hp" header="No HP" />
           <Column field="role" header="Role" />
+          <Column field="gudang" header="Gudang" />
+          <Column field="toko" header="Toko" />
+
           
                 <Column
           header="Aksi"
@@ -250,7 +266,7 @@ const fetchUser = async () => {
                 icon="pi pi-trash text-sm"
                 size="small"
                 severity="danger"
-                onClick={() => handleDelete(row)}
+                 onClick={() => handleDelete(row)}
               />
             </div>
           )}
@@ -351,11 +367,28 @@ const fetchUser = async () => {
               onChange={(e) => setForm((prev) => ({ ...prev, gudang: e.value }))}
               className="w-full mt-3"
               placeholder="Pilih Gudang"
+              showClear={true}
               
             />
           </div>
+            <div className="mb-3">
+            <label htmlFor="toko">Toko</label>
+            <Dropdown
+              id="toko"
+              name="toko"
+              value={form.toko}
+              options={tokoOptions}
+              onChange={(e) => setForm((prev) => ({ ...prev, toko: e.value }))}
+              className="w-full mt-3"
+              placeholder="Pilih Toko"
+              optionLabel='NAMA'
+              optionValue='NAMA'
+              showClear={true}
+
+            />
+          </div>
             <div className="flex justify-end">
-            <Button
+            <Button 
               type="submit"
               label="Submit"
               severity="success"

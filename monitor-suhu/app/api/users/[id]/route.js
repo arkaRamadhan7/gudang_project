@@ -3,7 +3,8 @@ import { API_ENDPOINTS } from '../../api';
 import { NextResponse } from 'next/server';
 
 export const PUT = async (req, { params }) => {
-  const id = params.id;
+  const { id } = await params
+
   const body = await req.json();
 
   try {

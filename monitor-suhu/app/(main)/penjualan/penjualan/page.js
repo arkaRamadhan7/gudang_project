@@ -17,16 +17,49 @@ export default function PenjualanPage() {
   
   const [daftarToko, setDaftarToko] = useState([]);
   const [selectedToko, setSelectedToko] = useState(null); 
-  const [barang, setBarang] = useState({ id: "", kode: "", nama: "", qty: 1, harga: 0,satuan: "", discount:"" });
   const [cart, setCart] = useState([]);
   const [stockKeyword, setStockKeyword] = useState("");
   const [stockResult, setStockResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const { user } = useAuth();
+  
   const showSuccess = (message) => toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: message, life: 3000 });
   const showError = (message) => toast.current?.show({ severity: 'error', summary: 'Error', detail: message, life: 3000 });
   const showWarn = (message) => toast.current?.show({ severity: 'warn', summary: 'Peringatan', detail: message, life: 3000 });
   
+  const isSuperAdmin = () => {
+    return user?.role?.toLowerCase() === 'superadmin' || user?.role?.toLowerCase() === 'super admin';
+  };
+
+  const fetchUserData = useCallback(async () => {
+    if (!user?.email) return;
+    
+    setIsLoadingUser(true);
+    try {
+      const res = await fetch('/api/users');
+      const json = await res.json();
+      
+      if (json.users && Array.isArray(json.users)) {
+        // Cari user berdasarkan email yang login
+        const currentUser = json.users.find(u => u.email === user.email);
+        
+        if (currentUser && currentUser.toko && !isSuperAdmin()) {
+          // Jika bukan superadmin dan punya toko, set toko otomatis
+          const tokoUser = daftarToko.find(toko => toko.NAMA === currentUser.toko);
+          if (tokoUser) {
+            setSelectedToko(tokoUser.KODE);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data user", error);
+      showError("Gagal mengambil data user");
+    } finally {
+      setIsLoadingUser(false);
+    }
+  }, [user, daftarToko]);
+
   const FetchStockByToko = useCallback(async () => {
     try {
       const res = await fetch("/api/toko");
@@ -48,6 +81,12 @@ export default function PenjualanPage() {
     FetchStockByToko();
   }, [FetchStockByToko]);
 
+  // Fetch user data setelah daftar toko tersedia
+  useEffect(() => {
+    if (daftarToko.length > 0 && user) {
+      fetchUserData();
+    }
+  }, [daftarToko, user]);
 
   const handleSearchStock = async () => {
     if (!selectedToko) {
@@ -84,57 +123,10 @@ export default function PenjualanPage() {
     setStockResult([]);
     setStockKeyword("");
     setCart([]);
-    setBarang({ id: '', kode: "", nama: "", qty: 1, harga:0, satuan: "", discount:"" });
   }, [selectedToko]);
 
-  const handleAddToCart = () => {
-  if (!barang.kode || !barang.nama) {
-    showWarn("Anda harus memilih barang terlebih dahulu!");
-    return;
-  }
-  if (Number(barang.qty) <= 0) {
-    showError("Kuantitas barang harus lebih dari 0");
-    return;
-  }
-
-  const isExisting = cart.some(item => item.kode === barang.kode && item.gudang === barang.gudang);
-
-  if (isExisting) {
-    showSuccess(`Qty ${barang.nama} diperbarui di keranjang`);
-  } else {
-    showSuccess(`${barang.nama} berhasil ditambahkan ke keranjang`);
-  }
-
-  setCart((prevCart) => {
-    const existingItemIndex = prevCart.findIndex(item => item.kode === barang.kode && item.gudang === barang.gudang);
-
-    if (existingItemIndex !== -1) {
-      return prevCart.map((item, index) => {
-        if (index === existingItemIndex) {
-          return { ...item, qty: item.qty + Number(barang.qty) };
-        }
-        return item;
-      });
-    } else {
-      const newItem = {
-        id: barang.id,
-        kode: barang.kode,
-        nama: barang.nama,
-        qty: Number(barang.qty),
-        harga: Number(barang.harga),
-        satuan: barang.satuan,
-        discount: barang.discount
-      };
-      return [...prevCart, newItem];
-    }
-  });
-
-  setBarang({ id: '', kode: "", nama: "", qty: 1, harga: 0, satuan: "", discount:"" });
-};
 
   const handleSubmit = async () => {
-    console.log(cart)
-
     if (!selectedToko) {
       showWarn("Pilih toko terlebih dahulu!");
       return;
@@ -143,7 +135,6 @@ export default function PenjualanPage() {
       showWarn("Keranjang masih kosong!");
       return;
     }
-    
     
     const itemsPayload = cart.map(item => ({
       kode: item.kode,
@@ -159,7 +150,6 @@ export default function PenjualanPage() {
       KODE_TOKO: selectedToko,
       username: user ? user.email : "-", 
       items: itemsPayload,
-      
     };
 
     try {
@@ -188,7 +178,6 @@ export default function PenjualanPage() {
           nomerHp: tokoTerpilih ? tokoTerpilih.NO_HP : "-"
         });
         setCart([]);
-        setBarang({ kode: "", nama: "", qty: 1, harga: 0, satuan: "", discount:"" });
       } else {
         showError(json.message || "Gagal menyimpan penjualan");
       }
@@ -199,27 +188,45 @@ export default function PenjualanPage() {
   };
 
   const handleSelectBarang = (row) => {
-    setBarang({
+    // Langsung tambahkan ke cart dengan qty 1
+    const newItem = {
+      id: row.ID,
       kode: row.KODE,
       nama: row.NAMA,
       qty: 1,
-      harga: row.HJ2 ,
+      harga: Number(row.HJ2),
       satuan: row.SATUAN,
-      id: row.ID,
-      no_hp: row.NO_HP,
       discount: row.DISCOUNT
-    });
-    showSuccess(`Barang ${row.NAMA} berhasil dipilih`);
+    };
+
+    const existingItemIndex = cart.findIndex(item => item.kode === row.KODE);
+
+    if (existingItemIndex !== -1) {
+      // Jika sudah ada, tambah qty
+      setCart(prevCart => prevCart.map((item, index) => {
+        if (index === existingItemIndex) {
+          return { ...item, qty: item.qty + 1 };
+        }
+        return item;
+      }));
+      showSuccess(`${row.NAMA} ditambah 1 di keranjang`);
+    } else {
+      // Jika belum ada, tambahkan item baru
+      setCart(prevCart => [...prevCart, newItem]);
+      showSuccess(`${row.NAMA} berhasil ditambahkan ke keranjang`);
+    }
   };
   
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value || 0);
   };
+  
   const removeFromCart = (rowIndex) => {
     const newCart = cart.filter((_, i) => i !== rowIndex);
     setCart(newCart);
     showSuccess("Item berhasil dihapus dari keranjang");
   };
+  
   const updateCartQuantity = (rowIndex, newQty) => {
     const qty = Number(newQty);
     if (qty <= 0) {
@@ -228,24 +235,33 @@ export default function PenjualanPage() {
     }
     setCart((prevCart) => prevCart.map((item, index) => index === rowIndex ? { ...item, qty: qty } : item));
   };
+  
   const getTotalCart = () => {
     return cart.reduce((total, item) => total + (Number(item.qty) * Number(item.harga)), 0);
   };
+
   return (
     <div className="card p-6">
       <Toast ref={toast} />
-      <h1 className="text-xl font-bold mb-4 ">Transaksi Penjualan</h1>
+      <h1 className="text-xl font-bold mb-4">Transaksi Penjualan</h1>
+      
       <div className="mb-5">
-        <label className="font-semibold ">Toko</label>
+        <label className="font-semibold">Toko</label>
+        {!isSuperAdmin() && (
+          <div className="text-xs text-gray-500 mt-1 mb-2">
+            Toko ditentukan berdasarkan akun Anda
+          </div>
+        )}
         <Dropdown
           value={selectedToko}
           options={daftarToko}
           optionLabel="NAMA"
           optionValue="KODE"
           onChange={(e) => setSelectedToko(e.value)}
-          placeholder="Pilih Toko"
+          placeholder={isLoadingUser ? "Memuat..." : "Pilih Toko"}
           className="w-full mt-2"
-          showClear
+          showClear={isSuperAdmin()}
+          disabled={!isSuperAdmin() || isLoadingUser}
         />
       </div>
 
@@ -299,69 +315,6 @@ export default function PenjualanPage() {
         </div>
       )}
 
-      {/* Input Barang Manual - TELAH DIPERBAIKI */}
-      <div className="card">
-        <h2 className="text-lg font-semibold mb-3">Input Barang</h2>
-        <div className="">
-          
-          {/* Kode Barang */}
-          <div>
-            <label htmlFor="kodeBarang" className="font-semibold">Kode Barang</label>
-            <InputText
-              id="kodeBarang"
-              value={barang.kode}
-              disabled
-              className="w-full mt-2" // Konsisten dengan Dropdown Toko
-            />
-          </div>
-          
-          {/* Nama Barang */}
-          <div>
-            <label htmlFor="namaBarang" className="font-semibold">Nama Barang</label>
-            <InputText
-              id="namaBarang"
-              value={barang.nama}
-              disabled
-              className="w-full mt-2" // Konsisten
-            />
-          </div>
-
-          {/* Qty */}
-          <div>
-            <label htmlFor="qty" className="font-semibold">Qty</label>
-            <InputNumber
-              id="qty"
-              value={barang.qty}
-              onValueChange={(e) => setBarang({ ...barang, qty: e.value })}
-              min={1}
-              showButtons
-              className="w-full mt-2" // Konsisten
-              inputClassName="w-full" // Memastikan input di dalam InputNumber juga penuh
-            />
-          </div>
-
-          {/* Harga */}
-          <div>
-            <label htmlFor="harga" className="font-semibold">Harga</label>
-            <InputText
-              id="harga"
-              value={formatCurrency(barang.harga)}
-              disabled
-              className="w-full mt-2" // Konsisten
-            />
-          </div>
-        </div>
-        <Button 
-          label="Tambah ke Keranjang" 
-          icon="pi pi-plus" 
-          onClick={handleAddToCart}
-          disabled={!barang.kode || !barang.nama}
-        />
-      </div>
-      {/* Batas Perbaikan */}
-
-
-      {/* Table Cart */}
       <div className="p-4 border rounded-xl shadow mb-6">
         <h2 className="text-lg font-semibold mb-3">
           Keranjang ({cart.length} item)
@@ -371,7 +324,6 @@ export default function PenjualanPage() {
             <DataTable value={cart} stripedRows dataKey="kode">
               <Column field="kode" header="Kode" />
               <Column field="nama" header="Nama" />
-              <Column field="gudang" header="Gudang" />
               <Column 
                 field="qty" 
                 header="Qty"
@@ -427,7 +379,6 @@ export default function PenjualanPage() {
         )}
       </div>
 
-      {/* Simpan */}
       <div className="flex justify-end gap-2">
         <Button
           label="Kosongkan Keranjang"

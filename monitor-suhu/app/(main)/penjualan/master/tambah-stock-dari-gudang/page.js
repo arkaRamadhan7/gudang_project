@@ -1,6 +1,6 @@
 'use client';
 
-import { React, useEffect, useState, useRef } from 'react';
+import { React, useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -11,9 +11,14 @@ import { InputNumber } from 'primereact/inputnumber';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Toast } from 'primereact/toast';
 import { Tag } from 'primereact/tag';
+import { useAuth } from "@/app/(auth)/context/authContext";
+
 
 const RequestStockPage = () => {
-    // --- State Anda yang sudah ada ---
+    const toast = useRef(null);
+    const { user } = useAuth();
+    
+    // --- State yang sudah ada ---
     const [requestedStock, setRequestedStock] = useState([]);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,18 +32,61 @@ const RequestStockPage = () => {
     const [tokoList, setTokoList] = useState([]);
     const [selectedToko, setSelectedToko] = useState(null);
     const [isTokoLoading, setIsTokoLoading] = useState(false);
-    
-    const toast = useRef(null);
-
-    // --- State baru untuk Tab Status Permintaan ---
     const [selectedTokoForStatus, setSelectedTokoForStatus] = useState(null);
     const [statusData, setStatusData] = useState([]);
     const [isLoadingStatus, setIsLoadingStatus] = useState(false);
-    
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+    // Helper function untuk cek superadmin
+    const isSuperAdmin = () => {
+        return user?.role?.toLowerCase() === 'superadmin' || user?.role?.toLowerCase() === 'super admin';
+    };
+
+    // --- Fetch User Data ---
+    const fetchUserData = useCallback(async () => {
+        if (!user?.email) return;
+        
+        setIsLoadingUser(true);
+        try {
+            const res = await fetch('/api/users');
+            const json = await res.json();
+            
+            if (json.users && Array.isArray(json.users)) {
+                const currentUser = json.users.find(u => u.email === user.email);
+                
+                if (currentUser && currentUser.toko && !isSuperAdmin()) {
+                    const tokoUser = tokoList.find(toko => toko.NAMA === currentUser.toko);
+                    if (tokoUser) {
+                        setSelectedToko(tokoUser.KODE);
+                        setSelectedTokoForStatus(tokoUser.KODE);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Gagal mengambil data user", error);
+            toast.current?.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Gagal mengambil data user', 
+                life: 3000 
+            });
+        } finally {
+            setIsLoadingUser(false);
+        }
+    }, [user, tokoList]);
+
+    // --- Fetch Initial Data ---
     useEffect(() => {
         fetchToko();
         fetchGudang();
     }, []);
+
+    // Fetch user data setelah daftar toko tersedia
+    useEffect(() => {
+        if (tokoList.length > 0 && user) {
+            fetchUserData();
+        }
+    }, [tokoList, user, fetchUserData]);
 
     useEffect(() => {
         setFilteredStock(
@@ -87,6 +135,12 @@ const RequestStockPage = () => {
             }
         } catch (err) {
             console.error('Gagal mengambil data toko', err);
+            toast.current?.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Gagal mengambil data toko', 
+                life: 3000 
+            });
         } finally {
             setIsTokoLoading(false);
         }
@@ -112,7 +166,7 @@ const RequestStockPage = () => {
     const fetchStockByGudang = async (gudangId) => {
         setIsDialogLoading(true);
         try {
-            const res =  await fetch(`/api/penjualan/tambahstock/${encodeURIComponent(gudangId)}`);
+            const res = await fetch(`/api/penjualan/tambahstock/${encodeURIComponent(gudangId)}`);
             const json = await res.json();
             if (json.status === '00' && Array.isArray(json.data)) {
                 setStockFromGudang(json.data);
@@ -129,13 +183,12 @@ const RequestStockPage = () => {
 
     const handleOpenDialog = () => {
         if (!selectedGudang) {
-             toast.current.show({ severity: 'warn', summary: 'Peringatan', detail: 'Silakan pilih gudang tujuan terlebih dahulu.', life: 3000 });
+            toast.current.show({ severity: 'warn', summary: 'Peringatan', detail: 'Silakan pilih gudang tujuan terlebih dahulu.', life: 3000 });
             return;
         }
         setIsDialogVisible(true);
         fetchStockByGudang(selectedGudang);
     };
-
 
     const handleAddStock = (stockItem) => {
         if (!requestedStock.some(item => item.KODE === stockItem.KODE)) {
@@ -152,7 +205,6 @@ const RequestStockPage = () => {
     const handleRemoveStock = (stockItem) => {
         setRequestedStock(prev => prev.filter(item => item.KODE !== stockItem.KODE));
     };
-
 
     const handleDosChange = (e, rowData) => {
         const newDos = e.value;
@@ -199,7 +251,13 @@ const RequestStockPage = () => {
             });
             
             setRequestedStock([]);
-            setSelectedToko(null);
+            // Jika bukan superadmin, kembalikan ke toko user
+            if (!isSuperAdmin() && user?.email) {
+                // Reset ke toko user dari database
+                fetchUserData();
+            } else {
+                setSelectedToko(null);
+            }
             setSelectedGudang(null);
             
         } catch (error) {
@@ -239,7 +297,6 @@ const RequestStockPage = () => {
         </div>
     );
     
-    // --- BLOK PERBAIKAN ---
     const dosEditorTemplate = (rowData) => {
         return (
             <InputNumber 
@@ -248,14 +305,13 @@ const RequestStockPage = () => {
                 mode="decimal" 
                 showButtons 
                 min={1} 
-                className="p-inputnumber-sm w-28" // DILEBARKAN dari 80px ke w-28 (112px)
-                inputClassName="!text-center" // Ditambahkan agar angka tetap di tengah
+                className="p-inputnumber-sm w-28"
+                inputClassName="!text-center"
                 tooltip={`Stok tersedia: ${rowData.DOS} DOS`} 
                 tooltipOptions={{ position: 'top' }} 
             />
         );
     };
-    // --- BATAS PERBAIKAN ---
 
     const statusBodyTemplate = (rowData) => {
         const severityMap = {
@@ -266,6 +322,15 @@ const RequestStockPage = () => {
         const statusText = rowData.STATUS ? rowData.STATUS.toLowerCase() : '';
         return <Tag severity={severityMap[statusText] || 'info'} value={rowData.STATUS}></Tag>;
     };
+
+    // Loading state saat mengambil data user
+    if (isLoadingUser) {
+        return (
+            <div className="flex justify-content-center align-items-center" style={{ height: '400px' }}>
+                <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -287,44 +352,48 @@ const RequestStockPage = () => {
                             <div className="surface-section border-round-lg shadow-2 p-4 mt-4">
                                 {/* Form Section */}
                                 <div className="border-round p-4 mb-4">
-                                        <div className="field col-12 md:col-6">
-                                            <label htmlFor="toko" className="font-semibold text-900 mb-2 block">
-                                                <i className="pi pi-building mr-2 text-primary"></i>
-                                                Toko Peminta
-                                            </label>
-                                            <Dropdown 
-                                                id="toko" 
-                                                value={selectedToko} 
-                                                options={tokoList} 
-                                                onChange={(e) => setSelectedToko(e.value)} 
-                                                optionLabel="NAMA" 
-                                                optionValue="KODE" 
-                                                placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko"} 
-                                                disabled={isTokoLoading} 
-                                                className="w-full border-round" 
-                                                filter 
-                                                showClear
-                                            />
-                                        </div>
-                                        <div className="field col-12 md:col-6">
-                                            <label htmlFor="gudang" className="font-semibold text-900 mb-2 block">
-                                                <i className="pi pi-warehouse mr-2 text-primary"></i>
-                                                Gudang Tujuan
-                                            </label>
-                                            <Dropdown 
-                                                id="gudang" 
-                                                value={selectedGudang} 
-                                                options={gudangList} 
-                                                onChange={(e) => setSelectedGudang(e.value)} 
-                                                optionLabel="nama" 
-                                                optionValue="nama" 
-                                                placeholder={isLoading ? 'Memuat...' : 'Pilih Gudang'} 
-                                                disabled={isLoading} 
-                                                className="w-full border-round" 
-                                                filter 
-                                                showClear
-                                            />
-                                        </div>
+                                    <div className="field col-12 md:col-6">
+                                        <label htmlFor="toko" className="font-semibold text-900 mb-2 block">
+                                            <i className="pi pi-building mr-2 text-primary"></i>
+                                            Toko Peminta
+                                        </label>
+                                        {!isSuperAdmin() && (
+                                            <div className="text-xs text-gray-500 mb-2">
+                                                Toko ditentukan berdasarkan akun Anda
+                                            </div>
+                                        )}
+                                        <Dropdown 
+                                            id="toko" 
+                                            value={selectedToko} 
+                                            options={tokoList} 
+                                            onChange={(e) => setSelectedToko(e.value)} 
+                                            optionLabel="NAMA" 
+                                            optionValue="KODE" 
+                                            placeholder={isLoadingUser ? "Memuat..." : isSuperAdmin() ? "Pilih Toko" : "Toko Anda"} 
+                                            disabled={!isSuperAdmin() || isLoadingUser} 
+                                            className="w-full border-round" 
+                                            filter 
+                                            showClear={isSuperAdmin()}
+                                        />
+                                    </div>
+                                    <div className="field col-12 md:col-6">
+                                        <label htmlFor="gudang" className="font-semibold text-900 mb-2 block">
+                                            <i className="pi pi-warehouse mr-2 text-primary"></i>
+                                            Gudang Tujuan
+                                        </label>
+                                        <Dropdown 
+                                            id="gudang" 
+                                            value={selectedGudang} 
+                                            options={gudangList} 
+                                            onChange={(e) => setSelectedGudang(e.value)} 
+                                            optionLabel="nama" 
+                                            optionValue="nama" 
+                                            placeholder={isLoading ? 'Memuat...' : 'Pilih Gudang'} 
+                                            disabled={isLoading} 
+                                            className="w-full border-round" 
+                                            filter 
+                                            showClear
+                                        />
                                     </div>
                                 </div>
 
@@ -382,7 +451,7 @@ const RequestStockPage = () => {
                                                 header="Jumlah DOS" 
                                                 body={dosEditorTemplate} 
                                                 headerClassName="font-bold"
-                                                style={{ width: '150px' }} // Kolom ini sudah cukup lebar (150px)
+                                                style={{ width: '150px' }}
                                             />
                                             <Column 
                                                 header="Aksi" 
@@ -401,8 +470,12 @@ const RequestStockPage = () => {
                                         icon="pi pi-times"
                                         className="p-button-text p-button-secondary font-semibold" 
                                         onClick={() => { 
-                                            setRequestedStock([]); 
-                                            setSelectedToko(null); 
+                                            setRequestedStock([]);
+                                            if (!isSuperAdmin() && user?.email) {
+                                                fetchUserData();
+                                            } else {
+                                                setSelectedToko(null);
+                                            }
                                             setSelectedGudang(null); 
                                         }} 
                                     />
@@ -415,6 +488,7 @@ const RequestStockPage = () => {
                                         loading={isSubmitting}
                                         raised
                                     />
+                                </div>
                             </div>
                         </TabPanel>
 
@@ -435,6 +509,11 @@ const RequestStockPage = () => {
                                             <i className="pi pi-building mr-2 text-primary"></i>
                                             Pilih Toko
                                         </label>
+                                        {!isSuperAdmin() && (
+                                            <div className="text-xs text-gray-500 mb-2">
+                                                Toko ditentukan berdasarkan akun Anda
+                                            </div>
+                                        )}
                                         <Dropdown 
                                             id="tokoStatus" 
                                             value={selectedTokoForStatus} 
@@ -442,11 +521,11 @@ const RequestStockPage = () => {
                                             onChange={(e) => setSelectedTokoForStatus(e.value)} 
                                             optionLabel="NAMA" 
                                             optionValue="KODE" 
-                                            placeholder={isTokoLoading ? "Memuat..." : "Pilih Toko untuk Melihat Status"} 
-                                            disabled={isTokoLoading} 
+                                            placeholder={isLoadingUser ? "Memuat..." : isSuperAdmin() ? "Pilih Toko untuk Melihat Status" : "Toko Anda"} 
+                                            disabled={!isSuperAdmin() || isLoadingUser} 
                                             className="w-full md:w-6" 
-                                            filter
-                                            showClear
+                                            filter={isSuperAdmin()}
+                                            showClear={isSuperAdmin()}
                                         />
                                     </div>
                                 </div>

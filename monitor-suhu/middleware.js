@@ -6,16 +6,9 @@ const ROUTE_CONFIG = {
         '/',
         '/dashboard',
         '/master',
-        '/master/stock',
-        '/master/user',
-        '/master/kirim-barang',
-        '/master/terima-barang',
-        '/master/gudang',
-        '/kode/rak',        
-        '/kode/satuanstock', 
-        '/kode/golonganstock',
-        '/laporan/kartustock',
-        '/kode/jenis-gudang',
+        '/kode',        
+        '/laporan',
+        '/penjualan',
     ],
     
     public: [
@@ -130,6 +123,7 @@ async function handleApiRoute(request, pathname) {
         '/api/golonganstock',
         '/api/laporan',
         '/api/jenis-gudang',
+        '/api/penjualan'
     ];
 
     const isProtectedApi = protectedApiRoutes.some(route => pathname.startsWith(route));
@@ -184,6 +178,7 @@ function checkRoleAccess(pathname, userRole) {
         const roleRules = {
             '/master/user': ['superadmin'], 
             '/master/users': ['superadmin'], 
+            
         };
 
         for (const [route, allowedRoles] of Object.entries(roleRules)) {
@@ -268,7 +263,20 @@ function checkApiRoleAccess(pathname, userRole, method) {
                     '/api/jenis-gudang'
                 ],
                 methods: ['GET']
-            }
+            },
+
+            'admin gudang':{
+                patterns: [
+                    '/api/kirimbarang',
+                    '/api/terimabarang',
+                    '/api/request-stock',
+                    '/api/stock',
+                    '/api/gudang',
+                    '/api/jenis-gudang',
+                    '/api/nama-gudang'
+                ], methods:['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+            },
+            
         };
 
         for (const [allowedRoles, config] of Object.entries(apiRoleRules)) {
