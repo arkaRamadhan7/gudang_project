@@ -42,7 +42,7 @@ const RequestStockPage = () => {
         return user?.role?.toLowerCase() === 'superadmin' || user?.role?.toLowerCase() === 'super admin';
     };
 
-    // --- Fetch User Data ---
+    // --- Fetch User D ata ---
     const fetchUserData = useCallback(async () => {
         if (!user?.email) return;
         

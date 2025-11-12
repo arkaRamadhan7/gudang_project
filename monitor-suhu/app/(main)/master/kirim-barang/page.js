@@ -36,6 +36,8 @@ export default function MutasiKirimData() {
     GUDANG_KIRIM: '',
     GUDANG_TERIMA: '',
     SATUAN: '',
+    DOS: '',
+    ISI: '',
   });
 
   const formatDateForDatabase = (date) => {
@@ -99,6 +101,7 @@ export default function MutasiKirimData() {
             SATUAN: item.SATUAN,
             QTY: item.QTY,
             GUDANG: item.GUDANG,
+            ISI: item.ISI || 1,
           }));
         
         if (gudangKirim) {
@@ -130,6 +133,7 @@ export default function MutasiKirimData() {
             SATUAN: item.SATUAN,
             QTY: item.QTY,
             GUDANG: item.GUDANG,
+            ISI: item.ISI || 1,
           }));
         setProdukList(produkData);
         setFilteredProdukList(produkData);
@@ -157,7 +161,9 @@ export default function MutasiKirimData() {
           BARCODE: item.barcode || item.BARCODE || '-',
           SATUAN: item.satuan || item.SATUAN || '-',
           USERNAME: item.username || item.USERNAME || '-',
-          STATUS: item.status || item.STATUS || 'Pending'
+          STATUS: item.status || item.STATUS || 'Pending',
+          DOS: item.dos || item.DOS || 0,
+          ISI: item.isi || item.ISI || 1,
         }));
         setKirimData(formattedData);
       } 
@@ -175,7 +181,6 @@ export default function MutasiKirimData() {
     fetchProduk();
     fetchKirimData();
   }, [fetchGudang, fetchSatuan, fetchProduk, fetchKirimData]);
-
 
   useEffect(() => {
     if (formData.GUDANG_KIRIM) {
@@ -202,21 +207,26 @@ export default function MutasiKirimData() {
     return `FA${timestamp}`;
   };
 
-  const handleQtyChange = (id, newQty) => {
-    if (newQty <= 0) {
+  const handleDosChange = (id, newDos) => {
+    if (newDos < 0) {
       toast.current?.show({ 
         severity: 'warn', 
-        summary: 'Invalid Quantity', 
-        detail: 'Quantity harus lebih dari 0', 
+        summary: 'Invalid DOS', 
+        detail: 'DOS tidak boleh negatif', 
         life: 3000 
       });
       return;
     }
     
     setKirimData(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, QTY: newQty } : item
-      )
+      prev.map(item => {
+        if (item.id === id) {
+          const isi = item.ISI || 1;
+          const qty = newDos * isi;
+          return { ...item, DOS: newDos, QTY: qty };
+        }
+        return item;
+      })
     );
   };
 
@@ -240,19 +250,28 @@ export default function MutasiKirimData() {
         setFormData(prevForm => ({ ...prevForm, FAKTUR: faktur }));
       }
 
+      const isi = selectedProduct.ISI || 1;
+
       if (existing) {
+        const newDos = existing.DOS + 1;
+        const newQty = newDos * isi;
         return prev.map(item =>
           item.BARCODE === selectedProduct.BARCODE
-            ? { ...item, QTY: Number(item.QTY) + 1 }
+            ? { ...item, DOS: newDos, QTY: newQty }
             : item
         );
       } else {
+        const dos = 1;
+        const qty = dos * isi;
+        
         const newItem = {
           id: prev.length + 1,
           KODE: selectedProduct.KODE,
           BARCODE: selectedProduct.BARCODE,
           NAMA: selectedProduct.NAMA,
-          QTY: 1,
+          DOS: dos,
+          ISI: isi,
+          QTY: qty,
           HARGA: selectedProduct.HJ,
           SATUAN: selectedProduct.SATUAN,
           FAKTUR: faktur,
@@ -330,6 +349,8 @@ export default function MutasiKirimData() {
           gudang_terima: item.GUDANG_TERIMA || formData.GUDANG_TERIMA,
           kode: item.KODE,
           qty: item.QTY,
+          dos: item.DOS,
+          isi: item.ISI,
           barcode: item.BARCODE,     
           satuan: item.SATUAN,      
           username: item.USERNAME || user?.username || '-',
@@ -350,7 +371,7 @@ export default function MutasiKirimData() {
       toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Data berhasil disimpan!', life: 3000 });
       setFormData({
         TGL: '', KODE: '', NAMA: '', FAKTUR: '', QTY: '', BARCODE: '', harga: '',
-        GUDANG_KIRIM: '', GUDANG_TERIMA: '', SATUAN: ''
+        GUDANG_KIRIM: '', GUDANG_TERIMA: '', SATUAN: '', DOS: '', ISI: ''
       });
       setKirimData([]);
       fetchKirimData();
@@ -372,7 +393,7 @@ export default function MutasiKirimData() {
     });
   };
 
-  const qtyBodyTemplate = (rowData) => {
+  const dosBodyTemplate = (rowData) => {
     return (
       <div
         style={{
@@ -384,9 +405,9 @@ export default function MutasiKirimData() {
         }}
       >
         <InputNumber
-          value={rowData.QTY}
-          onValueChange={(e) => handleQtyChange(rowData.id, e.value)}
-          min={1}
+          value={rowData.DOS}
+          onValueChange={(e) => handleDosChange(rowData.id, e.value)}
+          min={0}
           style={{ width: '100%' }}
           inputStyle={{
             width: '60px',              
@@ -420,7 +441,6 @@ export default function MutasiKirimData() {
   };
 
   return (
-    // ✅ GUNAKAN CLASS BIASA, BUKAN styles.namaClass
     <div className="mutasi-container">
       <Toast ref={toast} />
       
@@ -533,7 +553,9 @@ export default function MutasiKirimData() {
             <Column field="GUDANG_KIRIM" header="DARI GUDANG" style={{ minWidth: '120px' }} />
             <Column field="GUDANG_TERIMA" header="KE GUDANG" style={{ minWidth: '120px' }} />
             <Column field="KODE" header="KODE" style={{ minWidth: '80px' }} />
-            <Column field="QTY" header="QTY" body={qtyBodyTemplate} style={{ minWidth: '80px' }} />
+            <Column field="DOS" header="DOS" body={dosBodyTemplate} style={{ minWidth: '80px' }} />
+            <Column field="ISI" header="ISI" style={{ minWidth: '60px' }} />
+            <Column field="QTY" header="QTY" style={{ minWidth: '80px' }} />
             <Column field="BARCODE" header="BARCODE" style={{ minWidth: '100px' }} /> 
             <Column field="SATUAN" header="SATUAN" style={{ minWidth: '80px' }} />    
             <Column field="USERNAME" header="USER" style={{ minWidth: '100px' }} />
@@ -582,6 +604,8 @@ export default function MutasiKirimData() {
           <Column field="KODE" header="KODE" sortable/>
           <Column field="BARCODE" header="BARCODE"/>
           <Column field="NAMA" header="NAMA"/>
+          <Column field="DOS" header="DOS   "/>
+          <Column field="ISI" header="ISI"/>
           <Column field="QTY" header="STOCK"/>
           <Column field="SATUAN" header="SATUAN"/>
           <Column field="GUDANG" header="GUDANG" />
@@ -605,4 +629,4 @@ export default function MutasiKirimData() {
       </Dialog>
     </div>
   );
-};
+}

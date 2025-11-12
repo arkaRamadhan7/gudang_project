@@ -4,7 +4,7 @@ import { API_ENDPOINTS } from "@/app/api/api";
 
 
 export async function POST(req, { params }) {
-  const { faktur } = params;
+  const { faktur } = await params;
 
   if (!faktur) {
     return NextResponse.json(
