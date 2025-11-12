@@ -51,14 +51,10 @@ export default function MutasiKirimData() {
 
 const fetchGudang = useCallback(async () => {
     try {
-      const res = await fetch("/api/gudang");
+      const res = await fetch("/api/nama-gudang");
       const json = await res.json();
-      
-      if (json.status === "00" && Array.isArray(json.data)) {
-        console.log("✅ Data gudang:", json.data); // Untuk memastikan
-        setGudangOptions(json.data);
-      } else {
-        setGudangOptions([]);
+      if (json.status === "00") {
+        setGudangOptions(json.namaGudang.map(nama => ({ label: nama, value: nama })));
       }
     } catch (error) {
       console.error("❌ Error fetch gudang:", error);
@@ -466,8 +462,6 @@ const fetchGudang = useCallback(async () => {
               options={gudangOptions} 
               value={formData.GUDANG_TERIMA} 
               onChange={(e) => handleInputChange('GUDANG_TERIMA', e.value)} 
-               optionLabel="nama"
-                optionValue="nama"
               showClear 
             />
           </div>

@@ -16,6 +16,8 @@ const defaultForm = {
   email: '',
   no_hp: '',
   role: '',
+  gudang: null,
+  toko: null,
 };
 
 const UserContent = () => {
@@ -27,6 +29,8 @@ const UserContent = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [form, setForm] = useState(defaultForm);
   const [roleOptions, setRoleOptions] = useState([]);
+  const [gudangOptions, setGudangOptions] = useState([]);
+  const [tokoOptions, setTokoOptions] = useState([]);
 
 const fetchRoles = async () => {
   try {
@@ -34,7 +38,6 @@ const fetchRoles = async () => {
     const json = await res.json();
 
     if (res.ok && Array.isArray(json.data)) {
-      // mapping data backend ke format primereact dropdown
       const mapped = json.data.map((r) => ({
         label: r.role, // label yang tampil
         value: r.role, // value yang dikirim ke form
@@ -48,6 +51,40 @@ const fetchRoles = async () => {
     toastRef.current?.showToast('99', 'Gagal memuat role');
   }
 };
+
+const fetchToko = async () => {
+  try {
+    const res = await fetch("/api/toko");
+    const json = await res.json()
+    
+   
+      setTokoOptions(json.data)
+  } catch (error) {
+    console.error("Fetch Toko Error:", error);
+    toastRef.current?.showToast('99', 'Gagal memuat Toko')
+  }
+}
+const fetchGudang = async () => {
+  try {
+    const res = await fetch("/api/gudang/nama");
+    const json = await res.json();
+    
+    if (res.ok && Array.isArray(json.namaGudang)) {
+      const map = json.namaGudang.map((g) => ({
+        label: g.nama, // Ambil properti 'nama'
+        value: g.nama  // Ambil properti 'nama'
+      }));
+      setGudangOptions(map);
+
+    } else {
+      // Tampilkan error jika data tidak ditemukan atau format salah
+      toastRef.current?.showToast('99', json.message || 'Gagal memuat gudang');
+    }
+  } catch (error) {
+    console.error('error get nama gudang', error);
+    toastRef.current?.showToast('99', 'Gagal memuat gudang');
+  }
+}
 
 
 const fetchUser = async () => {
@@ -101,6 +138,8 @@ const fetchUser = async () => {
           email: form.email,
           no_hp: form.no_hp,
           role: form.role,
+          gudang: form.gudang || null, 
+          toko: form.toko || null
         };
 
         if (form.password !== '') payload.password = form.password;
@@ -162,6 +201,8 @@ const fetchUser = async () => {
   useEffect(() => {
     fetchUser();
     fetchRoles();
+    fetchGudang();
+    fetchToko();
   }, []);
 
   return (
@@ -193,9 +234,11 @@ const fetchUser = async () => {
 
           <Column field="username" header="Username" filter />
           <Column field="email" header="Email" />
-       {/* kalau mau tampilkan, hati-hati sensitif */}
           <Column field="no_hp" header="No HP" />
           <Column field="role" header="Role" />
+          <Column field="gudang" header="Gudang" />
+          <Column field="toko" header="Toko" />
+
           
                 <Column
           header="Aksi"
@@ -214,6 +257,8 @@ const fetchUser = async () => {
                     password: '',
                     no_hp: row.no_hp,
                     role: row.role,
+                    gudang: row.gudang,
+                    toko: row.toko
                   });
                 }}
               />
@@ -221,7 +266,7 @@ const fetchUser = async () => {
                 icon="pi pi-trash text-sm"
                 size="small"
                 severity="danger"
-                onClick={() => handleDelete(row)}
+                 onClick={() => handleDelete(row)}
               />
             </div>
           )}
@@ -308,8 +353,42 @@ const fetchUser = async () => {
               placeholder="Pilih Role"
             />
           </div>
+          
+          {/* =================================== */}
+          {/* PERBAIKAN PADA DROPDOWN INI         */}
+          {/* =================================== */}
+          <div className="mb-3">
+            <label htmlFor="gudang">Gudang</label>
+            <Dropdown
+              id="gudang"
+              name="gudang"
+              value={form.gudang}
+              options={gudangOptions}
+              onChange={(e) => setForm((prev) => ({ ...prev, gudang: e.value }))}
+              className="w-full mt-3"
+              placeholder="Pilih Gudang"
+              showClear={true}
+              
+            />
+          </div>
+            <div className="mb-3">
+            <label htmlFor="toko">Toko</label>
+            <Dropdown
+              id="toko"
+              name="toko"
+              value={form.toko}
+              options={tokoOptions}
+              onChange={(e) => setForm((prev) => ({ ...prev, toko: e.value }))}
+              className="w-full mt-3"
+              placeholder="Pilih Toko"
+              optionLabel='NAMA'
+              optionValue='NAMA'
+              showClear={true}
+
+            />
+          </div>
             <div className="flex justify-end">
-            <Button
+            <Button 
               type="submit"
               label="Submit"
               severity="success"

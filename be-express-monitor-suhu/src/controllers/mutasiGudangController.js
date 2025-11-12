@@ -1,4 +1,3 @@
-
 import {db} from "../core/config/knex.js";
 import { format } from "date-fns";
 import { parse } from "dotenv";
@@ -346,3 +345,11 @@ export const getTotalColumnsMutasi = async (req, res) => {
     });
   }
 };
+
+export const data = async (req, res) => {
+  try {
+
+  } catch (error) {
+    
+  }
+}

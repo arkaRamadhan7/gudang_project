@@ -43,7 +43,7 @@ export const createNewUser = async (req, res) => {
   });
 }
 
-const { username, password, email, no_hp, role } = validation.data;
+const { username, password, email, no_hp, role, gudang, toko } = validation.data;
 
 const existingUser = await getUserByEmail(email);
 if (existingUser) {
@@ -56,7 +56,7 @@ if (existingUser) {
 
 const hashedPassword = await hashPassword(password);
 
-const newUser = await addUser({ username, password: hashedPassword, email, no_hp, role });
+const newUser = await addUser({ username, password: hashedPassword, email, no_hp, role, gudang, toko });
 
 return res.status(200).json({
   status: status.SUKSES,
@@ -68,10 +68,13 @@ return res.status(200).json({
     email: newUser.email,
     no_hp: newUser.no_hp,
     role: newUser.role,
+    gudang: newUser.gudang,
+    toko: newUser.toko
 },
 });
 
   } catch (error) {
+    console.error(error.message)
     return res.status(500).json({
       status: status.GAGAL,
       message: `Terjadi kesalahan pada server: ${error.message}`,
@@ -111,7 +114,7 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const validation = updateUserSchema.safeParse(req.body);
-
+    
     if (!validation.success) {
       return res.status(400).json({
         status: status.BAD_REQUEST,
@@ -123,7 +126,7 @@ export const updateUser = async (req, res) => {
         })),
       });
     }
-
+    
     const existingUser = await getUserById(id);
     if (!existingUser) {
       return res.status(404).json({
@@ -132,22 +135,33 @@ export const updateUser = async (req, res) => {
         datetime: datetime(),
       });
     }
-
-    const { username, password, email, no_hp, role } = validation.data;
-    const updateData = {
-      ...(username && { username }),
-      ...(email && { email }),
-      ...(no_hp && {no_hp}),
-      ...(role && { role }),
-    };
-
+    
+    const { username, password, email, no_hp, role, gudang, toko } = validation.data;
+    
+    // Gunakan hasOwnProperty atau 'in' operator untuk mengecek keberadaan field
+    const updateData = {};
+    
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (no_hp) updateData.no_hp = no_hp;
+    if (role) updateData.role = role;
+    
+    // Untuk field yang boleh null, cek apakah field ada di req.body
+    if ('gudang' in validation.data) {
+      updateData.gudang = gudang; // Bisa null
+    }
+    
+    if ('toko' in validation.data) {
+      updateData.toko = toko; // Bisa null
+    }
+    
     if (password) {
       updateData.password = await hashPassword(password);
     }
-
+    
     await updateUserById(id, updateData);
     const updatedUser = await getUserById(id);
-
+    
     return res.status(200).json({
       status: status.SUKSES,
       message: "Data user berhasil diperbarui",
@@ -158,6 +172,8 @@ export const updateUser = async (req, res) => {
         email: updatedUser.email,
         no_hp: updatedUser.no_hp,
         role: updatedUser.role,
+        gudang: updatedUser.gudang,
+        toko: updatedUser.toko
       },
     });
   } catch (error) {
@@ -168,8 +184,7 @@ export const updateUser = async (req, res) => {
       datetime: datetime(),
     });
   }
-};
-export const deleteUser = async (req,res) => {
+};export const deleteUser = async (req,res) => {
   try {
     const { id } =req.params;
 

@@ -110,6 +110,7 @@ const AppMenu = () => {
         },
         {
             label: "PENJUALAN",
+            roles: ['Admin Toko', 'superadmin'],
             items: [
                 {
                     label:"Master",
@@ -129,7 +130,8 @@ const AppMenu = () => {
                         {
                             label:"Tambah Stock",
                             icon:"pi pi-box", 
-                            to:"/penjualan/master/tambah-stock-dari-gudang"
+                            to:"/penjualan/master/tambah-stock-dari-gudang",
+                    
                         },
                     ] 
                 },
@@ -145,7 +147,7 @@ const AppMenu = () => {
         {
             label: 'GUDANG',
             icon: 'pi pi-fw pi-sitemap',
-            roles: ['user', 'admin', 'superadmin'],
+            roles: [ 'Admin Gudang', 'superadmin'],
             items: [
                 {
                     label: 'Gudang',
@@ -157,24 +159,25 @@ const AppMenu = () => {
                     label: 'Stock',
                     icon: 'pi pi-fw pi-box',
                     to: '/master/stock',
-                    roles: ['user', 'admin', 'superadmin']
+                    roles: [ 'Admin Gudang', 'superadmin']
                 },
                 {
                     label: 'Kirim Barang',
                     icon: 'pi pi-send',
                     to: '/master/kirim-barang',
-                    roles: ['user', 'admin', 'superadmin']
+                    roles: [ 'Admin Gudang', 'superadmin']
                 },
                 {
                     label: 'Terima Barang',
                     icon: 'pi pi-inbox',
                     to: '/master/terima-barang',
-                    roles: ['user', 'admin', 'superadmin']
+                    roles: [ 'Admin Gudang', 'superadmin']
                 },
                 {
                     label: "Request Stock",
                     icon: "pi pi-box",
-                    to: "/master/request-stock"
+                    to: "/master/request-stock" ,
+                    roles: ['Admin Gudang', 'superadmin']
 
                 },
 

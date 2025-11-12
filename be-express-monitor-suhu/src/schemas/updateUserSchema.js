@@ -5,7 +5,9 @@ export const registerSchema = z.object({
     password: z.string().min(7, 'password minimal 7 karakter'),
     email: z.string().email('fromat email tidak valid'),
     no_hp: z.string().min(10, 'no HP minimal 10 digit').max(15, 'No HP maksimal 15 digit'),
-    role: z.enum(['user', 'admin', 'superadmin']),
+    gudang: z.string().optional().nullable(),
+    toko: z.string().optional().nullable(),
+    role: z.string(),
 });
 
 export const updateUserSchema = z.object({
@@ -17,5 +19,7 @@ export const updateUserSchema = z.object({
   ]),
   email: z.string().email('fromat email tidak valid'),
   no_hp: z.string().min(10, 'no HP minimal 10 digit').max(15, 'No HP maksimal 15 digit'),
-  role: z.enum(['user', 'admin', 'superadmin']),
+  role: z.string(),
+  gudang: z.string().optional().nullable(),
+  toko: z.string().optional().nullable()
 });
