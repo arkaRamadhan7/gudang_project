@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import { classNames } from 'primereact/utils';
 import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'react';
@@ -51,22 +50,10 @@ const AppTopbar = forwardRef((props, ref) => {
                     'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible 
                 })}
             >
-                <button type="button" className="p-link layout-topbar-button">
-                    <i className="pi pi-calendar"></i>
-                    <span>Calendar</span>
-                </button>
-                
                 <Link href="/profile">
                     <button type="button" className="p-link layout-topbar-button">
                         <i className="pi pi-user"></i>
                         <span>Profile</span>
-                    </button>
-                </Link>
-                
-                <Link href="/documentation">
-                    <button type="button" className="p-link layout-topbar-button">
-                        <i className="pi pi-cog"></i>
-                        <span>Settings</span>
                     </button>
                 </Link>
             </div>
@@ -76,3 +63,4 @@ const AppTopbar = forwardRef((props, ref) => {
 
 AppTopbar.displayName = 'AppTopbar';
 export default AppTopbar;
+

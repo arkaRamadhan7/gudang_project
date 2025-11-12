@@ -1,0 +1,862 @@
+// ===================================
+// STOCK PAGE - GLOBAL SCSS
+// Simpan di: styles/page/stock.scss
+// ===================================
+
+// Variables - Dark Blue Theme
+$primary-color: #1e40af;
+$primary-dark: #1e3a8a;
+$primary-light: #3b82f6;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$bg-dark: #0f172a;
+$bg-secondary: #1e293b;
+$bg-card: #334155;
+$bg-light: #f8fafc;
+$text-primary: #f1f5f9;
+$text-secondary: #cbd5e1;
+$text-dark: #1e293b;
+$border-color: #475569;
+$border-light: #e2e8f0;
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ===================================
+// MAIN CARD CONTAINER
+// ===================================
+.card {
+  background: $bg-card;
+  border-radius: $border-radius;
+  padding: 20px;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-color 0%, $primary-light 100%);
+  }
+
+  // Header Title
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0 0 18px 0;
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// ===================================
+// BUTTON GROUP - ACTION BUTTONS
+// ===================================
+.mb-4 {
+  &.flex {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    .p-button {
+      padding: 9px 16px !important;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      transition: $transition;
+
+      // Tambah Button (Primary)
+      &:not(.p-button-secondary) {
+        background: $primary-color !important;
+        border-color: $primary-color !important;
+
+        &:enabled:hover {
+          background: $primary-light !important;
+          border-color: $primary-light !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+        }
+      }
+
+      // Reset Filter Button (Secondary)
+      &.p-button-secondary {
+        background: $bg-secondary !important;
+        border-color: $border-color !important;
+        color: $text-primary !important;
+
+        &:enabled:hover {
+          background: lighten($bg-secondary, 5%) !important;
+          border-color: $text-secondary !important;
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+}
+
+// ===================================
+// FILTER SECTION
+// ===================================
+.mb-4.p-3.border {
+  background: $bg-secondary !important;
+  border: 1px solid $border-color !important;
+  border-radius: $border-radius;
+  padding: 14px;
+  box-shadow: $shadow-sm;
+  margin-bottom: 16px;
+
+  &.bg-gray-50 {
+    background: $bg-secondary !important;
+  }
+
+  .grid {
+    display: grid;
+    gap: 12px;
+
+    &.grid-cols-1 {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      &.md\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .gap-3 {
+      gap: 12px;
+    }
+
+    // Filter Item Container
+    > div {
+      label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 5px;
+        letter-spacing: 0.2px;
+
+        &.text-sm {
+          font-size: 12.5px;
+        }
+
+        &.mb-1 {
+          margin-bottom: 5px;
+        }
+      }
+
+      // Dropdown in Filter
+      .p-dropdown {
+        width: 100%;
+        background: $bg-card !important;
+        border: 1px solid $border-color !important;
+        border-radius: 8px;
+
+        &:enabled:hover {
+          border-color: $primary-light !important;
+        }
+
+        &:not(.p-disabled).p-focus {
+          outline: none !important;
+          border-color: $primary-light !important;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        .p-dropdown-label {
+          color: $text-primary !important;
+          padding: 8px 10px !important;
+          font-size: 13px;
+
+          &.p-placeholder {
+            color: #64748b !important;
+          }
+        }
+
+        .p-dropdown-trigger {
+          color: #94a3b8 !important;
+        }
+      }
+    }
+  }
+}
+
+// ===================================
+// DATATABLE STYLING
+// ===================================
+.p-datatable {
+  background: #2c3e50 !important;
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+
+  // Wrapper
+  .p-datatable-wrapper {
+    background: #2c3e50 !important;
+    border-radius: $border-radius;
+  }
+
+  // Header
+  .p-datatable-thead > tr > th {
+    background: #3d4f63 !important;
+    color: #e2e8f0 !important;
+    font-weight: 700;
+    font-size: 11.5px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 8px !important;
+    border: none !important;
+    white-space: nowrap;
+  }
+
+  // Body
+  .p-datatable-tbody {
+    background: #2c3e50 !important;
+
+    > tr {
+      transition: $transition;
+      background: #2c3e50 !important;
+      border-bottom: 1px solid #3d4f63 !important;
+
+      &:hover {
+        background: #364f65 !important;
+        transform: scale(1.001);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+      }
+
+      &:nth-child(even) {
+        background: #2a3947 !important;
+
+        &:hover {
+          background: #364f65 !important;
+        }
+      }
+
+      > td {
+        padding: 9px 8px !important;
+        color: #94a3b8 !important;
+        font-size: 12.5px;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      // Action Column Buttons
+      .flex.gap-2 {
+        display: flex;
+        gap: 6px;
+
+        .p-button {
+          padding: 5px 10px !important;
+          font-size: 12px;
+          border-radius: 6px;
+
+          &.p-button-warning {
+            background: $warning-color !important;
+            border-color: $warning-color !important;
+
+            &:enabled:hover {
+              background: darken($warning-color, 8%) !important;
+              transform: scale(1.05);
+            }
+          }
+
+          &.p-button-danger {
+            background: $danger-color !important;
+            border-color: $danger-color !important;
+
+            &:enabled:hover {
+              background: darken($danger-color, 8%) !important;
+              transform: scale(1.05);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Empty Message
+  .p-datatable-emptymessage > td {
+    text-align: center;
+    color: $text-secondary;
+    font-style: italic;
+    padding: 24px !important;
+    font-size: 13px;
+  }
+
+  // Paginator
+  .p-paginator {
+    background: #34495e !important;
+    border: none !important;
+    border-top: 2px solid #3d566e !important;
+    padding: 10px !important;
+
+    .p-paginator-pages .p-paginator-page {
+      color: $text-secondary !important;
+      min-width: 32px;
+      height: 32px;
+
+      &.p-highlight {
+        background: $primary-color !important;
+        color: white !important;
+        border-color: $primary-color !important;
+      }
+
+      &:not(.p-highlight):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: $text-primary !important;
+      }
+    }
+
+    .p-paginator-first,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-last {
+      color: $text-secondary !important;
+
+      &:not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: $text-primary !important;
+      }
+    }
+  }
+
+  // Loading Overlay
+  .p-datatable-loading-overlay {
+    background: rgba(15, 23, 42, 0.8) !important;
+  }
+
+  // Scrollable
+  &.p-datatable-scrollable {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  // Small Size
+  &.p-datatable-sm {
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: 7px 6px !important;
+      font-size: 12px;
+    }
+  }
+}
+
+// ===================================
+// DIALOG FORM STYLING
+// ===================================
+.p-dialog {
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+  border: 1px solid $border-color;
+  background: $bg-card !important;
+
+  // Dialog Header
+  .p-dialog-header {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    color: white;
+    border-radius: $border-radius $border-radius 0 0;
+    padding: 14px 18px;
+    border: none;
+
+    .p-dialog-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .p-dialog-header-icon {
+      color: white !important;
+      width: 32px;
+      height: 32px;
+
+      &:enabled:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+  }
+
+  // Dialog Content
+  .p-dialog-content {
+    padding: 18px !important;
+    background: $bg-card !important;
+    border-radius: 0 0 $border-radius $border-radius;
+
+    form {
+      // Form Group (mb-3 divs)
+      .mb-3 {
+        margin-bottom: 14px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        label {
+          display: block;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: $text-primary;
+          margin-bottom: 5px;
+          letter-spacing: 0.2px;
+
+          &.text-sm {
+            font-size: 12.5px;
+          }
+
+          // Asterisk untuk required field
+          &::after {
+            content: '';
+          }
+        }
+
+        // Input Text
+        .p-inputtext {
+          width: 100%;
+          background: $bg-secondary !important;
+          border: 1px solid $border-color !important;
+          color: $text-primary !important;
+          border-radius: 8px;
+          padding: 8px 10px !important;
+          font-size: 13px;
+          transition: $transition;
+
+          &:enabled:focus {
+            outline: none !important;
+            border-color: $primary-light !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+          }
+
+          &:enabled:hover {
+            border-color: $primary-light !important;
+          }
+
+          &::placeholder {
+            color: #64748b !important;
+            opacity: 0.7;
+          }
+
+          &:read-only {
+            background: darken($bg-secondary, 3%) !important;
+            cursor: not-allowed;
+            opacity: 0.7;
+          }
+        }
+
+        // Dropdown
+        .p-dropdown {
+          width: 100%;
+          background: $bg-secondary !important;
+          border: 1px solid $border-color !important;
+          border-radius: 8px;
+
+          &:not(.p-disabled).p-focus {
+            outline: none !important;
+            border-color: $primary-light !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+          }
+
+          &:enabled:hover {
+            border-color: $primary-light !important;
+          }
+
+          .p-dropdown-label {
+            color: $text-primary !important;
+            padding: 8px 10px !important;
+            font-size: 13px;
+
+            &.p-placeholder {
+              color: #64748b !important;
+            }
+          }
+
+          .p-dropdown-trigger {
+            color: #94a3b8 !important;
+          }
+        }
+
+        // Calendar
+        .p-calendar {
+          width: 100%;
+
+          .p-inputtext {
+            background: $bg-secondary !important;
+            border: 1px solid $border-color !important;
+            color: $text-primary !important;
+            padding: 8px 10px !important;
+          }
+
+          .p-datepicker-trigger {
+            color: #94a3b8 !important;
+          }
+
+          &:not(.p-disabled).p-focus {
+            .p-inputtext {
+              border-color: $primary-light !important;
+              box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+            }
+          }
+        }
+      }
+
+      // Button Group at Bottom
+      .flex.justify-end.gap-2 {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid $border-color;
+
+        .p-button {
+          padding: 9px 18px !important;
+          font-weight: 600;
+          font-size: 13px;
+          border-radius: 8px;
+
+          &.p-button-secondary {
+            background: $bg-secondary !important;
+            border-color: $border-color !important;
+            color: $text-primary !important;
+
+            &:enabled:hover {
+              background: lighten($bg-secondary, 5%) !important;
+              border-color: $text-secondary !important;
+            }
+          }
+
+          &:not(.p-button-secondary) {
+            background: $primary-color !important;
+            border-color: $primary-color !important;
+
+            &:enabled:hover {
+              background: $primary-light !important;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// ===================================
+// DROPDOWN PANEL - DARK THEME
+// ===================================
+.p-dropdown-panel {
+  background: $bg-secondary !important;
+  border: 1px solid $border-color !important;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+  .p-dropdown-items {
+    background: $bg-secondary !important;
+
+    .p-dropdown-item {
+      color: $text-secondary !important;
+      padding: 8px 12px;
+      transition: $transition;
+      background: transparent !important;
+      font-size: 13px;
+
+      &:not(.p-highlight):not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: $text-primary !important;
+      }
+
+      &.p-highlight {
+        background: rgba(59, 130, 246, 0.25) !important;
+        color: $text-primary !important;
+      }
+    }
+  }
+
+  .p-dropdown-empty-message {
+    padding: 12px;
+    color: $text-secondary;
+    text-align: center;
+  }
+}
+
+// ===================================
+// CALENDAR PANEL - DARK THEME
+// ===================================
+.p-datepicker {
+  background: $bg-secondary !important;
+  border: 1px solid $border-color !important;
+  border-radius: 8px;
+  color: $text-primary !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+  .p-datepicker-header {
+    background: $bg-card !important;
+    color: $text-primary !important;
+    border-bottom: 1px solid $border-color;
+    padding: 10px;
+
+    .p-datepicker-title {
+      button {
+        color: $text-primary !important;
+        font-weight: 600;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+        }
+      }
+    }
+
+    .p-link {
+      color: $text-primary !important;
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+      }
+    }
+  }
+
+  table {
+    td {
+      padding: 6px;
+
+      > span {
+        color: $text-secondary !important;
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        font-size: 12.5px;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.15) !important;
+          color: $text-primary !important;
+        }
+
+        &.p-highlight {
+          background: $primary-color !important;
+          color: white !important;
+        }
+      }
+    }
+
+    th {
+      color: $text-primary !important;
+      padding: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+  }
+}
+
+// ===================================
+// TOAST NOTIFICATIONS
+// ===================================
+.p-toast {
+  .p-toast-message {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-primary;
+    box-shadow: $shadow-lg;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    padding: 12px 14px;
+
+    .p-toast-message-icon,
+    .p-toast-icon-close {
+      color: $text-primary;
+      font-size: 18px;
+    }
+
+    .p-toast-message-content {
+      .p-toast-summary {
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .p-toast-detail {
+        font-size: 13px;
+        margin-top: 2px;
+      }
+    }
+
+    &.p-toast-message-success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+
+      .p-toast-message-icon {
+        color: $success-color;
+      }
+    }
+
+    &.p-toast-message-error {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+
+      .p-toast-message-icon {
+        color: $danger-color;
+      }
+    }
+
+    &.p-toast-message-warn {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+
+      .p-toast-message-icon {
+        color: $warning-color;
+      }
+    }
+
+    &.p-toast-message-info {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+
+      .p-toast-message-icon {
+        color: $primary-light;
+      }
+    }
+  }
+}
+
+// ===================================
+// RESPONSIVE DESIGN
+// ===================================
+@media (max-width: 768px) {
+  .card {
+    padding: 14px;
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+  }
+
+  .mb-4.flex {
+    .p-button {
+      padding: 8px 14px !important;
+      font-size: 12px;
+    }
+  }
+
+  .mb-4.p-3 {
+    padding: 12px;
+  }
+
+  .p-datatable {
+    font-size: 11px;
+
+    .p-datatable-thead > tr > th {
+      padding: 7px 5px !important;
+      font-size: 10.5px !important;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 7px 5px !important;
+      font-size: 11.5px;
+    }
+
+    .flex.gap-2 .p-button {
+      padding: 4px 8px !important;
+      font-size: 11px;
+    }
+  }
+
+  .p-dialog {
+    width: 95vw !important;
+    max-width: none !important;
+
+    .p-dialog-header {
+      padding: 12px 14px;
+
+      .p-dialog-title {
+        font-size: 15px;
+      }
+    }
+
+    .p-dialog-content {
+      padding: 14px !important;
+
+      form {
+        .mb-3 {
+          margin-bottom: 12px;
+
+          label {
+            font-size: 12px;
+            margin-bottom: 4px;
+          }
+
+          .p-inputtext,
+          .p-dropdown-label {
+            padding: 7px 9px !important;
+            font-size: 12px;
+          }
+        }
+
+        .flex.justify-end.gap-2 {
+          .p-button {
+            padding: 8px 14px !important;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ===================================
+// ANIMATIONS
+// ===================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.p-datatable,
+.mb-4.p-3 {
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.15s;
+}
+
+// ===================================
+// UTILITY CLASSES
+// ===================================
+.w-full {
+  width: 100% !important;
+}
+
+.mt-2 {
+  margin-top: 8px !important;
+}
+
+.text-sm {
+  font-size: 12.5px !important;
+}
+
+.font-medium {
+  font-weight: 600 !important;
+}
+
+.block {
+  display: block !important;
+}
+
+.mb-1 {
+  margin-bottom: 5px !important;
+}

@@ -201,7 +201,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 12px;
     overflow: hidden;
 
-    // Header dengan search
+    // Header 
     .p-datatable-header {
         background: rgba(30, 41, 59, 0.5) !important;
         border: none !important;
@@ -214,42 +214,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
-        }
-
-        .p-input-icon-left {
-            .p-inputtext {
-                background: $bg-secondary;
-                border: 1px solid $border-color;
-                color: $text-primary;
-                padding: 0.75rem 1rem 0.75rem 2.5rem;
-                border-radius: 10px;
-                font-size: 0.95rem;
-                transition: $transition;
-                width: 300px;
-
-                &::placeholder {
-                    color: $text-secondary;
-                    opacity: 0.7;
-                }
-
-                &:hover {
-                    border-color: $primary-light;
-                    background: rgba(30, 41, 59, 0.8);
-                }
-
-                &:focus {
-                    outline: none;
-                    border-color: $primary-light;
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-                    background: rgba(30, 41, 59, 0.9);
-                }
-            }
-
-            i {
-                color: $text-secondary;
-                left: 0.75rem;
-                font-size: 1rem;
-            }
         }
     }
 

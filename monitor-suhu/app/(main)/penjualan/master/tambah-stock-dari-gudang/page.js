@@ -13,7 +13,7 @@ import { Toast } from 'primereact/toast';
 import { Tag } from 'primereact/tag';
 
 const RequestStockPage = () => {
-    // --- State Anda yang sudah ada ---
+    
     const [requestedStock, setRequestedStock] = useState([]);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -29,8 +29,6 @@ const RequestStockPage = () => {
     const [isTokoLoading, setIsTokoLoading] = useState(false);
     
     const toast = useRef(null);
-
-    // --- State baru untuk Tab Status Permintaan ---
     const [selectedTokoForStatus, setSelectedTokoForStatus] = useState(null);
     const [statusData, setStatusData] = useState([]);
     const [isLoadingStatus, setIsLoadingStatus] = useState(false);
@@ -248,14 +246,13 @@ const RequestStockPage = () => {
                 mode="decimal" 
                 showButtons 
                 min={1} 
-                className="p-inputnumber-sm w-28" // DILEBARKAN dari 80px ke w-28 (112px)
-                inputClassName="!text-center" // Ditambahkan agar angka tetap di tengah
+                className="p-inputnumber-sm w-28" 
+                inputClassName="!text-center" 
                 tooltip={`Stok tersedia: ${rowData.DOS} DOS`} 
                 tooltipOptions={{ position: 'top' }} 
             />
         );
     };
-    // --- BATAS PERBAIKAN ---
 
     const statusBodyTemplate = (rowData) => {
         const severityMap = {
@@ -275,7 +272,6 @@ const RequestStockPage = () => {
                     <h3 className="text-xl font-semibold mb-4">Buat Permintaan Stok ke Gudang</h3>
                     
                     <TabView className="custom-tabview">
-                        {/* TAB PERMINTAAN */}
                         <TabPanel 
                             header={
                                 <div className="flex align-items-center gap-2">

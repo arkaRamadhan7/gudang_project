@@ -70,7 +70,6 @@ const DiscountManagementPage = () => {
         }
     };
 
-    // --- Handler Aksi (Add, Edit, Delete) ---
 
     const handleAddDiscount = async () => {
         if (!selectedProduct || !selectedToko) return;
@@ -127,13 +126,11 @@ const DiscountManagementPage = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Gagal menghapus diskon', life: 3000 });
         }
     };
-    
-    // --- Fungsi Pembantu untuk UI ---
 
     const openDiscountDialog = (product) => {
         setSelectedProduct(product);
         if (product.DISCOUNT > 0) {
-            setIsEditMode(true); // Set mode Edit
+            setIsEditMode(true); 
             setDiscountData({
                 DISCOUNT: product.DISCOUNT,
                 START_DISC: new Date(product.START_DISC),
@@ -141,7 +138,7 @@ const DiscountManagementPage = () => {
                 HJ: product.HJ
             });
         } else {
-            setIsEditMode(false); // Set mode Tambah
+            setIsEditMode(false); 
             setDiscountData({ DISCOUNT: 0, START_DISC: new Date(), END_DISC: null, HJ: product.HJ });
         }
         setDialogVisible(true);

@@ -14,7 +14,7 @@ export const fetchAllUsers = async (req, res) => {
       status: 200,
       message: 'Data user berhasil diambil',
       users,
-      datetime: new Date().toISOString()
+      datetime: datetime()
     });
   } catch (err) {
     console.error(err);
@@ -204,7 +204,6 @@ export const getTotalusers = async (req,res) => {
 
     res.status(200).json({
       status: status.SUKSES,
-      total: data.total,
       message: 'Berhasil menampilkan seluruh users',
       datetime: datetime(),
       total: data.total
@@ -217,4 +216,23 @@ export const getTotalusers = async (req,res) => {
       error: err.message
     });
   }
+};
+
+export const usertoko = async (req,res) => {
+  try {
+    const data = await db ("users").where("toko"). first();
+
+    res.status(200).json ({
+      status : status.SUKSES,
+      message : 'Berhasil menampilkan users by toko',
+      datetime : datetime(),
+      data : data,
+    });
+    } catch (err) {
+      res.status(500).json({
+        status : status.ERROR,
+        message : 'Gagal mengambil data seluruh users by toko',
+        datetime : datetime()
+      });
+    }
 };

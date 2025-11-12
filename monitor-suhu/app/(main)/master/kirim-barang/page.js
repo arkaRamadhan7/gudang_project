@@ -49,16 +49,26 @@ export default function MutasiKirimData() {
     return date;
   };
 
-  const fetchGudang = useCallback(async () => {
+const fetchGudang = useCallback(async () => {
     try {
-      const res = await fetch("/api/nama-gudang");
+      const res = await fetch("/api/gudang");
       const json = await res.json();
-      if (json.status === "00") {
-        setGudangOptions(json.namaGudang.map(nama => ({ label: nama, value: nama })));
+      
+      if (json.status === "00" && Array.isArray(json.data)) {
+        console.log("✅ Data gudang:", json.data); // Untuk memastikan
+        setGudangOptions(json.data);
+      } else {
+        setGudangOptions([]);
       }
     } catch (error) {
-      console.error(error);
-      toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data gudang', life: 3000 });
+      console.error("❌ Error fetch gudang:", error);
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Gagal mengambil data gudang', 
+        life: 3000 
+      });
+      setGudangOptions([]);
     }
   }, []);
 
@@ -438,6 +448,8 @@ export default function MutasiKirimData() {
               options={gudangOptions} 
               value={formData.GUDANG_KIRIM} 
               onChange={(e) => handleInputChange('GUDANG_KIRIM', e.value)} 
+               optionLabel="nama"
+                optionValue="nama"
               showClear 
             />
             {!formData.GUDANG_KIRIM && (
@@ -454,6 +466,8 @@ export default function MutasiKirimData() {
               options={gudangOptions} 
               value={formData.GUDANG_TERIMA} 
               onChange={(e) => handleInputChange('GUDANG_TERIMA', e.value)} 
+               optionLabel="nama"
+                optionValue="nama"
               showClear 
             />
           </div>
