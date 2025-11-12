@@ -110,9 +110,11 @@ export const receivemutasi = async (req, res) => {
         const { faktur } = req.params;
         const { nama, kode, faktur_kirim, gudang_kirim, gudang_terima, barcode, qty, dos, isi, satuan, username } = req.body;
         const tgl = format(new Date(), "yyyy-MM-dd HH:mm");
+        const gudang = gudang_kirim
 
-        // ... (Semua validasi DOS, ISI, QTY vs calculatedQty, dan QTY vs mutasiKe tetap sama) ...
-        // ... (Logika NewBarcode dan newKode tetap sama) ...
+        const cekDos = await db("stock").where({kode, gudang }).first()
+        const DOS = cekDos.DOS - dos
+
         
         const lastStock = await db('stock').select('KODE').orderBy('KODE', 'desc').first();
         const lastBarcode = await db('stock').select('BARCODE').orderBy('BARCODE', 'desc').first();
@@ -131,7 +133,6 @@ export const receivemutasi = async (req, res) => {
         
         await db.transaction(async (trx) => {
             
-            // ... (Insert ke mutasigudang_dari dan mutasigudang "masuk" tetap sama) ...
             await trx("mutasigudang_dari").insert({
                 faktur, nama, kode: newKode, faktur_kirim, tgl, gudang_kirim, gudang_terima,
                 barcode: NewBarcode, dos, isi, qty, satuan, username,
@@ -141,22 +142,10 @@ export const receivemutasi = async (req, res) => {
                 barcode: NewBarcode, dos, isi, qty, username,
             });
 
-            // ... (Update mutasiggudang_ke dan mutasigudang "keluar" tetap sama) ...
             await trx("mutasigudang_ke").where({ faktur }).update({ status: "received", qty, dos, isi });
             await trx("mutasigudang").where({ faktur, posting: "keluar" }).update({ qty, dos, isi });
 
-
-            // --- [DIHAPUS] ---
-            // Logika untuk mengurangi stock pengirim dihapus
-            // karena sudah dilakukan oleh controller KIRIM.
-            /*
-            await trx("stock")
-                .where({ BARCODE: barcode, GUDANG: gudang_kirim })
-                .update({ qty: updateSisaStock, dos: updateDosPengirim });
-            */
-
-
-            // Insert stock baru di gudang PENERIMA (Aksi Utama)
+            await trx("stock").where({kode, gudang}).update({ DOS })
             await trx("stock").insert({
                 GUDANG: gudang_terima,
                 NAMA: nama,

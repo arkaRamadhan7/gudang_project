@@ -53,10 +53,13 @@ export default function MutasiKirimData() {
 
 const fetchGudang = useCallback(async () => {
     try {
-      const res = await fetch("/api/nama-gudang");
+      const res = await fetch("/api/gudang/nama");
       const json = await res.json();
       if (json.status === "00") {
-        setGudangOptions(json.namaGudang.map(nama => ({ label: nama, value: nama })));
+        setGudangOptions(json.namaGudang.map(item => ({
+          label: item.nama || item.NAMA,
+          value: item.nama || item.NAMA
+        })));
       }
     } catch (error) {
       console.error("❌ Error fetch gudang:", error);
@@ -101,6 +104,7 @@ const fetchGudang = useCallback(async () => {
             BARCODE: item.BARCODE,
             NAMA: item.NAMA,
             HJ: item.HJ,
+            DOS: item.DOS,
             SATUAN: item.SATUAN,
             QTY: item.QTY,
             GUDANG: item.GUDANG,
@@ -133,6 +137,7 @@ const fetchGudang = useCallback(async () => {
             BARCODE: item.BARCODE,
             NAMA: item.NAMA,
             HJ: item.HJ,
+            DOS: item.DOS,
             SATUAN: item.SATUAN,
             QTY: item.QTY,
             GUDANG: item.GUDANG,
@@ -464,8 +469,6 @@ const fetchGudang = useCallback(async () => {
               options={gudangOptions} 
               value={formData.GUDANG_KIRIM} 
               onChange={(e) => handleInputChange('GUDANG_KIRIM', e.value)} 
-               optionLabel="nama"
-                optionValue="nama"
               showClear 
             />
             {!formData.GUDANG_KIRIM && (

@@ -110,7 +110,7 @@ const AppMenu = () => {
         },
         {
             label: "PENJUALAN",
-            roles: ['Admin Toko', 'superadmin'],
+            roles: ['Admin Toko', 'superadmin', 'Kasir'],
             items: [
                 {
                     label:"Master",
