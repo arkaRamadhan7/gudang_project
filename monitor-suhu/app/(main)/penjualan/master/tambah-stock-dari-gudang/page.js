@@ -15,10 +15,7 @@ import { useAuth } from "@/app/(auth)/context/authContext";
 
 
 const RequestStockPage = () => {
-    const toast = useRef(null);
-    const { user } = useAuth();
-    
-    // --- State yang sudah ada ---
+    // --- State Anda yang sudah ada ---
     const [requestedStock, setRequestedStock] = useState([]);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +29,10 @@ const RequestStockPage = () => {
     const [tokoList, setTokoList] = useState([]);
     const [selectedToko, setSelectedToko] = useState(null);
     const [isTokoLoading, setIsTokoLoading] = useState(false);
+    
+    const toast = useRef(null);
+
+    // --- State baru untuk Tab Status Permintaan ---
     const [selectedTokoForStatus, setSelectedTokoForStatus] = useState(null);
     const [statusData, setStatusData] = useState([]);
     const [isLoadingStatus, setIsLoadingStatus] = useState(false);
@@ -305,8 +306,8 @@ const RequestStockPage = () => {
                 mode="decimal" 
                 showButtons 
                 min={1} 
-                className="p-inputnumber-sm w-28"
-                inputClassName="!text-center"
+                className="p-inputnumber-sm w-28" // DILEBARKAN dari 80px ke w-28 (112px)
+                inputClassName="!text-center" // Ditambahkan agar angka tetap di tengah
                 tooltip={`Stok tersedia: ${rowData.DOS} DOS`} 
                 tooltipOptions={{ position: 'top' }} 
             />
@@ -340,7 +341,6 @@ const RequestStockPage = () => {
                     <h3 className="text-xl font-semibold mb-4">Buat Permintaan Stok ke Gudang</h3>
                     
                     <TabView className="custom-tabview">
-                        {/* TAB PERMINTAAN */}
                         <TabPanel 
                             header={
                                 <div className="flex align-items-center gap-2">

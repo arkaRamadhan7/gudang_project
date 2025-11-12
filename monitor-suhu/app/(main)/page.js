@@ -149,20 +149,11 @@ const Dashboard = () => {
         return formatCurrency(rowData.KREDIT);
     };
 
-    // Header tabel dengan search
+    // Header tabel 
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between align-items-center">
                 <h5 className="m-0">Data Penjualan</h5>
-                <span className="p-input-icon-left">
-                    <i className="pi pi-search" />
-                    <InputText
-                        type="search"
-                        value={globalFilter}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
-                        placeholder="Cari data..."
-                    />
-                </span>
             </div>
         );
     };
@@ -270,7 +261,6 @@ const Dashboard = () => {
                         globalFilter={globalFilter}
                         header={renderHeader()}
                         emptyMessage="Tidak ada data penjualan"
-                        responsiveLayout="scroll"
                         stripedRows
                         className="custom-datatable"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"

@@ -1,4 +1,3 @@
-
 export const API_URL = process.env.API_URL;
 
 export const API_ENDPOINTS = {
@@ -7,7 +6,7 @@ export const API_ENDPOINTS = {
   ADD_USER: `${API_URL}/users/create`,
   EDIT_USER: (id) => `${API_URL}/users/edit/${id}`,
   DELETE_USER: (id) => `${API_URL}/users/delete/${id}`,
-  UPDATE_USER: `${API_URL}/users/update`, // Tambahan untuk update profile
+  UPDATE_USER: `${API_URL}/users/update`,
   CHANGE_PASSWORD: `${API_URL}/users/change-password`,
   TOTAL_USERS : `${API_URL}/users/total`,
 
@@ -135,7 +134,6 @@ export const API_ENDPOINTS = {
     GET_LAPORAN_SISASTOCK: `${API_URL}/laporan/stock`,
     GET_LAPORAN_MUTASI: `${API_URL}/laporan/mutasi`,
 
-    //PENJUALAN
     GET_STOCK_BY_KODE_TOKO: (kode_toko) => `${API_URL}/penjualan/${kode_toko}`,
     ADD_TRANSACTION: `${API_URL}/penjualan/transaksi`,
     PERUBAHAN_HARGA_DAN_DISKON: `${API_URL}/penjualan/perubahan`,
@@ -148,12 +146,12 @@ export const API_ENDPOINTS = {
     STATUS: (kode_toko) => `${API_URL}/penjualan/status/${kode_toko}`,
     REJECTED: `${API_URL}/penjualan/rejected`,
     GET_ALL_PENJUALAN : `${API_URL}/penjualan/`,
-    //diskon periode
+
     GET_STOCK_FOR_DISKON: (kode_toko) => `${API_URL}/product/${kode_toko}`,
     ADD_DISKON: (id) => `${API_URL}/product/add/${id}`,
     EDIT_DISKON: (id) => `${API_URL}/product/edit/${id}`,
     DELETE_DISKON: (id) => `${API_URL}/product/delete/${id}`,
-    //data-penjualan
+
     DATA_PENJUALAN: (kode_toko) => `${API_URL}/data-penjualan/${kode_toko}`
      
 }

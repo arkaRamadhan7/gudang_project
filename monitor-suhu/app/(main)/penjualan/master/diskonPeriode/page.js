@@ -158,7 +158,6 @@ const DiscountManagementPage = () => {
         }
     };
 
-    // --- Handler Aksi (Add, Edit, Delete) ---
 
     const handleAddDiscount = async () => {
         if (!selectedProduct || !selectedToko) return;
@@ -252,13 +251,11 @@ const DiscountManagementPage = () => {
             });
         }
     };
-    
-    // --- Fungsi Pembantu untuk UI ---
 
     const openDiscountDialog = (product) => {
         setSelectedProduct(product);
         if (product.DISCOUNT > 0) {
-            setIsEditMode(true);
+            setIsEditMode(true); // Set mode Edit
             setDiscountData({
                 DISCOUNT: product.DISCOUNT,
                 START_DISC: product.START_DISC ? new Date(product.START_DISC) : null,
@@ -266,13 +263,8 @@ const DiscountManagementPage = () => {
                 HJ: product.HJ
             });
         } else {
-            setIsEditMode(false);
-            setDiscountData({ 
-                DISCOUNT: 0, 
-                START_DISC: new Date(), 
-                END_DISC: null, 
-                HJ: product.HJ 
-            });
+            setIsEditMode(false); // Set mode Tambah
+            setDiscountData({ DISCOUNT: 0, START_DISC: new Date(), END_DISC: null, HJ: product.HJ });
         }
         setDialogVisible(true);
     };

@@ -8,8 +8,9 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { Toast } from 'primereact/toast';
 import { format, parseISO } from 'date-fns';
-import ToastNotifier from '@/app/components/ToastNotifier';
+import '@/styles/page/stock.scss';
 
 const initialFormState = {
   GUDANG: '', 
@@ -33,7 +34,7 @@ const initialFormState = {
 };
 
 const StockContent = () => {
-  const toastRef = useRef(null);
+  const toast = useRef(null);
   const [stock, setStock] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState({
@@ -50,7 +51,6 @@ const StockContent = () => {
   });
   const [dialogMode, setDialogMode] = useState(null);
   const [selectedStock, setSelectedStock] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState(initialFormState);
   
   const formatDateToDB = (date) => {
@@ -88,12 +88,22 @@ const StockContent = () => {
           label: item[labelField] || item.KETERANGAN || item.NAMA
         }));
       } else {
-        toastRef.current?.showToast(json.status, json.message || `Gagal memuat data ${endpoint}`);
+        toast.current?.show({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: json.message || `Gagal memuat data ${endpoint}`, 
+          life: 3000 
+        });
         return [];
       }
     } catch (err) {
       console.error(`Error fetching ${endpoint}:`, err);
-      toastRef.current?.showToast('99', `Gagal memuat data ${endpoint}`);
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: `Gagal memuat data ${endpoint}`, 
+        life: 3000 
+      });
       return [];
     }
   }, []);
@@ -121,15 +131,22 @@ const StockContent = () => {
       const res = await fetch("/api/gudang");
       const json = await res.json();
 
-      if (json.status === "00") {
-        return json.gudang.map(item => ({
-          label: item.nama,
-          value: item.nama,
+      if (json.status === "00" && Array.isArray(json.data)) {
+        console.log("✅ Data gudang:", json.data);
+        return json.data.map(item => ({
+          label: item.nama || item.NAMA,
+          value: item.nama || item.NAMA,
         }));
       }
       return [];
     } catch (error) {
       console.error("Form Gagal ambil nama gudang", error);
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Gagal mengambil data gudang', 
+        life: 3000 
+      });
       return [];  
     }
   }, []);
@@ -143,17 +160,27 @@ const StockContent = () => {
       if (json.status === '00') {
         const processedData = json.data.map(item => ({
           ...item,
-          id: item.id || item.ID, // Pastikan ada id
+          id: item.id || item.ID,
           TGL_MASUK: parseDateFromDB(item.TGL_MASUK),
           EXPIRED: parseDateFromDB(item.EXPIRED)
         }));
         setStock(processedData);
       } else {
-        toastRef.current?.showToast(json.status, json.message);
+        toast.current?.show({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: json.message, 
+          life: 3000 
+        });
       }
     } catch (err) {
       console.error('Error fetching stock:', err);
-      toastRef.current?.showToast('99', 'Gagal memuat data stock');
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Gagal memuat data stock', 
+        life: 3000 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +204,6 @@ const StockContent = () => {
         toko: tokoData
       });
       
-      // Panggil fetchStock setelah options dimuat
       await fetchStock();
     };
 
@@ -235,69 +261,85 @@ const StockContent = () => {
     setForm(prev => ({ ...prev, [name]: formattedDate }));
   }, []);
 
-  // PERBAIKAN UTAMA: Validasi form dan penanganan submit yang lebih baik
   const validateForm = () => {
     const requiredFields = ['GUDANG', 'KODE', 'NAMA', 'BARCODE'];
     const emptyFields = requiredFields.filter(field => !form[field] || form[field].trim() === '');
     
     if (emptyFields.length > 0) {
-      toastRef.current?.showToast('99', `Field wajib tidak boleh kosong: ${emptyFields.join(', ')}`);
+      toast.current?.show({ 
+        severity: 'warn', 
+        summary: 'Validasi', 
+        detail: `Field wajib tidak boleh kosong: ${emptyFields.join(', ')}`, 
+        life: 3000 
+      });
       return false;
     }
     
     return true;
   };
 
-// Letakkan di sini, sebelum handleSubmit
-const closeDialog = useCallback(() => {
-  setDialogMode(null);
-  setForm(initialFormState);
-  setSelectedStock(null);
-}, []);
+  const closeDialog = useCallback(() => {
+    setDialogMode(null);
+    setForm(initialFormState);
+    setSelectedStock(null);
+  }, []);
 
-const handleSubmit = useCallback(async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-  setIsLoading(true);
+  const handleSubmit = useCallback(async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsLoading(true);
 
-  try {
-    const method = dialogMode === 'add' ? 'POST' : 'PUT';
-    const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
-    
-    const json = await res.json();
+    try {
+      const method = dialogMode === 'add' ? 'POST' : 'PUT';
+      const url = dialogMode === 'add' ? '/api/stock' : `/api/stock/${selectedStock.KODE}`;
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      
+      const json = await res.json();
 
-    if (res.ok && json.status === '00') {
-      toastRef.current?.showToast(json.status, json.message);
-      await fetchStock();
-      closeDialog(); // sekarang aman
-    } else {
-      toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menyimpan data');
+      if (res.ok && json.status === '00') {
+        toast.current?.show({ 
+          severity: 'success', 
+          summary: 'Berhasil', 
+          detail: json.message, 
+          life: 3000 
+        });
+        await fetchStock();
+        closeDialog();
+      } else {
+        toast.current?.show({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: json.message || 'Gagal menyimpan data', 
+          life: 3000 
+        });
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: err.message || 'Terjadi kesalahan saat menyimpan data', 
+        life: 3000 
+      });
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error('Submit error:', err);
-    toastRef.current?.showToast('error', err.message || 'Terjadi kesalahan saat menyimpan data');
-  } finally {
-    setIsLoading(false);
-  }
-}, [dialogMode, form, selectedStock, fetchStock, closeDialog]);
+  }, [dialogMode, form, selectedStock, fetchStock, closeDialog]);
 
   const handleEdit = useCallback((row) => {
     console.log('Edit row data:', row);
     setDialogMode('edit');
     setSelectedStock(row);
     
-    // Mapping semua field dari row ke form
     const formData = {};
     Object.keys(initialFormState).forEach(key => {
       formData[key] = row[key] || '';
     });
     
-    // Khusus untuk tanggal
     if (row.TGL_MASUK) {
       formData.TGL_MASUK = parseDateFromDB(row.TGL_MASUK);
     }
@@ -316,7 +358,12 @@ const handleSubmit = useCallback(async (e) => {
     console.log("Delete Stock ID:", stockId);
     
     if (!stockId) {
-      toastRef.current?.showToast('99', 'ID tidak ditemukan');
+      toast.current?.show({ 
+        severity: 'warn', 
+        summary: 'Error', 
+        detail: 'ID tidak ditemukan', 
+        life: 3000 
+      });
       return;
     }
     
@@ -326,14 +373,29 @@ const handleSubmit = useCallback(async (e) => {
       const json = await res.json();
 
       if (res.ok && json.status === '00') {
-        toastRef.current?.showToast('00', json.message || 'Data berhasil dihapus');
+        toast.current?.show({ 
+          severity: 'success', 
+          summary: 'Berhasil', 
+          detail: json.message || 'Data berhasil dihapus', 
+          life: 3000 
+        });
         await fetchStock();
       } else {
-        toastRef.current?.showToast(json.status || '99', json.message || 'Gagal menghapus data');
+        toast.current?.show({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: json.message || 'Gagal menghapus data', 
+          life: 3000 
+        });
       }
     } catch (err) {
       console.error('Delete error:', err);
-      toastRef.current?.showToast('99', err.message || 'Terjadi kesalahan saat menghapus data');
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: err.message || 'Terjadi kesalahan saat menghapus data', 
+        life: 3000 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -357,7 +419,7 @@ const handleSubmit = useCallback(async (e) => {
     }
 
     return (
-      <div className="mb-3">
+      <div className="mutasi-form-group">
         <label htmlFor={name}>{label}</label>
         <Calendar
           id={name}
@@ -366,7 +428,6 @@ const handleSubmit = useCallback(async (e) => {
           onChange={(e) => handleCalendarChange(name, e.value)}
           dateFormat="yy-mm-dd"
           showIcon
-          className="w-full mt-2"
           placeholder={`Pilih ${label}`}
         />
       </div>
@@ -390,138 +451,140 @@ const handleSubmit = useCallback(async (e) => {
       visible={!!dialogMode}
       onHide={closeDialog}
       style={{ width: '40rem' }}
+      className="mutasi-dialog"
     >
       <form onSubmit={handleSubmit}>
-        {/* Fix Gudang dropdown */}
-        <div className="mb-3">
-          <label htmlFor="GUDANG">Gudang *</label>
-          <Dropdown
-            id="GUDANG"
-            name="GUDANG"
-            value={form.GUDANG}
-            options={options.gudang}
-            onChange={(e) => handleDropdownChange('GUDANG', e.value)}
-            placeholder="Pilih Gudang"
-            className="w-full mt-2"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-          />
+        {/* Grid 2 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          <div className="mutasi-form-group">
+            <label htmlFor="GUDANG">Gudang *</label>
+            <Dropdown
+              id="GUDANG"
+              name="GUDANG"
+              value={form.GUDANG}
+              options={options.gudang}
+              onChange={(e) => handleDropdownChange('GUDANG', e.value)}
+              placeholder="Pilih Gudang"
+              optionLabel="label"
+              optionValue="value"
+              showClear
+            />
+          </div>
+          
+          <div className="mutasi-form-group">
+            <label htmlFor="KODE_TOKO">KODE TOKO</label>
+            <Dropdown
+              id="KODE_TOKO"
+              name="KODE_TOKO"
+              value={form.KODE_TOKO}
+              options={options.toko}
+              onChange={(e) => handleDropdownChange('KODE_TOKO', e.value)}
+              placeholder="Pilih Kode"
+              optionLabel="label"
+              optionValue="value"
+              showClear
+            />
+          </div>
+        </div>
+
+        {/* Grid 2 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          <div className="mutasi-form-group">
+            <label htmlFor="KODE">KODE *</label>
+            <InputText
+              id="KODE"
+              name="KODE"
+              value={form.KODE || ''}
+              onChange={handleFormChange}
+              placeholder="Masukkan kode"
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="NAMA">NAMA *</label>
+            <InputText
+              id="NAMA"
+              name="NAMA"
+              value={form.NAMA || ''}
+              onChange={handleFormChange}
+              placeholder="Masukkan nama"
+            />
+          </div>
+        </div>
+
+        {/* Grid 2 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          <div className="mutasi-form-group">
+            <label htmlFor="JENIS">JENIS</label>
+            <InputText
+              id="JENIS"
+              name="JENIS"
+              value={form.JENIS || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="GOLONGAN">Golongan</label>
+            <Dropdown
+              id="GOLONGAN"
+              name="GOLONGAN"
+              value={form.GOLONGAN}
+              options={options.golongan}
+              onChange={(e) => handleDropdownChange('GOLONGAN', e.value)}
+              placeholder="Pilih Golongan"
+              optionLabel="label"
+              optionValue="value"
+              showClear
+            />
+          </div>
         </div>
         
-        <div className="mb-3">
-          <label htmlFor="KODE_TOKO">KODE TOKO</label>
-          <Dropdown
-            id="KODE_TOKO"
-            name="KODE_TOKO"
-            value={form.KODE_TOKO}
-            options={options.toko}
-            onChange={(e) => handleDropdownChange('KODE_TOKO', e.value)}
-            placeholder="Pilih Kode"
-            className="w-full mt-2"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-          />
+        {/* Grid 3 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-3">
+          <div className="mutasi-form-group">
+            <label htmlFor="RAK">RAK</label>
+            <Dropdown
+              id="RAK"
+              name="RAK"
+              value={form.RAK}
+              options={options.rak}
+              onChange={(e) => handleDropdownChange('RAK', e.value)}
+              placeholder="Pilih RAK"
+              optionLabel="label"
+              optionValue="value"
+              showClear
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="DOS">DOS</label>
+            <InputText
+              id="DOS"
+              name="DOS"
+              value={form.DOS || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="SATUAN">Satuan</label>
+            <Dropdown
+              id="SATUAN"
+              name="SATUAN"
+              value={form.SATUAN}
+              options={options.satuan}
+              onChange={(e) => handleDropdownChange('SATUAN', e.value)}
+              placeholder="Pilih Satuan"
+              optionLabel="label"
+              optionValue="value"
+              showClear
+            />
+          </div>
         </div>
 
-        {/* Required fields dengan asterisk */}
-        <div className="mb-3">
-          <label htmlFor="KODE">KODE *</label>
-          <InputText
-            id="KODE"
-            name="KODE"
-            value={form.KODE || ''}
-            onChange={handleFormChange}
-            className="w-full mt-2"
-            placeholder="Masukkan kode"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="NAMA">NAMA *</label>
-          <InputText
-            id="NAMA"
-            name="NAMA"
-            value={form.NAMA || ''}
-            onChange={handleFormChange}
-            className="w-full mt-2"
-            placeholder="Masukkan nama"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="JENIS">JENIS</label>
-          <InputText
-            id="JENIS"
-            name="JENIS"
-            value={form.JENIS || ''}
-            onChange={handleFormChange}
-            className="w-full mt-2"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="GOLONGAN">Golongan</label>
-          <Dropdown
-            id="GOLONGAN"
-            name="GOLONGAN"
-            value={form.GOLONGAN}
-            options={options.golongan}
-            onChange={(e) => handleDropdownChange('GOLONGAN', e.value)}
-            className="w-full mt-2"
-            placeholder="Pilih Golongan"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-          />
-        </div>
-        
-        <div className="mb-3">
-          <label htmlFor="RAK">RAK</label>
-          <Dropdown
-            id="RAK"
-            name="RAK"
-            value={form.RAK}
-            options={options.rak}
-            onChange={(e) => handleDropdownChange('RAK', e.value)}
-            className="w-full mt-2"
-            placeholder="Pilih RAK"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="DOS">DOS</label>
-          <InputText
-            id="DOS"
-            name="DOS"
-            value={form.DOS || ''}
-            onChange={handleFormChange}
-            className="w-full mt-2"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="SATUAN">Satuan</label>
-          <Dropdown
-            id="SATUAN"
-            name="SATUAN"
-            value={form.SATUAN}
-            options={options.satuan}
-            onChange={(e) => handleDropdownChange('SATUAN', e.value)}
-            className="w-full mt-2"
-            placeholder="Pilih Satuan"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="block text-sm font-medium mb-1">BARCODE *</label>
+        <div className="mutasi-form-group">
+          <label>BARCODE *</label>
           <InputText
             id="BARCODE"
             name="BARCODE"
@@ -529,28 +592,86 @@ const handleSubmit = useCallback(async (e) => {
             onChange={handleFormChange}
             readOnly={dialogMode === 'edit'}
             placeholder="Masukkan Barcode"
-            className="w-full mt-2"
           />
         </div>
 
-        {['ISI', 'DISCOUNT', 'HB', 'HJ', 'BERAT', 'QTY'].map((field) => (
-          <div key={field} className="mb-3">
-            <label htmlFor={field}>{field.replace(/_/g, ' ')}</label>
+        {/* Grid 3 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-3">
+          <div className="mutasi-form-group">
+            <label htmlFor="ISI">ISI</label>
             <InputText
-              id={field}
-              name={field}
-              value={form[field] || ''}
+              id="ISI"
+              name="ISI"
+              value={form.ISI || ''}
               onChange={handleFormChange}
-              className="w-full mt-2"
-              type={['HB', 'HJ', 'QTY', 'BERAT'].includes(field) ? 'number' : 'text'}
             />
           </div>
-        ))}
 
-        {renderCalendarInput('TGL_MASUK', 'Tanggal Masuk')}
-        {renderCalendarInput('EXPIRED', 'Tanggal Expired')}
+          <div className="mutasi-form-group">
+            <label htmlFor="DISCOUNT">DISCOUNT</label>
+            <InputText
+              id="DISCOUNT"
+              name="DISCOUNT"
+              value={form.DISCOUNT || ''}
+              onChange={handleFormChange}
+            />
+          </div>
 
-        <div className="flex justify-end gap-2">
+          <div className="mutasi-form-group">
+            <label htmlFor="BERAT">BERAT</label>
+            <InputText
+              id="BERAT"
+              name="BERAT"
+              type="number"
+              value={form.BERAT || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+        </div>
+
+        {/* Grid 3 Kolom */}
+        <div className="mutasi-grid mutasi-grid-cols-3">
+          <div className="mutasi-form-group">
+            <label htmlFor="HB">HB (Harga Beli)</label>
+            <InputText
+              id="HB"
+              name="HB"
+              type="number"
+              value={form.HB || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="HJ">HJ (Harga Jual)</label>
+            <InputText
+              id="HJ"
+              name="HJ"
+              type="number"
+              value={form.HJ || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+
+          <div className="mutasi-form-group">
+            <label htmlFor="QTY">QTY</label>
+            <InputText
+              id="QTY"
+              name="QTY"
+              type="number"
+              value={form.QTY || ''}
+              onChange={handleFormChange}
+            />
+          </div>
+        </div>
+
+        {/* Grid 2 Kolom - Calendar */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          {renderCalendarInput('TGL_MASUK', 'Tanggal Masuk')}
+          {renderCalendarInput('EXPIRED', 'Tanggal Expired')}
+        </div>
+
+        <div className="mutasi-button-wrapper">
           <Button 
             type="button" 
             label="Batal" 
@@ -560,9 +681,10 @@ const handleSubmit = useCallback(async (e) => {
           <Button 
             type="submit" 
             label="Simpan" 
-            severity="primary" 
+            severity="success" 
             icon="pi pi-save" 
             loading={isLoading}
+            className="p-button-success"
           />
         </div>
       </form>
@@ -570,114 +692,121 @@ const handleSubmit = useCallback(async (e) => {
   );
 
   return (
-    <div className="card">
-      <h3 className="text-xl font-semibold">Master Stock</h3>
-
-      <div className="mb-4 flex gap-2">
-        <Button
-          label="Tambah Stock"
-          icon="pi pi-plus"
-          onClick={openAddDialog}
-        />
-        <Button
-          label="Reset Filter"
-          icon="pi pi-refresh"
-          severity="secondary"
-          onClick={clearFilters}
-        />
-      </div>
+    <div className="mutasi-container">
+      <Toast ref={toast} />
       
-      <div className="mb-4 p-3 border rounded-lg bg-gray-50">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">Filter RAK</label>
+      {/* HEADER SECTION */}
+      <div className="mutasi-header">
+        <h2>Master Stock</h2>
+      </div>
+
+      {/* FORM SECTION - Action Buttons */}
+      <div className="mutasi-form">
+        <div className="mutasi-button-wrapper" style={{ justifyContent: 'flex-start', marginBottom: '14px' }}>
+          <Button
+            label="Tambah Stock"
+            icon="pi pi-plus"
+            onClick={openAddDialog}
+            className="p-button-success"
+          />
+          <Button
+            label="Reset Filter"
+            icon="pi pi-refresh"
+            severity="secondary"
+            onClick={clearFilters}
+          />
+        </div>
+        
+        {/* FILTER SECTION */}
+        <div className="mutasi-grid mutasi-grid-cols-3">
+          <div className="mutasi-form-group">
+            <label>Filter RAK</label>
             <Dropdown
               value={filters.rak}
               options={options.rak}
               onChange={(e) => handleFilterChange('rak', e.value)}
-              className="w-full"
-              placeholder="Pilih RAK "
+              placeholder="Pilih RAK"
               optionLabel="label"
               optionValue="value"
               showClear
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Filter Satuan</label>
+          <div className="mutasi-form-group">
+            <label>Filter Satuan</label>
             <Dropdown
               value={filters.satuan}
               options={options.satuan}
               onChange={(e) => handleFilterChange('satuan', e.value)}
-              className="w-full"
               placeholder="Pilih Satuan"
               optionLabel="label"
               optionValue="value"
               showClear
             />
           </div>
-          <div>
-            <label className='block text-sm font-medium mb-1'>Filter Gudang</label>
+          <div className="mutasi-form-group">
+            <label>Filter Gudang</label>
             <Dropdown
               value={filters.gudang}
               options={options.gudang}
               onChange={(e) => handleFilterChange('gudang', e.value)}
-              className='w-full'
-              placeholder='Pilih Gudang'
-              optionLabel='label'
-              optionValue='value'
+              placeholder="Pilih Gudang"
+              optionLabel="label"
+              optionValue="value"
               showClear
             />
           </div>
         </div>
-      </div>
-      
-      <DataTable
-        value={filteredStocks}
-        paginator
-        rows={10}
-        loading={isLoading}
-        scrollable
-        size="small"
-        emptyMessage="Tidak ada data stock"
-      >
-        {Object.keys(initialFormState)
-          .filter(key => key !== 'BERAT')
-          .map(key => (
-            <Column 
-              key={key} 
-              field={key} 
-              header={key.replace(/_/g, ' ')}
-              body={key === 'TGL_MASUK' || key === 'EXPIRED' ? 
-                (rowData) => renderDateColumn(rowData, key) : undefined
-              }
+
+        {/* TABLE SECTION */}
+        <div className="mutasi-table">
+          <DataTable
+            value={filteredStocks}
+            paginator
+            rows={10}
+            loading={isLoading}
+            scrollable
+            size="small"
+            emptyMessage="Tidak ada data stock"
+          >
+            {Object.keys(initialFormState)
+              .filter(key => key !== 'BERAT')
+              .map(key => (
+                <Column 
+                  key={key} 
+                  field={key} 
+                  header={key.replace(/_/g, ' ')}
+                  style={{ minWidth: '100px' }}
+                  body={key === 'TGL_MASUK' || key === 'EXPIRED' ? 
+                    (rowData) => renderDateColumn(rowData, key) : undefined
+                  }
+                />
+              ))}
+              
+            <Column
+              header="AKSI"
+              style={{ minWidth: '100px' }}
+              body={(row) => (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <Button
+                    icon="pi pi-pencil"
+                    className="p-button-warning p-button-sm"
+                    onClick={() => handleEdit(row)}
+                    tooltip="Edit"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    className="p-button-danger p-button-sm"
+                    onClick={() => handleDelete(row)}
+                    tooltip="Hapus"
+                  />
+                </div>
+              )}
             />
-          ))}
-          
-        <Column
-          header="Aksi"
-          body={(row) => (
-            <div className="flex gap-2">
-              <Button
-                icon="pi pi-pencil"
-                size="small"
-                severity="warning"
-                onClick={() => handleEdit(row)}
-                tooltip="Edit"
-              />
-              <Button
-                icon="pi pi-trash"
-                size="small"
-                severity="danger"
-                onClick={() => handleDelete(row)}
-                tooltip="Hapus"
-              />
-            </div>
-          )}
-        />
-      </DataTable>
+          </DataTable>
+        </div>
+      </div>
 
       {renderDialogForm()}
-      <ToastNotifier ref={toastRef} />
     </div>
   );
 };
