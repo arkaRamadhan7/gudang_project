@@ -6,7 +6,7 @@ export async function POST(req) {
     const body = await req.json();
     const { emailOrUsername, password } = body;
     
-    console.log('🔐 Login attempt for:', emailOrUsername);
+    // console.log('🔐 Login attempt for:', emailOrUsername);
     
     const res = await fetch(API_ENDPOINTS.LOGIN, {
       method: 'POST',
@@ -18,20 +18,20 @@ export async function POST(req) {
 
     const data = await res.json();
     
-    console.log('📦 Backend response:', { 
-      status: res.status,
-      message: data.message, 
-      hasToken: !!data.token,
-      hasUser: !!data.user 
-    });
+    // console.log('📦 Backend response:', { 
+    //   status: res.status,
+    //   message: data.message, 
+    //   hasToken: !!data.token,
+    //   hasUser: !!data.user 
+    // });
     
     if (!res.ok) {
-      console.log('❌ Login failed at backend');
+      // console.log('❌ Login failed at backend');
       return NextResponse.json(data, { status: res.status });
     }
     
     if (!data.token) {
-      console.log('⚠️ No token in response');
+      // console.log('⚠️ No token in response');
       return NextResponse.json(
         { message: 'Token tidak ditemukan dalam response' }, 
         { status: 500 }
@@ -60,11 +60,11 @@ export async function POST(req) {
       // maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
-    console.log('✅ Login successful, cookie set');
+    // console.log('✅ Login successful, cookie set');
     return response;
     
   } catch (error) {
-    console.error('❌ Login route error:', error);
+    // console.error('❌ Login route error:', error);
     return NextResponse.json(
       { 
         success: false,

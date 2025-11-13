@@ -276,13 +276,6 @@ function checkApiRoleAccess(pathname, userRole, method) {
                     '/api/nama-gudang'
                 ], methods:['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
             },
-
-            'kasir': {
-                patterns: [
-                    '/api/penjualan'
-                ], methods:['GET','POST']
-            },
-            
             
         };
 

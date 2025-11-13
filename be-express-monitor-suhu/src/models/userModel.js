@@ -12,12 +12,12 @@ export const getUserByEmail = (email) => {
 
 // Cari user berdasarkan username
 export const getUserByUsername = (username) => {
-  return db('users').where({ username }).first();
+  return db('users').where({ username }).select("*").first();
 };
 
 // Cari user berdasarkan id
 export const getUserById = (id) => {
-  return db('users').where({ id }).first();
+  return db('users').where({ id }).select("*").first();
 };
 
 // Update data user by id (flexible update)
@@ -35,6 +35,7 @@ export const getUserByEmailOrUsername = (emailOrUsername) => {
   return db('users')
     .where({ email: emailOrUsername })
     .orWhere({ username: emailOrUsername })
+    .select("*")
     .first();
 };
 

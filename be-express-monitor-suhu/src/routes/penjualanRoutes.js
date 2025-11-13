@@ -11,12 +11,15 @@ import {
     terimaRequest,
     statusRequest,
     rejected,
-    getAllpenjualan
+    getAllpenjualan,
+    exportDataToExcel
+
     
 
 } from "../controllers/penjualanController.js"
 const router = express.Router();
 
+router.get("/laporan/:toko", exportDataToExcel)
 router.get("/request", getFakturFromRequest);
 router.get("/",getAllpenjualan);
 router.get("/gudang", TambahStockGetGudang);

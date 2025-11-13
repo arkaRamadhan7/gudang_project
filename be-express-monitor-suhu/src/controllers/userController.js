@@ -114,7 +114,6 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const validation = updateUserSchema.safeParse(req.body);
-    
     if (!validation.success) {
       return res.status(400).json({
         status: status.BAD_REQUEST,
@@ -136,7 +135,7 @@ export const updateUser = async (req, res) => {
       });
     }
     
-    const { username, password, email, no_hp, role, gudang, toko } = validation.data;
+    const { username, password, email, no_hp, role, gudang, toko, profile_image } = validation.data;
     
     // Gunakan hasOwnProperty atau 'in' operator untuk mengecek keberadaan field
     const updateData = {};
@@ -153,6 +152,10 @@ export const updateUser = async (req, res) => {
     
     if ('toko' in validation.data) {
       updateData.toko = toko; // Bisa null
+    }
+
+    if ('profile_image' in validation.data) {
+      updateData.profile_image = profile_image;
     }
     
     if (password) {
@@ -173,7 +176,8 @@ export const updateUser = async (req, res) => {
         no_hp: updatedUser.no_hp,
         role: updatedUser.role,
         gudang: updatedUser.gudang,
-        toko: updatedUser.toko
+        toko: updatedUser.toko,
+        profile_image: updatedUser.profile_image
       },
     });
   } catch (error) {

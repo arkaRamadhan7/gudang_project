@@ -76,7 +76,7 @@ const AppMenu = () => {
         {
             label: 'Home',
             items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }],
-            roles: ['user', 'admin', 'superadmin'],
+            roles: ['Admin Toko', 'superadmin', 'Admin Gudang'],
         },
         {
             label: 'Kode',
@@ -110,11 +110,12 @@ const AppMenu = () => {
         },
         {
             label: "PENJUALAN",
-            roles: ['Admin Toko', 'superadmin', 'Kasir'],
+            roles: ['Admin Toko', 'superadmin'],
             items: [
                 {
                     label:"Master",
                     icon: "pi pi-briefcase",
+                    roles: ['Admin Toko', 'superadmin'],
                     items: [
                         {
                            label:"Perubahan Harga",
@@ -198,7 +199,7 @@ const AppMenu = () => {
         {
             label: 'Laporan',
             icon: 'pi pi-fw pi-chart-bar',
-            roles: ['user', 'admin', 'superadmin'],
+            roles: ['superadmin', 'Admin Gudang', 'Admin Toko'],
             items: [
                 {
                     label: 'Kartu Stock',
@@ -209,18 +210,21 @@ const AppMenu = () => {
                 {
                     label: "Laporan Sisa Stock",
                     icon: 'pi pi-shopping-cart',
-                    to: '/laporan/stock'
+                    to: '/laporan/stock',
+                    roles: ['Admin Gudang', 'superadmin']
 
                 },
                 {
                     label: "Laporan Mutasi Gudang",
                     icon: "pi pi-truck",
-                    to: "/laporan/mutasi"
+                    to: "/laporan/mutasi",
+                    roles: ['Admin Gudang', 'superadmin']
                 },
                 {
                     label: "Laporan Penjualan Toko",
                     icon: "pi pi-chart-line",
-                    to: "/laporan/data-penjualan"
+                    to: "/laporan/data-penjualan",
+                    roles: ['Admin Toko', 'superadmin']
                 }
             ]
         }

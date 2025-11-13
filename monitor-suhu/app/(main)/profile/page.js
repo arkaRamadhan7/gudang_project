@@ -13,7 +13,6 @@ import { Badge } from 'primereact/badge';
 import { useAuth } from '@/app/(auth)/context/authContext';
 import { useRouter } from 'next/navigation';
 
-// ✅ IMPORT SCSS
 import '@/styles/page/profile.scss';
 
 const ProfilePage = () => {
@@ -88,9 +87,7 @@ const ProfilePage = () => {
       setUserInfo(user);
       setOriginalUserInfo({ ...user });
       
-      if (user.profile_image) {
-        setProfileImage(user.profile_image);
-      }
+      setProfileImage(user.profile_image || null);
     }
   }, [user, authLoading]);
 
@@ -189,12 +186,17 @@ const ProfilePage = () => {
           });
 
           const result = await response.json();
+          console.log("DATA ASLI DARI SERVER CIK", result)
 
           if (response.ok && result.status === '00') {
             showToast('success', 'Berhasil', result.message || 'Profil berhasil diperbarui');
             setEditMode(false);
-            setOriginalUserInfo({ ...userInfo });
-            setUser(userInfo);
+            const updatedUserFromServer = result.data;
+            setUserInfo(updatedUserFromServer);
+            setOriginalUserInfo({...updatedUserFromServer});
+            setProfileImage(updatedUserFromServer.profile_image || null);
+            setUser(updatedUserFromServer);
+            console.log(setProfileImage)
           } else {
             showToast('error', 'Error', result.message || 'Gagal memperbarui profil');
           }
@@ -242,6 +244,7 @@ const ProfilePage = () => {
       </div>
     );
   }
+  console.log('NILAI STATE PROFILE IMAGE:', profileImage);
 
   return (
     // ✅ WRAPPER CONTAINER

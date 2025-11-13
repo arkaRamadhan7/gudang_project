@@ -32,13 +32,13 @@ const LoginPage = () => {
             });
             
             const data = await res.json();
-                console.log('🔑 Login response:', {
-                status: res.status,
-                ok: res.ok,
-                message: data.message,
-                hasToken: !!data.token,
-                hasUser: !!data.user
-            });
+                // console.log('🔑 Login response:', {
+                // status: res.status,
+                // ok: res.ok,
+                // message: data.message,
+                // hasToken: !!data.token,
+                // hasUser: !!data.user
+           // });
 
             setTimeout(() => {
             }, 500);

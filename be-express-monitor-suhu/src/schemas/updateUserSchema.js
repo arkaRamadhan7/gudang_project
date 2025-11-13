@@ -21,5 +21,6 @@ export const updateUserSchema = z.object({
   no_hp: z.string().min(10, 'no HP minimal 10 digit').max(15, 'No HP maksimal 15 digit'),
   role: z.string(),
   gudang: z.string().optional().nullable(),
-  toko: z.string().optional().nullable()
+  toko: z.string().optional().nullable(),
+  profile_image: z.string().optional().nullable()
 });
