@@ -41,11 +41,9 @@ export default function PenjualanPage() {
       const json = await res.json();
       
       if (json.users && Array.isArray(json.users)) {
-        // Cari user berdasarkan email yang login
         const currentUser = json.users.find(u => u.email === user.email);
         
         if (currentUser && currentUser.toko && !isSuperAdmin()) {
-          // Jika bukan superadmin dan punya toko, set toko otomatis
           const tokoUser = daftarToko.find(toko => toko.NAMA === currentUser.toko);
           if (tokoUser) {
             setSelectedToko(tokoUser.KODE);
@@ -143,6 +141,7 @@ export default function PenjualanPage() {
       harga: item.harga,
       satuan: item.satuan,
       id: item.id,
+      toko: item.toko,
       discount: item.discount
     }));
 

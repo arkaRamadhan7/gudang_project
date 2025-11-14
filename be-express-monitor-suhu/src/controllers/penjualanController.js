@@ -2,6 +2,7 @@ import { json, NUMBER, or, where } from "sequelize";
 import { db } from "../core/config/knex.js";
 import { status, datetime, timestap } from "../utils/general.js"
 import { format } from "date-fns";
+import ExcelJS from "exceljs"
 import { date } from "zod";
 
 export const getStockForHargaDiskon = async (req, res) => {
@@ -72,10 +73,9 @@ export const getStockByKodeToko = async (req, res) => {
 
 export const transaction = async (req, res) => {
     try {
-        // Ambil KODE_TOKO dari request body
         const { items, username, KODE_TOKO } = req.body;
+        console.log(items)
         
-        // Validasi KODE_TOKO
         if (!KODE_TOKO) {
             return res.status(400).json({
                 status: "40",
@@ -83,7 +83,6 @@ export const transaction = async (req, res) => {
             });
         }
 
-        // Validasi items
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 status: "40", 
@@ -96,6 +95,7 @@ export const transaction = async (req, res) => {
             for (const item of items) {
                 
                 const id = item.id;
+                console.log("Toko Gua njing",toko)
                 const stock = await trx('stock_toko').where({ id }).first();
                 
                 if (!stock) {
@@ -117,8 +117,8 @@ export const transaction = async (req, res) => {
                 await trx("kartustock_toko").insert({
                     status: "0",
                     faktur: faktur,
-                    tgl: new Date(), // Tambahkan tanggal transaksi
-                    toko: KODE_TOKO, // FIELD TOKO DITAMBAHKAN DI SINI
+                    tgl: new Date(), 
+                    toko: KODE_TOKO, 
                     kode: item.kode,     
                     qty: item.qty,       
                     harga: item.harga,   
@@ -446,7 +446,8 @@ export const statusRequest = async (req, res) => {
 
  export const getAllpenjualan = async (req, res) => {
   try {
-    const data = await db('kartustock_toko').select('*');
+    const {toko} = req.params
+    const data = await db('kartustock_toko').where(toko).select('*');
 
     res.status(200).json({
       status: status.SUKSES,
@@ -462,4 +463,96 @@ export const statusRequest = async (req, res) => {
       error: err.message
     });
   }
+};
+export const exportDataToExcel = async (req, res) => {
+    try {
+
+        const { toko } = req.params;
+        const data = await db("kartustock_toko").where( toko ).select(
+            "POSTING",
+            "TOKO",
+            "FAKTUR",
+            "KODE",
+            "QTY",
+            "HARGA",
+            "HP",
+            "TGL",
+            "SATUAN",
+            "DEBET",
+            "KREDIT",
+            "USERNAME",
+            "STATUS",
+        );
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Penjualan");
+
+        worksheet.columns = [
+            { header: "Toko", key: "TOKO", width: 20 },
+            { header: "Faktur", key: "FAKTUR", width: 30 },
+            { header: "Kode", key: "KODE", width: 15 },
+            { header: "HARGA", key: "HARGA", width: 10 },
+            { header: "HP", key: "HP", width: 10 },
+            { header: "QTY", key: "QTY", width: 10 },
+            { header: "Debet", key: "DEBET", width: 20 },
+            { header: "Kredit", key: "KREDIT", width: 20 },
+            { header: "Tanggal", key: "TGL", width: 20 },
+            { header: "User", key: "USERNAME", width: 15 },
+            { header: "Satuan", key: "SATUAN", width: 15 },
+            { header: "Status", key: "STATUS", width: 15 },
+
+        ];
+
+        data.forEach((row) => {
+            worksheet.addRow(row);
+        });
+
+        worksheet.getRow(1).eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+            cell.border = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+            };
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFD9D9D9" },
+            };
+        });
+
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber !== 1) {
+                row.eachCell((cell) => {
+                    cell.alignment = { vertical: "middle", horizontal: "left" };
+                    cell.border = {
+                        top: { style: "thin" },
+                        left: { style: "thin" },
+                        bottom: { style: "thin" },
+                        right: { style: "thin" },
+                    };
+                });
+            }
+        });
+
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=penjualan_toko.xlsx"
+        );
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: "99",
+            message: "Gagal Export Data",
+            error: error.message
+        });
+    }
 };

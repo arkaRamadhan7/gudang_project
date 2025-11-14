@@ -29,6 +29,7 @@ const RequestStockPage = () => {
     const [tokoList, setTokoList] = useState([]);
     const [selectedToko, setSelectedToko] = useState(null);
     const [isTokoLoading, setIsTokoLoading] = useState(false);
+    const { user } = useAuth();
     
     const toast = useRef(null);
 
