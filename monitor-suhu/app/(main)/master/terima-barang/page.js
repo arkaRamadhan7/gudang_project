@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
+import { Dropdown } from 'primereact/dropdown';
 import { useAuth } from '@/app/(auth)/context/authContext';
 
 export default function MutasiTerimaDataPage() {
@@ -20,9 +21,45 @@ export default function MutasiTerimaDataPage() {
   const [dosAwal, setDosAwal] = useState(null);
   const [isiAwal, setIsiAwal] = useState(null);
   const [qtyAwal, setQtyAwal] = useState(null);
+  
+  // State untuk filter gudang
+  const [gudangOptions, setGudangOptions] = useState([]);
+  const [selectedGudang, setSelectedGudang] = useState(null);
+  const [loadingGudang, setLoadingGudang] = useState(false);
+  
   const { user } = useAuth();
 
   const generateFaktur = () => `FT${Date.now()}`;
+
+  // Fetch daftar gudang saat komponen dimuat
+  useEffect(() => {
+    fetchGudang();
+  }, []);
+
+  const fetchGudang = async () => {
+    setLoadingGudang(true);
+    try {
+      const res = await fetch("/api/gudang/nama");
+      const json = await res.json();
+      if (json.status === "00") {
+        const options = json.namaGudang.map(item => ({
+          label: item.nama || item.NAMA || item,
+          value: item.nama || item.NAMA || item
+        }));
+        setGudangOptions(options);
+      }
+    } catch (error) {
+      console.error("Error fetch gudang:", error);
+      toastRef.current?.show({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Gagal mengambil data gudang', 
+        life: 3000 
+      });
+    } finally {
+      setLoadingGudang(false);
+    }
+  };
 
   const handleFakturEnter = async (e) => {
     if (e.key !== 'Enter') return;
@@ -41,7 +78,6 @@ export default function MutasiTerimaDataPage() {
         const isi = Number(jsonTerima.data.isi ?? 1);
         const qty = Number(jsonTerima.data.qty ?? 0);
 
-        // Simpan nilai awal untuk validasi
         setDosAwal(dos);
         setIsiAwal(isi);
         setQtyAwal(qty);
@@ -52,13 +88,6 @@ export default function MutasiTerimaDataPage() {
           isi: isi,
           qty: qty 
         }]);
-
-        console.log('Data Mutasi Ditemukan:', {
-          faktur: faktur,
-          dos: dos,
-          isi: isi,
-          qty: qty
-        });
 
         toastRef.current?.show({ 
           severity: 'success', 
@@ -95,13 +124,23 @@ export default function MutasiTerimaDataPage() {
   };
 
   const fetchPendingFaktur = async () => {
+    // Validasi: harus pilih gudang dulu
+    if (!selectedGudang) {
+      toastRef.current?.show({
+        severity: 'warn',
+        summary: 'Pilih Gudang',
+        detail: 'Silakan pilih gudang terlebih dahulu',
+        life: 3000
+      });
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/mutasi/pending`);
+      setLoading(true);
+      const res = await fetch(`/api/mutasi/pending?gudang=${encodeURIComponent(selectedGudang)}`);
       const json = await res.json();
-      console.log("DEBUG pending faktur:", json);
       
       if (json.status === "00" && Array.isArray(json.data)) {
-        // Pastikan DOS, ISI, QTY adalah number
         const formattedData = json.data.map(item => ({
           ...item,
           dos: Number(item.dos || item.DOS || 0),
@@ -117,11 +156,19 @@ export default function MutasiTerimaDataPage() {
           toastRef.current?.show({ 
             severity: 'info', 
             summary: 'Info', 
-            detail: 'Tidak ada faktur pending', 
+            detail: `Tidak ada faktur pending untuk gudang ${selectedGudang}`, 
             life: 3000 
+          });
+        } else {
+          toastRef.current?.show({
+            severity: 'success',
+            summary: 'Berhasil',
+            detail: `Ditemukan ${formattedData.length} faktur untuk ${selectedGudang}`,
+            life: 3000
           });
         }
       } else {
+        setPendingData([]);
         toastRef.current?.show({ 
           severity: 'warn', 
           summary: 'Warning', 
@@ -131,12 +178,15 @@ export default function MutasiTerimaDataPage() {
       }
     } catch (err) {
       console.error('Error fetching pending:', err);
+      setPendingData([]);
       toastRef.current?.show({ 
         severity: 'error', 
         summary: 'Error', 
         detail: 'Gagal ambil faktur pending', 
         life: 3000 
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,7 +203,6 @@ export default function MutasiTerimaDataPage() {
       qty: qty
     }]);
     
-    // Simpan nilai awal
     setDosAwal(dos);
     setIsiAwal(isi);
     setQtyAwal(qty);
@@ -179,7 +228,6 @@ export default function MutasiTerimaDataPage() {
       });
     }
 
-    // Validasi DOS, ISI, QTY
     const dos = Number(rowData.dos);
     const isi = Number(rowData.isi);
     const qty = Number(rowData.qty);
@@ -202,7 +250,6 @@ export default function MutasiTerimaDataPage() {
       });
     }
 
-    // Verifikasi perhitungan
     const calculatedQty = dos * isi;
     if (qty !== calculatedQty) {
       return toastRef.current?.show({ 
@@ -232,8 +279,6 @@ export default function MutasiTerimaDataPage() {
       user_terima: user?.username
     };
 
-    console.log('Payload Terima Barang:', payload);
-
     try {
       const res = await fetch(`/api/mutasi/receive/${fakturKirim}`, {
         method: 'POST',
@@ -251,13 +296,15 @@ export default function MutasiTerimaDataPage() {
           life: 3000 
         });
         
-        // Reset semua
-        fetchPendingFaktur();
         setFakturInput('');
         setTerimaData([]);
         setDosAwal(null);
         setIsiAwal(null);
         setQtyAwal(null);
+        
+        if (selectedGudang) {
+          fetchPendingFaktur();
+        }
       } else {
         toastRef.current?.show({ 
           severity: 'error', 
@@ -288,7 +335,6 @@ export default function MutasiTerimaDataPage() {
       return;
     }
 
-    // Validasi tidak boleh melebihi DOS awal
     if (dosAwal !== null && newDos > dosAwal) {
       toastRef.current?.show({
         severity: 'warn',
@@ -350,65 +396,133 @@ export default function MutasiTerimaDataPage() {
   );
 
   return (
-    <div className="card">
+    <div className="mutasi-container">
       <Toast ref={toastRef} />
-      <h2 className="text-xl font-bold mb-4">Terima Barang Berdasarkan Faktur Kirim</h2>
+      
+      {/* HEADER SECTION */}
+      <div className="mutasi-header">
+        <h2>Terima Barang</h2>
+      </div>
 
-      <div className="flex flex-col gap-1 mb-4">
-        <label className="font-medium">
-          Cari Faktur
-        </label>
-        <div className="p-inputgroup">
-          <InputText 
-            placeholder="Ketik Faktur dan Enter" 
-            value={fakturInput} 
-            onChange={(e) => setFakturInput(e.target.value)} 
-            onKeyDown={handleFakturEnter} 
-            className="w-64" 
-          />
-          <Button 
-            icon="pi pi-search" 
-            onClick={fetchPendingFaktur}
-            tooltip="Cari faktur pending"
-          />
+      {/* FORM SECTION */}
+      <div className="mutasi-form">
+        
+        {/* Grid 2 Kolom - Gudang dan Faktur */}
+        <div className="mutasi-grid mutasi-grid-cols-2">
+          <div className="mutasi-form-group">
+            <label>Gudang</label>
+            <Dropdown 
+              placeholder="Pilih Gudang" 
+              options={gudangOptions} 
+              value={selectedGudang} 
+              onChange={(e) => setSelectedGudang(e.value)} 
+              showClear
+              filter
+            />
+            {!selectedGudang && (
+              <small className="text-warning">
+                Pilih gudang untuk memfilter faktur
+              </small>
+            )}
+          </div>
+
+          <div className="mutasi-form-group">
+            <label>Faktur</label>
+            <div className="p-inputgroup">
+              <InputText 
+                placeholder="Ketik Faktur" 
+                value={fakturInput} 
+                onChange={(e) => setFakturInput(e.target.value)}
+                onKeyDown={handleFakturEnter}
+              />
+              <Button 
+                icon="pi pi-search" 
+                onClick={fetchPendingFaktur}
+                disabled={!selectedGudang}
+                loading={loading}
+                tooltip={!selectedGudang ? "Pilih gudang terlebih dahulu" : "Cari faktur pending"}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* TABLE SECTION */}
+        <div className="mutasi-table">
+          <DataTable 
+            value={terimaData} 
+            paginator 
+            rows={10} 
+            size="small" 
+            loading={loading} 
+            scrollable 
+            emptyMessage="Belum ada barang yang dipilih"
+          >
+            <Column field="nama" header="NAMA" style={{ minWidth: '200px' }} />
+            <Column field="faktur" header="FAKTUR" style={{ minWidth: '120px' }} />
+            <Column field="tgl" header="TANGGAL" style={{ minWidth: '100px' }} />
+            <Column field="gudang_kirim" header="DARI GUDANG" style={{ minWidth: '120px' }} />
+            <Column field="gudang_terima" header="KE GUDANG" style={{ minWidth: '120px' }} />
+            <Column field="kode" header="KODE" style={{ minWidth: '80px' }} />
+            <Column field="dos" header="DOS" body={dosBodyTemplate} style={{ minWidth: '80px' }} />
+            <Column field="isi" header="ISI" style={{ minWidth: '60px' }} />
+            <Column field="qty" header="QTY" style={{ minWidth: '80px' }} />
+            <Column field="barcode" header="BARCODE" style={{ minWidth: '100px' }} />
+            <Column field="satuan" header="SATUAN" style={{ minWidth: '80px' }} />
+            <Column field="username" header="USER KIRIM" style={{ minWidth: '100px' }} />
+            <Column field="status" header="STATUS" style={{ minWidth: '100px' }} />
+            <Column
+              header="AKSI"
+              style={{ minWidth: '80px' }}
+              body={(rowData) => (
+                <Button
+                  label="Terima"
+                  icon="pi pi-check"
+                  className="p-button-success p-button-sm"
+                  onClick={() => handleTerimaRow(rowData)}
+                  disabled={!rowData.dos || rowData.dos <= 0}
+                />
+              )}
+            />
+          </DataTable>
         </div>
       </div>
 
+      {/* DIALOG */}
       <Dialog 
-        header={`Pilih Faktur Pending (${pendingData.length})`}
+        header={`Pilih Faktur Pending - ${selectedGudang || 'Semua'} (${pendingData.length})`}
         visible={visible} 
         style={{ width: '85vw' }} 
         onHide={() => setVisible(false)}
+        position="center"
+        className="mutasi-dialog"
+        maximizable
       >
         <DataTable 
           value={pendingData} 
           paginator 
           rows={10} 
-          size="small" 
-          emptyMessage="Tidak ada faktur pending"
+          size="small"
+          emptyMessage={`Tidak ada faktur pending untuk gudang ${selectedGudang || 'yang dipilih'}`}
           scrollable
         >
-          <Column field="faktur" header="Faktur" style={{ minWidth: '120px' }} />
-          <Column field="nama" header="Nama" style={{ minWidth: '200px' }} />
-          <Column field="kode" header="Kode" style={{ minWidth: '100px' }} />
-          <Column field="tgl" header="Tanggal" style={{ minWidth: '100px' }} />
-          <Column field="gudang_kirim" header="Dari Gudang" style={{ minWidth: '120px' }} />
-          <Column field="gudang_terima" header="Ke Gudang" style={{ minWidth: '120px' }} />
+          <Column field="faktur" header="FAKTUR" style={{ minWidth: '120px' }} sortable />
+          <Column field="nama" header="NAMA" style={{ minWidth: '200px' }} />
+          <Column field="kode" header="KODE" style={{ minWidth: '100px' }} />
+          <Column 
+            field="tgl" 
+            header="TANGGAL" 
+            style={{ minWidth: '100px' }}
+            body={(row) => new Date(row.tgl).toLocaleDateString('id-ID')}
+            sortable
+          />
+          <Column field="gudang_kirim" header="DARI GUDANG" style={{ minWidth: '120px' }} />
+          <Column field="gudang_terima" header="KE GUDANG" style={{ minWidth: '120px' }} />
           <Column field="dos" header="DOS" style={{ minWidth: '60px' }} />
           <Column field="isi" header="ISI" style={{ minWidth: '60px' }} />
           <Column field="qty" header="QTY" style={{ minWidth: '80px' }} />
+          <Column field="status" header="STATUS" style={{ minWidth: '100px' }} />
           <Column 
-            field="status" 
-            header="Status" 
-            body={(row) => (
-              <span>
-                {row.status}
-              </span>
-            )}
-            style={{ minWidth: '100px' }}
-          />
-          <Column 
-            header="Action" 
+            header="AKSI" 
             body={(row) => (
               <Button 
                 label="Pilih" 
@@ -422,55 +536,6 @@ export default function MutasiTerimaDataPage() {
           />
         </DataTable>
       </Dialog>
-
-      <DataTable 
-        value={terimaData} 
-        loading={loading} 
-        paginator 
-        rows={10} 
-        size="small" 
-        scrollable
-      >
-        <Column field="faktur" header="Faktur" style={{ minWidth: '120px' }} />
-        <Column field="nama" header="Nama" style={{ minWidth: '200px' }} />
-        <Column field="kode" header="Kode" style={{ minWidth: '100px' }} />
-        <Column field="tgl" header="Tanggal" style={{ minWidth: '100px' }} />
-        <Column field="gudang_kirim" header="Gudang Kirim" style={{ minWidth: '120px' }} />
-        <Column field="gudang_terima" header="Gudang Terima" style={{ minWidth: '120px' }} />
-        <Column field="barcode" header="Barcode" style={{ minWidth: '100px' }} />
-        <Column field="dos" header="DOS" body={dosBodyTemplate} style={{ minWidth: '80px' }} />
-        <Column field="isi" header="ISI" style={{ minWidth: '60px' }} />
-        <Column 
-          field="qty" 
-          header="QTY"
-          style={{ minWidth: '80px' }}
-        />
-        <Column field="satuan" header="Satuan" style={{ minWidth: '80px' }} />
-        <Column field="username" header="User Kirim" style={{ minWidth: '100px' }} />
-        <Column 
-          field="status" 
-          header="Status" 
-          body={(row) => (
-            <span>
-              {row.status}
-            </span>
-          )}
-          style={{ minWidth: '100px' }}
-        />
-        <Column 
-          header="Action" 
-          body={(row) => (
-            <Button 
-              label="Terima" 
-              icon="pi pi-check" 
-              className="p-button-success" 
-              onClick={() => handleTerimaRow(row)}
-              disabled={!row.dos || row.dos <= 0}
-            />
-          )}
-          style={{ minWidth: '100px' }}
-        />
-      </DataTable>
     </div>
   );
 }

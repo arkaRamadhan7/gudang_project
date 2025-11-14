@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_ENDPOINTS } from "../api.js"
+import { API_ENDPOINTS } from "../../api.js"
 import { NextResponse } from "next/server";
 import { error } from "console";
 

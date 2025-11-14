@@ -423,3 +423,106 @@ export const getMutasiDetail = async (req, res) => {
         });
     }
 };
+export const getFakturByGudang = async (req, res) => {
+    try {
+        const { gudang } = req.query; // Ambil parameter gudang dari query string
+
+        let query = db("mutasigudang_ke")
+            .select(
+                "faktur",
+                "nama",
+                "kode",
+                "tgl",
+                "gudang_kirim",
+                "gudang_terima",
+                "dos",
+                "isi",
+                "qty",
+                "barcode",
+                "satuan",
+                "username",
+                "status"
+            )
+            .where({ status: "pending" });
+
+        // Jika ada filter gudang, tambahkan kondisi WHERE
+        if (gudang) {
+            query = query.where({ gudang_terima: gudang });
+        }
+
+        const data = await query.orderBy("tgl", "desc");
+
+        res.json({ 
+            status: "00", 
+            message: gudang 
+                ? `Data faktur untuk gudang ${gudang} berhasil diambil`
+                : "Semua data faktur pending berhasil diambil",
+            data 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ 
+            status: "99", 
+            message: "Error getFakturByGudang", 
+            error: error.message 
+        });
+    }
+};
+
+// Fungsi untuk get detail barang per faktur (grouping)
+export const getDetailBarangByFaktur = async (req, res) => {
+    try {
+        const { faktur } = req.params;
+
+        const data = await db("mutasigudang_ke")
+            .where({ faktur, status: "pending" })
+            .select(
+                "faktur",
+                "nama",
+                "kode",
+                "tgl",
+                "gudang_kirim",
+                "gudang_terima",
+                "dos",
+                "isi",
+                "qty",
+                "barcode",
+                "satuan",
+                "username",
+                "status"
+            )
+            .orderBy("nama", "asc");
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({
+                status: "99",
+                message: "Data barang tidak ditemukan untuk faktur ini"
+            });
+        }
+
+        // Hitung total untuk summary
+        const summary = {
+            total_items: data.length,
+            total_dos: data.reduce((sum, item) => sum + (item.dos || 0), 0),
+            total_qty: data.reduce((sum, item) => sum + (item.qty || 0), 0)
+        };
+
+        res.json({
+            status: "00",
+            message: "Detail barang berhasil diambil",
+            faktur: faktur,
+            gudang_kirim: data[0]?.gudang_kirim,
+            gudang_terima: data[0]?.gudang_terima,
+            tanggal: data[0]?.tgl,
+            summary: summary,
+            data: data
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: "99",
+            message: "Error getDetailBarangByFaktur",
+            error: error.message
+        });
+    }
+};

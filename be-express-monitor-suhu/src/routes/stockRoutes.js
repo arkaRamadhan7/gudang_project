@@ -22,5 +22,6 @@ router.delete('/delete/:id', deleteStock);
 router.get('/gudang/:gudang',getStockByGudang);
 router.get("/total", getTotalColumnsStock);
 router.get("/export", exportDataToExcel);
-router.get("/preview", previewStockExcel)
+router.get("/preview", previewStockExcel);
+
 export default router;

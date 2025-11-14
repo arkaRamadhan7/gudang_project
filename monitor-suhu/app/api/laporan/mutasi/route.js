@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_ENDPOINTS } from "../api";
+import { API_ENDPOINTS } from "../../api";
 import { NextResponse } from "next/server";
 
 export async function GET() {

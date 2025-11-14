@@ -1,0 +1,636 @@
+// ===================================
+// TERIMA BARANG PAGE - GLOBAL SCSS
+// Simpan di: styles/page/terima-barang.scss
+// ===================================
+
+// Variables - Dark Blue Theme
+$primary-color: #1e40af;
+$primary-dark: #1e3a8a;
+$primary-light: #3b82f6;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$info-color: #0ea5e9;
+$bg-dark: #0f172a;
+$bg-secondary: #1e293b;
+$bg-card: #334155;
+$text-primary: #f1f5f9;
+$text-secondary: #cbd5e1;
+$border-color: #475569;
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ===================================
+// MAIN CONTAINER - COMPACT
+// ===================================
+.terima-container {
+  background: linear-gradient(135deg, $bg-dark 0%, $primary-dark 100%);
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 250px;
+    background: linear-gradient(180deg, rgba(30, 64, 175, 0.2) 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
+
+// ===================================
+// HEADER - COMPACT
+// ===================================
+.terima-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  border-radius: $border-radius;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: $shadow-lg;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ===================================
+// FORM SECTION - COMPACT
+// ===================================
+.terima-form {
+  background: $bg-card;
+  border-radius: $border-radius;
+  padding: 14px;
+  box-shadow: $shadow-md;
+  border: 1px solid $border-color;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 14px;
+
+  &:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+  }
+}
+
+// ===================================
+// GRID LAYOUT - COMPACT
+// ===================================
+.terima-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  &.terima-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &.terima-grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+}
+
+// ===================================
+// FORM GROUP - COMPACT
+// ===================================
+.terima-form-group {
+  margin-bottom: 0;
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 4px;
+    letter-spacing: 0.2px;
+
+    .pi {
+      margin-right: 6px;
+      font-size: 11px;
+    }
+
+    small {
+      font-size: 11px;
+      font-weight: 400;
+      margin-left: 4px;
+
+      &.text-warning {
+        color: $warning-color;
+      }
+
+      &.text-success {
+        color: $success-color;
+      }
+
+      &.text-info {
+        color: $primary-light;
+      }
+    }
+  }
+
+  // Input, Calendar, Dropdown Styling
+  .p-inputtext,
+  .p-calendar,
+  .p-dropdown {
+    width: 100%;
+    background: $bg-secondary !important;
+    border: 1px solid $border-color !important;
+    color: $text-primary !important;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: $transition;
+
+    &:enabled:focus,
+    &:not(.p-disabled).p-focus {
+      outline: none !important;
+      border-color: $primary-light !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+      background: $bg-secondary !important;
+    }
+
+    &:enabled:hover,
+    &:not(.p-disabled):hover {
+      border-color: $primary-light !important;
+    }
+
+    &::placeholder {
+      color: #64748b !important;
+      opacity: 0.7;
+    }
+  }
+
+  // Input Text specific
+  .p-inputtext {
+    padding: 7px 10px !important;
+  }
+
+  // Dropdown specific
+  .p-dropdown-label {
+    padding: 7px 10px !important;
+    color: $text-primary !important;
+
+    &.p-placeholder {
+      color: #64748b !important;
+    }
+  }
+
+  .p-dropdown-trigger {
+    color: #94a3b8 !important;
+  }
+
+  // Input Group (dengan button)
+  .p-inputgroup {
+    .p-button {
+      background: $primary-color !important;
+      border: 1px solid $primary-color !important;
+      padding: 7px 12px !important;
+
+      &:enabled:hover {
+        background: $primary-light !important;
+        border-color: $primary-light !important;
+      }
+
+      &.p-button-info {
+        background: $info-color !important;
+        border-color: $info-color !important;
+
+        &:enabled:hover {
+          background: darken($info-color, 8%) !important;
+        }
+      }
+    }
+  }
+
+  // Helper text
+  small {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: $text-secondary;
+
+    &[style*="color: #ca8a04"] {
+      color: $warning-color !important;
+    }
+
+    &[style*="color: #16a34a"] {
+      color: $success-color !important;
+    }
+  }
+}
+
+// ===================================
+// TABLE SECTION - COMPACT
+// ===================================
+.terima-table {
+  margin-top: 14px;
+  position: relative;
+  z-index: 1;
+
+  .p-datatable {
+    background: #2c3e50 !important;
+    border-radius: $border-radius;
+    overflow: hidden;
+
+    // Wrapper
+    .p-datatable-wrapper {
+      background: #2c3e50 !important;
+    }
+
+    // Header
+    .p-datatable-thead > tr > th {
+      background: #3d4f63 !important;
+      color: #e2e8f0 !important;
+      font-weight: 700;
+      font-size: 11.5px !important;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 8px 6px !important;
+      border: none !important;
+    }
+
+    // Body
+    .p-datatable-tbody {
+      background: #2c3e50 !important;
+
+      > tr {
+        transition: $transition;
+        background: #2c3e50 !important;
+        border-bottom: 1px solid #3d4f63 !important;
+
+        &:hover {
+          background: #364f65 !important;
+          transform: scale(1.001);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+
+        &:nth-child(even) {
+          background: #2a3947 !important;
+
+          &:hover {
+            background: #364f65 !important;
+          }
+        }
+
+        > td {
+          padding: 7px 6px !important;
+          color: #94a3b8 !important;
+          font-size: 12.5px;
+          border: none !important;
+          background: transparent !important;
+        }
+      }
+    }
+
+    // Empty message
+    .p-datatable-emptymessage > td {
+      text-align: center;
+      color: $text-secondary;
+      font-style: italic;
+      padding: 18px !important;
+    }
+
+    // Paginator
+    .p-paginator {
+      background: #34495e !important;
+      border: none !important;
+      border-top: 2px solid #3d566e !important;
+      padding: 10px !important;
+    }
+  }
+
+  // Action buttons in table
+  .p-button {
+    &.p-button-sm,
+    &.p-button-small {
+      padding: 5px 10px !important;
+      font-size: 12px;
+    }
+
+    &.p-button-success {
+      background: $success-color !important;
+      border-color: $success-color !important;
+
+      &:hover {
+        background: darken($success-color, 8%) !important;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &.p-button-info {
+      background: $info-color !important;
+      border-color: $info-color !important;
+
+      &:hover {
+        background: darken($info-color, 8%) !important;
+      }
+    }
+  }
+}
+
+// ===================================
+// STATUS BADGE STYLING
+// ===================================
+.status-badge {
+  padding: 4px 8px;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+// ===================================
+// DIALOG - COMPACT
+// ===================================
+.terima-dialog {
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+  border: 1px solid $border-color;
+  background: $bg-card !important;
+
+  .p-dialog-header {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    color: white;
+    border-radius: $border-radius $border-radius 0 0;
+    padding: 12px 16px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+
+    .p-dialog-header-icon {
+      color: white !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    padding: 14px !important;
+    background: $bg-card !important;
+    border-radius: 0 0 $border-radius $border-radius;
+
+    // Table inside dialog
+    .p-datatable {
+      font-size: 12.5px;
+
+      .p-datatable-thead > tr > th {
+        padding: 7px !important;
+        font-size: 11.5px;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 7px !important;
+        font-size: 12.5px;
+      }
+    }
+  }
+}
+
+// ===================================
+// DROPDOWN PANEL - DARK THEME
+// ===================================
+.p-dropdown-panel {
+  background: $bg-secondary !important;
+  border: 1px solid $border-color !important;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+  .p-dropdown-items {
+    background: $bg-secondary !important;
+
+    .p-dropdown-item {
+      color: $text-secondary !important;
+      padding: 7px 12px;
+      transition: $transition;
+      background: transparent !important;
+      font-size: 13px;
+
+      &:not(.p-highlight):not(.p-disabled):hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: $text-primary !important;
+      }
+
+      &.p-highlight {
+        background: rgba(59, 130, 246, 0.25) !important;
+        color: $text-primary !important;
+      }
+    }
+  }
+}
+
+// ===================================
+// INPUT NUMBER STYLING (DOS field)
+// ===================================
+.p-inputnumber {
+  .p-inputtext {
+    width: 60px;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: left;
+    padding: 4px;
+    font-size: 14px;
+
+    &:focus {
+      width: 100px !important;
+      border: 2px solid $primary-color !important;
+      border-radius: 6px;
+      background: white !important;
+      box-shadow: 0 0 0 3px rgba(244, 244, 244, 0.2);
+      color: #1e293b !important;
+    }
+  }
+}
+
+// ===================================
+// TOAST NOTIFICATIONS - COMPACT
+// ===================================
+.p-toast {
+  .p-toast-message {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-primary;
+    box-shadow: $shadow-lg;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    padding: 10px 12px;
+    font-size: 13px;
+
+    .p-toast-message-icon,
+    .p-toast-icon-close {
+      color: $text-primary;
+    }
+
+    &.p-toast-message-success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+
+      .p-toast-message-icon {
+        color: $success-color;
+      }
+    }
+
+    &.p-toast-message-error {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+
+      .p-toast-message-icon {
+        color: $danger-color;
+      }
+    }
+
+    &.p-toast-message-warn {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+
+      .p-toast-message-icon {
+        color: $warning-color;
+      }
+    }
+
+    &.p-toast-message-info {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: rgba(14, 165, 233, 0.4);
+
+      .p-toast-message-icon {
+        color: $info-color;
+      }
+    }
+  }
+}
+
+// ===================================
+// RESPONSIVE DESIGN
+// ===================================
+@media (max-width: 768px) {
+  .terima-container {
+    padding: 12px;
+  }
+
+  .terima-header {
+    padding: 12px 14px;
+
+    h2 {
+      font-size: 17px;
+    }
+  }
+
+  .terima-form {
+    padding: 12px;
+  }
+
+  .terima-form-group {
+    label {
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .p-inputtext,
+    .p-dropdown-label {
+      font-size: 12px;
+      padding: 6px 8px !important;
+    }
+  }
+
+  .terima-table {
+    margin-top: 12px;
+
+    .p-datatable {
+      font-size: 11px;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 5px !important;
+        font-size: 11px;
+      }
+    }
+  }
+
+  .terima-dialog {
+    width: 95vw !important;
+    max-width: none !important;
+  }
+}
+
+// ===================================
+// ANIMATIONS
+// ===================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.terima-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.terima-form,
+.terima-table {
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.15s;
+}
+
+// ===================================
+// UTILITY CLASSES
+// ===================================
+.text-warning {
+  color: $warning-color !important;
+}
+
+.text-success {
+  color: $success-color !important;
+}
+
+.text-info {
+  color: $primary-light !important;
+}
+
+.text-danger {
+  color: $danger-color !important;
+}

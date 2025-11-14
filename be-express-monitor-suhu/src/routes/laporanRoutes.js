@@ -1,9 +1,15 @@
 import { Router } from 'express';
-import {fetchSisaStock, fetchMutasiGudang} from '../controllers/laporanController.js'
+import {fetchSisaStock,
+        fetchMutasiGudang,
+        fetchReqstockGudang,
+        fetchdiskontoko
+} from '../controllers/laporanController.js'
 
 const router = Router();
 
 router.get('/stock',fetchSisaStock);
-router.get('/mutasi', fetchMutasiGudang)
+router.get('/mutasi', fetchMutasiGudang);
+router.get('/request',fetchReqstockGudang);
+router.get('/diskon',fetchdiskontoko);
 
 export default router;

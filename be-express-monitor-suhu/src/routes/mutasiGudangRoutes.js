@@ -7,7 +7,9 @@ import {
     getPendingMutasi,
     getMutasiByFaktur,
     exportDataToExcel,
-    getTotalColumnsMutasi
+    getTotalColumnsMutasi,
+    getDetailBarangByFaktur,
+    getFakturByGudang
 } from "../controllers/mutasiGudangController.js";
 
 const router = Router();
@@ -20,8 +22,12 @@ router.get("/receive/:faktur", getMutasiByFaktur);
 router.get("/mutasi", getAllmutasi);
 router.get("/export", exportDataToExcel);
 router.get("/total",getTotalColumnsMutasi);
+router.get('/bygudang', getFakturByGudang);
+router.get('/detail/:faktur', getDetailBarangByFaktur);
 router.post ("/create",createmutasi);
 router.post("/receive/:faktur",receivemutasi);
+
+
 
 
 

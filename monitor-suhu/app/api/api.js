@@ -130,9 +130,13 @@ export const API_ENDPOINTS = {
     GET_ALL_MUTASI: `${API_URL}/mutasi`,
     EXPORT_MUTASI: `${API_URL}/mutasi/export`,
     GETTOTALMUTASI: `${API_URL}/mutasi/total`,
+    GETBYGUDANG : `${API_URL}/mutasi/bygudang`,
+    GETDETAILBYFAKTUR : (faktur) => `${API_URL}/mutasi/detail/${faktur}`,
 
     GET_LAPORAN_SISASTOCK: `${API_URL}/laporan/stock`,
     GET_LAPORAN_MUTASI: `${API_URL}/laporan/mutasi`,
+    GET_LAPORAN_REQUESTSTOCK : `${API_URL}/laporan/request`,
+    GET_LAPORAN_DISKON : `${API_URL}/laporan/diskon`,
 
     GET_STOCK_BY_KODE_TOKO: (kode_toko) => `${API_URL}/penjualan/${kode_toko}`,
     ADD_TRANSACTION: `${API_URL}/penjualan/transaksi`,
