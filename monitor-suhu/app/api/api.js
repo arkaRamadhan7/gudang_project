@@ -149,13 +149,14 @@ export const API_ENDPOINTS = {
     TERIMA_REQUEST: `${API_URL}/penjualan/terima-request`,
     STATUS: (kode_toko) => `${API_URL}/penjualan/status/${kode_toko}`,
     REJECTED: `${API_URL}/penjualan/rejected`,
-    GET_ALL_PENJUALAN : `${API_URL}/penjualan/`,
+    GET_ALL_PENJUALAN : `${API_URL}/penjualan`,
 
     GET_STOCK_FOR_DISKON: (kode_toko) => `${API_URL}/product/${kode_toko}`,
     ADD_DISKON: (id) => `${API_URL}/product/add/${id}`,
     EDIT_DISKON: (id) => `${API_URL}/product/edit/${id}`,
     DELETE_DISKON: (id) => `${API_URL}/product/delete/${id}`,
 
-    DATA_PENJUALAN: (kode_toko) => `${API_URL}/data-penjualan/${kode_toko}`
+    DATA_PENJUALAN_BY_GUDANG: (kode_toko) => `${API_URL}/data-penjualan/${kode_toko}`,
+    GET_ALL_DATA_PENJUALAN : `${API_URL}/data-penjualan`,
      
 }

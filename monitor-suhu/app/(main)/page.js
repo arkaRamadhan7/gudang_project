@@ -102,7 +102,7 @@ const Dashboard = () => {
         const fetchPenjualan = async () => {
             setLoadingPenjualan(true);
             try {
-                const res = await fetch('/api/penjualan');
+                const res = await fetch('/api/data-penjualan');
                 if (!res.ok) throw new Error('Gagal mengambil data penjualan');
                 const data = await res.json();
                 

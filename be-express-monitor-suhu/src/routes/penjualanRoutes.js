@@ -11,7 +11,7 @@ import {
     terimaRequest,
     statusRequest,
     rejected,
-    getAllpenjualan,
+
     exportDataToExcel
 
     
@@ -21,7 +21,7 @@ const router = express.Router();
 
 router.get("/laporan/:toko", exportDataToExcel)
 router.get("/request", getFakturFromRequest);
-router.get("/",getAllpenjualan);
+
 router.get("/gudang", TambahStockGetGudang);
 router.get("/get-stock/:GUDANG", TambahStockGetStock);
 router.post("/request-stock", TambahStockAdd)

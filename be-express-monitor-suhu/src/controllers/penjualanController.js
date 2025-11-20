@@ -444,26 +444,6 @@ export const statusRequest = async (req, res) => {
     }
  };
 
- export const getAllpenjualan = async (req, res) => {
-  try {
-    const {toko} = req.params
-    const data = await db('kartustock_toko').where(toko).select('*');
-
-    res.status(200).json({
-      status: status.SUKSES,
-      message: 'Berhasil menampilkan seluruh penjualan',
-      datetime: datetime(),
-      data: data
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: status.ERROR,
-      message: 'Mengambil data seluruh penjualan',
-      datetime: datetime(),
-      error: err.message
-    });
-  }
-};
 export const exportDataToExcel = async (req, res) => {
     try {
 
