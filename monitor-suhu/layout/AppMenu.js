@@ -205,7 +205,7 @@ const AppMenu = () => {
                     label: 'Kartu Stock',
                     icon: 'pi pi-fw pi-sync',
                     to: '/laporan/kartustock',
-                    roles: ['user', 'admin', 'superadmin']
+                    roles: ['Admin Gudang', 'superadmin']
                 },
                 {
                     label: "Laporan Sisa Stock",
@@ -219,6 +219,12 @@ const AppMenu = () => {
                     icon: "pi pi-truck",
                     to: "/laporan/mutasi",
                     roles: ['Admin Gudang', 'superadmin']
+                },
+                {
+                    label : "Laporan stock toko",
+                    icon : "pi pi-box",
+                    to :"/laporan/stock-toko",
+                    roles : ['Admin Toko','superadmin']
                 },
                 {
                     label: "Laporan Penjualan Toko",

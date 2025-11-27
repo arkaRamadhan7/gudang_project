@@ -8,14 +8,14 @@ export async function GET() {
     const response = await axios.get(API_ENDPOINTS.GET_LAPORAN_SISASTOCK);
     return NextResponse.json({
         status: '00',
-        message: 'Berhasil Ambil Data Mutasi',
+        message: 'Berhasil Ambil Data Sisa Stock',
         data: response.data.data
     })
  }   catch (error) {
-    console.error("ERROR ambil Data mutasi", error.message);
+    console.error("ERROR ambil Data Sisa Stock", error.message);
     return NextResponse.json({
         status: '99',
-        message: 'Gagal Ambil Data Mutasi',
+        message: 'Gagal Ambil Data Sisa Stock',
         error: error.message
     },{status: 500})
  }

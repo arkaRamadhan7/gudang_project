@@ -14,7 +14,7 @@ export const GetDataPenjualan = async (req, res) => {
         console.error("Error Terjadi Kesalahan pada Server",error)
         return res.status(500).json({
             status : status.GAGAL,
-            message: "Terjadi Kesalahan pad Server",
+            message: "Terjadi Kesalahan pada Server",
             error: error.message
         });
     }

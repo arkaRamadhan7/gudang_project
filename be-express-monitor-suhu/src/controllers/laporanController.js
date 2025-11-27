@@ -115,7 +115,34 @@ export const fetchdiskontoko = async (req,res) => {
             data: data,
         })
     } catch (error) {
-        console.error("ERROR Get data Laporan", error.message)
+        console.error("ERROR Get data Diskon", error.message)
+        return res.status(500).json({
+            status: status.ERROR,
+            message: "terjadi kesalahan pada sisi server",
+            error: error.message
+            
+        });
+    }
+};
+
+export const fetchallstocktoko  = async (req,res) => {
+  try {
+        const data = await db("stock_toko").select("*");
+        if (!data || data.length == 0) {
+        return res.status(404).json({
+            status: status.GAGAL,
+            message: "Stock toko kosong",
+            data: []
+
+        });
+    }   
+     return res.status(200).json({
+            status: status.SUKSES,
+            message: "berhasil ambil data Stock Toko",
+            data: data,
+        });
+    }catch (error) {
+        console.error("ERROR Get data Laporan stock toko", error.message)
         return res.status(500).json({
             status: status.ERROR,
             message: "terjadi kesalahan pada sisi server",

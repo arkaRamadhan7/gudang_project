@@ -1,20 +1,17 @@
 'use client';
 
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Chart } from 'primereact/chart';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
-import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { LayoutContext } from '../../layout/context/layoutcontext';
 import { useAuth } from '../(auth)/context/authContext';
 import "@/styles/page/dashboard.scss";
 
 const Dashboard = () => {
-    const [products, setProducts] = useState([]);
+    // ==================== STATE DECLARATIONS ====================
     const [penjualanData, setPenjualanData] = useState([]);
     const [loadingPenjualan, setLoadingPenjualan] = useState(false);
     const [mutasiData, setMutasiData] = useState([]);
@@ -27,21 +24,39 @@ const Dashboard = () => {
     const [globalFilterMutasi, setGlobalFilterMutasi] = useState('');
     const [globalFilterDiskon, setGlobalFilterDiskon] = useState('');
     const [globalFilterRequest, setGlobalFilterRequest] = useState('');
-    const [lineOptions, setLineOptions] = useState({});
-    const { layoutConfig } = useContext(LayoutContext);
     const [totalStockColumns, setTotalStockColumns] = useState(null);
     const [totalGudangColumns, setTotalGudangColumns] = useState(null);
     const [totalMutasiColoumns, setTotalMutasiColoumns] = useState(null);
     const [totalUsersColoumns, setTotalUsersColoumns] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const toast = useRef(null);
-    const { user, loading, initialized, logout } = useAuth(); 
-    
+    const { user, loading, initialized } = useAuth();
+
+    // ==================== ROLE CHECKING FUNCTIONS ====================
+    const isAdmin = () => user?.role === 'admin';
+    const isSuperAdmin = () => user?.role === 'superadmin';
+    const isAdminGudang = () => user?.role === 'Admin Gudang';
+    const isAdminToko = () => user?.role === 'Admin Toko';
+    const isFullAdmin = () => isAdmin() || isSuperAdmin();
+
+    const getUserLocation = () => {
+        if (isAdminGudang()) {
+            return user?.kode_gudang || user?.gudang;
+        }
+        if (isAdminToko()) {
+            return user?.kode_toko || user?.toko;
+        }
+        return null;
+    };
+
+    // ==================== FETCH TOTAL STATS (ONLY FOR FULL ADMIN) ====================
     useEffect(() => {
+        if (!isFullAdmin() || !user) return;
+        
         const fetchTotalColumns = async () => {
             try {
                 const res = await fetch('/api/stock/total');
-                if (!res.ok) throw new Error('GAGAL menggambil data total kolom stock');
+                if (!res.ok) throw new Error('GAGAL mengambil data total kolom stock');
                 const data = await res.json();
                 setTotalStockColumns(data.total);
             } catch (error) {
@@ -50,9 +65,11 @@ const Dashboard = () => {
             }
         };
         fetchTotalColumns();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
+        if (!isFullAdmin() || !user) return;
+        
         const fetchTotalGudang = async () => {
             try {
                 const res = await fetch('/api/gudang/total');
@@ -65,13 +82,15 @@ const Dashboard = () => {
             }
         };
         fetchTotalGudang();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
+        if (!isFullAdmin() || !user) return;
+        
         const fetchTotalMutasi = async () => {
             try {
                 const res = await fetch('/api/mutasi/total');
-                if (!res.ok) throw new Error('GAGAL menggambil data total kolom mutasi antar gudang');
+                if (!res.ok) throw new Error('GAGAL mengambil data total kolom mutasi antar gudang');
                 const data = await res.json();
                 setTotalMutasiColoumns(data.total);
             } catch (error) {
@@ -80,13 +99,15 @@ const Dashboard = () => {
             }
         };
         fetchTotalMutasi();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
+        if (!isFullAdmin() || !user) return;
+        
         const fetchTotalusers = async () => {
             try {
                 const res = await fetch('/api/users/total');
-                if (!res.ok) throw Error('gagal ambil total gudang');
+                if (!res.ok) throw Error('gagal ambil total users');
                 const data = await res.json();
                 setTotalUsersColoumns(data.total);
             } catch (error) {
@@ -95,14 +116,26 @@ const Dashboard = () => {
             }
         };
         fetchTotalusers();
-    }, []);
+    }, [user]);
 
-    // Fetch Data Penjualan
+    // ==================== FETCH DATA PENJUALAN (ADMIN/SUPERADMIN/ADMIN TOKO) ====================
     useEffect(() => {
+        if (!user || (!isFullAdmin() && !isAdminToko())) return;
+        
         const fetchPenjualan = async () => {
             setLoadingPenjualan(true);
             try {
-                const res = await fetch('/api/data-penjualan');
+                let url = '/api/data-penjualan';
+                
+                // Filter berdasarkan kode toko untuk Admin Toko
+                if (isAdminToko()) {
+                    const kodeToko = getUserLocation();
+                    if (kodeToko) {
+                        url += `?kode_toko=${kodeToko}`;
+                    }
+                }
+                
+                const res = await fetch(url);
                 if (!res.ok) throw new Error('Gagal mengambil data penjualan');
                 const data = await res.json();
                 
@@ -115,12 +148,6 @@ const Dashboard = () => {
                 } else {
                     console.error('Format data tidak sesuai:', data);
                     setPenjualanData([]);
-                    toast.current?.show({
-                        severity: 'warn',
-                        summary: 'Warning',
-                        detail: 'Format data penjualan tidak sesuai',
-                        life: 3000
-                    });
                 }
             } catch (error) {
                 console.error(error);
@@ -136,17 +163,27 @@ const Dashboard = () => {
             }
         };
         
-        if (user) {
-            fetchPenjualan();
-        }
+        fetchPenjualan();
     }, [user]);
 
-    // Fetch Data Mutasi
+    // ==================== FETCH DATA MUTASI (ADMIN/SUPERADMIN/ADMIN GUDANG) ====================
     useEffect(() => {
+        if (!user || (!isFullAdmin() && !isAdminGudang())) return;
+        
         const fetchmutasi = async () => {
             setLoadingMutasi(true);
             try {
-                const res = await fetch('/api/mutasi');
+                let url = '/api/mutasi';
+                
+                // Filter berdasarkan kode gudang untuk Admin Gudang
+                if (isAdminGudang()) {
+                    const kodeGudang = getUserLocation();
+                    if (kodeGudang) {
+                        url += `?kode_gudang=${kodeGudang}`;
+                    }
+                }
+                
+                const res = await fetch(url);
                 if (!res.ok) throw new Error('Gagal mengambil data Mutasi');
                 const data = await res.json();
                 
@@ -174,47 +211,38 @@ const Dashboard = () => {
             }
         };
         
-        if (user) {
-            fetchmutasi();
-        }
+        fetchmutasi();
     }, [user]);
 
-    // Fetch Data Diskon
+    // ==================== FETCH DATA DISKON (ADMIN/SUPERADMIN/ADMIN TOKO) ====================
     useEffect(() => {
+        if (!user || (!isFullAdmin() && !isAdminToko())) return;
+        
         const fetchDiskon = async () => {
             setLoadingDiskon(true);
             try {
-                const res = await fetch('/api/laporan/diskon');
+                let url = '/api/laporan/diskon';
+                
+                // Filter berdasarkan kode toko untuk Admin Toko
+                if (isAdminToko()) {
+                    const kodeToko = getUserLocation();
+                    if (kodeToko) {
+                        url += `?kode_toko=${kodeToko}`;
+                    }
+                }
+                
+                const res = await fetch(url);
                 const data = await res.json();
                 
-                // Handle response berdasarkan status
                 if (data.status === '00') {
-                    // Success
                     if (data.data && Array.isArray(data.data)) {
                         setDiskonData(data.data);
-                        
-                        // Tampilkan info jika data kosong
-                        if (data.data.length === 0) {
-                            toast.current?.show({
-                                severity: 'info',
-                                summary: 'Info',
-                                detail: data.message || 'Belum ada diskon yang tersedia',
-                                life: 3000
-                            });
-                        }
                     } else {
                         setDiskonData([]);
                     }
                 } else {
-                    // Error
                     console.error('Error dari server:', data.message);
                     setDiskonData([]);
-                    toast.current?.show({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: data.message || 'Gagal memuat data diskon',
-                        life: 3000
-                    });
                 }
             } catch (error) {
                 console.error('Error fetch diskon:', error);
@@ -230,47 +258,38 @@ const Dashboard = () => {
             }
         };
         
-        if (user) {
-            fetchDiskon();
-        }
+        fetchDiskon();
     }, [user]);
 
-    // Fetch Data Request Stock
+    // ==================== FETCH DATA REQUEST STOCK (ADMIN/SUPERADMIN/ADMIN GUDANG) ====================
     useEffect(() => {
+        if (!user || (!isFullAdmin() && !isAdminGudang())) return;
+        
         const fetchRequestStock = async () => {
             setLoadingRequest(true);
             try {
-                const res = await fetch('/api/laporan/request-stock');
+                let url = '/api/laporan/request-stock';
+                
+                // Filter berdasarkan kode gudang untuk Admin Gudang
+                if (isAdminGudang()) {
+                    const kodeGudang = getUserLocation();
+                    if (kodeGudang) {
+                        url += `?kode_gudang=${kodeGudang}`;
+                    }
+                }
+                
+                const res = await fetch(url);
                 const data = await res.json();
                 
-                // Handle response berdasarkan status
                 if (data.status === '00') {
-                    // Success
                     if (data.data && Array.isArray(data.data)) {
                         setRequestData(data.data);
-                        
-                        // Tampilkan info jika data kosong
-                        if (data.data.length === 0) {
-                            toast.current?.show({
-                                severity: 'info',
-                                summary: 'Info',
-                                detail: data.message || 'Tidak ada request stock saat ini',
-                                life: 3000
-                            });
-                        }
                     } else {
                         setRequestData([]);
                     }
                 } else {
-                    // Error
                     console.error('Error dari server:', data.message);
                     setRequestData([]);
-                    toast.current?.show({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: data.message || 'Gagal memuat data request stock',
-                        life: 3000
-                    });
                 }
             } catch (error) {
                 console.error('Error fetch request stock:', error);
@@ -286,12 +305,10 @@ const Dashboard = () => {
             }
         };
         
-        if (user) {
-            fetchRequestStock();
-        }
+        fetchRequestStock();
     }, [user]);
 
-    // Format currency
+    // ==================== FORMAT FUNCTIONS ====================
     const formatCurrency = (value) => {
         if (!value) return 'Rp 0';
         return new Intl.NumberFormat('id-ID', {
@@ -301,7 +318,6 @@ const Dashboard = () => {
         }).format(value);
     };
 
-    // Format date
     const formatDate = (value) => {
         if (!value) return '-';
         const date = new Date(value);
@@ -312,23 +328,20 @@ const Dashboard = () => {
         });
     };
 
-    // Template untuk kolom harga
+    // ==================== BODY TEMPLATES ====================
     const hargaBodyTemplate = (rowData) => {
         return formatCurrency(rowData.HARGA);
     };
 
-    // Template untuk kolom kredit
     const kreditBodyTemplate = (rowData) => {
         return formatCurrency(rowData.KREDIT);
     };
 
-    // Template untuk kolom tanggal
     const tanggalBodyTemplate = (rowData) => {
         const tanggal = rowData.TGL || rowData.TANGGAL || rowData.tanggal || rowData.tgl_mutasi;
         return formatDate(tanggal);
     };
 
-    // Template untuk kolom status
     const statusBodyTemplate = (rowData) => {
         const status = rowData.STATUS || 'Pending';
         let severity = 'warning';
@@ -342,7 +355,7 @@ const Dashboard = () => {
         return <span className={`badge badge-${severity}`}>{status}</span>;
     };
 
-    // Header tables
+    // ==================== HEADER RENDERS ====================
     const renderHeaderPenjualan = () => (
         <div className="flex justify-content-between align-items-center">
             <h5 className="m-0">Data Penjualan</h5>
@@ -403,7 +416,7 @@ const Dashboard = () => {
         </div>
     );
 
-    // Custom empty message
+    // ==================== EMPTY MESSAGES ====================
     const emptyMessageDiskon = () => (
         <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94a3b8' }}>
             <i className="pi pi-tag" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }} />
@@ -428,6 +441,7 @@ const Dashboard = () => {
         </div>
     );
 
+    // ==================== LOADING & AUTH CHECKS ====================
     if (!initialized || loading) {
         return (
             <div className="loading-container">
@@ -450,80 +464,91 @@ const Dashboard = () => {
         );
     }
 
-    return (
-        <div className="grid" style={{ rowGap: '1rem' }}>
-            <Toast ref={toast} />
-            
-            {/* Welcome Card */}
-            <div className="col-12" style={{ paddingBottom: 0 }}>
-                <div className="card">
-                    <div className="flex justify-content-between align-items-center">
-                        <div>
-                            <h5>Selamat datang, {user.username}!</h5>
-                        </div>
+   return (
+    <div className="grid" style={{ rowGap: '1rem' }}>
+        <Toast ref={toast} />
+        
+        {/* Welcome Card */}
+        <div className="col-12" style={{ paddingBottom: 0 }}>
+            <div className="card">
+                <div className="flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Selamat datang, {user.username}!</h5>
+                        <p className="text-600 mb-0">
+                            {isAdmin() && 'Administrator'}
+                            {isSuperAdmin() && 'Super Admin'}
+                            {isAdminGudang() && `Admin Gudang `}
+                            {isAdminToko() && `Admin Toko `}
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {/* Stats Cards */}
-            {[{
-                label: "Orders",
-                value: totalStockColumns ? totalStockColumns.toString() : "Loading...",
-                icon: "pi-shopping-cart",
-                bg: "bg-blue-100",
-                color: "text-blue-500",
-                note: "total since last month"
-            }, {
-                label: "Gudang",
-                value: totalGudangColumns ? totalGudangColumns.toString(): "Loading...",
-                icon: "pi-building",
-                bg: "bg-orange-100",
-                color: "text-orange-500",
-                note: "since last week"
-            }, {
-                label: "Mutasi antar gudang",
-                value: totalMutasiColoumns ? totalMutasiColoumns.toString() : "Loading...",
-                icon: "pi-sync",
-                bg: "bg-cyan-100",
-                color: "text-cyan-500",
-                note: "Total all mutasi antar gudang"
-            }, {
-                label: "Users",
-                value: totalUsersColoumns ? totalUsersColoumns.toString() :"Loading.....",
-                icon: "pi-users",
-                bg: "bg-purple-100",
-                color: "text-purple-500",
-                note: "responded"
-            }].map((card, i) => (
-                <div className="col-12 lg:col-6 xl:col-3" key={i}>
-                    <div className="card mb-0 stats-card">
-                        <div className="stats-card-header">
-                            <div className="stats-info">
-                                <span className="stats-label">{card.label}</span>
-                                <div className="stats-value">{card.value}</div>
+        {/* Stats Cards - Only for Full Admin */}
+        {isFullAdmin() && (
+            <>
+                {[{
+                    label: "Orders",
+                    value: totalStockColumns ? totalStockColumns.toString() : "Loading...",
+                    icon: "pi-shopping-cart",
+                    bg: "bg-blue-100",
+                    color: "text-blue-500",
+                    note: "total since last month"
+                }, {
+                    label: "Gudang",
+                    value: totalGudangColumns ? totalGudangColumns.toString(): "Loading...",
+                    icon: "pi-building",
+                    bg: "bg-orange-100",
+                    color: "text-orange-500",
+                    note: "since last week"
+                }, {
+                    label: "Mutasi antar gudang",
+                    value: totalMutasiColoumns ? totalMutasiColoumns.toString() : "Loading...",
+                    icon: "pi-sync",
+                    bg: "bg-cyan-100",
+                    color: "text-cyan-500",
+                    note: "Total all mutasi antar gudang"
+                }, {
+                    label: "Users",
+                    value: totalUsersColoumns ? totalUsersColoumns.toString() :"Loading.....",
+                    icon: "pi-users",
+                    bg: "bg-purple-100",
+                    color: "text-purple-500",
+                    note: "responded"
+                }].map((card, i) => (
+                    <div className="col-12 lg:col-6 xl:col-3" key={i}>
+                        <div className="card mb-0 stats-card">
+                            <div className="stats-card-header">
+                                <div className="stats-info">
+                                    <span className="stats-label">{card.label}</span>
+                                    <div className="stats-value">{card.value}</div>
+                                </div>
+                                <div className={`stats-icon ${card.bg}`}>
+                                    <i className={`pi ${card.icon} ${card.color}`} />
+                                </div>
                             </div>
-                            <div className={`stats-icon ${card.bg}`}>
-                                <i className={`pi ${card.icon} ${card.color}`} />
+                            <div className="stats-footer">
+                                {card.subtitle && (
+                                    <span className="stats-change">{card.subtitle}</span>
+                                )}
+                                <span className="stats-note">{card.note}</span>
                             </div>
-                        </div>
-                        <div className="stats-footer">
-                            {card.subtitle && (
-                                <span className="stats-change">{card.subtitle}</span>
-                            )}
-                            <span className="stats-note">{card.note}</span>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </>
+        )}
 
-            {/* Tables dengan TabView */}
-            <div className="col-12">
-                <div className="card table-card">
-                    <TabView 
-                        activeIndex={activeIndex} 
-                        onTabChange={(e) => setActiveIndex(e.index)}
-                    >
-                        {/* Tab Data Penjualan */}
+        {/* Tables dengan TabView */}
+        <div className="col-12">
+            <div className="card table-card">
+                <TabView 
+                    activeIndex={activeIndex} 
+                    onTabChange={(e) => setActiveIndex(e.index)}
+                >
+                    {/* Tab Data Penjualan - Full Admin & Admin Toko */}
+                    {(isFullAdmin() || isAdminToko()) && (
                         <TabPanel 
                             header="Penjualan" 
                             leftIcon="pi pi-shopping-cart mr-2"
@@ -554,8 +579,10 @@ const Dashboard = () => {
                                 <Column field="USERNAME" header="Username" sortable style={{ minWidth: '120px' }} />
                             </DataTable>
                         </TabPanel>
+                    )}
 
-                        {/* Tab Data Mutasi */}
+                    {/* Tab Data Mutasi - Full Admin & Admin Gudang */}
+                    {(isFullAdmin() || isAdminGudang()) && (
                         <TabPanel 
                             header="Mutasi" 
                             leftIcon="pi pi-sync mr-2"
@@ -586,8 +613,10 @@ const Dashboard = () => {
                                 <Column field="USERNAME" header="User" sortable style={{ minWidth: '120px' }} />
                             </DataTable>
                         </TabPanel>
+                    )}
 
-                        {/* Tab Data Diskon */}
+                    {/* Tab Data Diskon - Full Admin & Admin Toko */}
+                    {(isFullAdmin() || isAdminToko()) && (
                         <TabPanel 
                             header="Diskon" 
                             leftIcon="pi pi-tag mr-2"
@@ -634,8 +663,10 @@ const Dashboard = () => {
                                 />
                             </DataTable>
                         </TabPanel>
+                    )}
 
-                        {/* Tab Data Request Stock */}
+                    {/* Tab Data Request Stock - Full Admin & Admin Gudang */}
+                    {(isFullAdmin() || isAdminGudang()) && (
                         <TabPanel 
                             header="Request Stock" 
                             leftIcon="pi pi-inbox mr-2"
@@ -695,11 +726,11 @@ const Dashboard = () => {
                                 <Column field="KODE_TOKO" header="Kode Toko" sortable style={{ minWidth: '100px' }} />
                             </DataTable>
                         </TabPanel>
-                    </TabView>
-                </div>
+                    )}
+                </TabView>
             </div>
         </div>
-    );
+    </div>
+);
 };
-
 export default Dashboard;

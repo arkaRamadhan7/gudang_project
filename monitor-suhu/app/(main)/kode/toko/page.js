@@ -51,22 +51,35 @@ const TokoPage = () => {
   };
 
   const fetchGudangOptions = async () => {
-    try {
-      const res = await fetch ('/api/gudang/nama');
-      const json = await res.json();
+  try {
+    const res = await fetch('/api/gudang/nama');
+    const json = await res.json();
 
-      if (json.status === '00') {
-        const option = json.namaGudang.map(nama =>({
-          label : nama,
-          value : nama
+    console.log('📦 Response API gudang:', json);
+
+    if (json.status === '00') {
+
+      if (Array.isArray(json.namaGudang)) {
+        const options = json.namaGudang.map(item => ({
+          label: typeof item === 'object' ? item.nama : item,
+          value: typeof item === 'object' ? item.nama : item
         }));
-        setGudangOptions(option);
+        
+        console.log('✅ Options gudang:', options);
+        setGudangOptions(options);
+      } else {
+        console.error('❌ namaGudang bukan array:', json.namaGudang);
+        toastRef.current?.showToast('99', 'Format data gudang tidak valid');
       }
-    }catch (err) {
-      console.error('gagal mengabil data dari gudang',err);
+    } else {
+      console.error('❌ API Error:', json.message);
+      toastRef.current?.showToast(json.status, json.message);
     }
-  };
-
+  } catch (err) {
+    console.error('❌ Fetch Error:', err);
+    toastRef.current?.showToast('99', 'Gagal mengambil data gudang');
+  }
+};
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
