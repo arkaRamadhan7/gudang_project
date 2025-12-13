@@ -74,7 +74,6 @@ export const getStockByKodeToko = async (req, res) => {
 export const transaction = async (req, res) => {
     try {
         const { items, username, KODE_TOKO } = req.body;
-        console.log(items)
         
         if (!KODE_TOKO) {
             return res.status(400).json({
@@ -91,29 +90,37 @@ export const transaction = async (req, res) => {
         }   
 
         let faktur;
+        
         await db.transaction(async (trx) => {
+            // ✅ Buat faktur SEKALI di luar loop
+            faktur = `PJ${datetime()}${String(Date.now()).slice(-6)}`;
+            
             for (const item of items) {
-                
                 const id = item.id;
-                console.log("Toko Gua njing",toko)
-                const stock = await trx('stock_toko').where({ id }).first();
+                
+                // ✅ Gunakan KODE_TOKO (bukan toko)
+                const stock = await trx('stock_toko')
+                    .where({ 
+                        id: id,
+                        KODE_TOKO: KODE_TOKO  // ✅ Perbaikan di sini
+                    })
+                    .first();
+                
+                console.log("Stock ditemukan:", stock);
+                console.log("Toko:", KODE_TOKO);
                 
                 if (!stock) {
-                    throw new Error(`Stock dengan ID ${id} tidak ditemukan`);
+                    throw new Error(`Stock dengan ID ${id} di toko ${KODE_TOKO} tidak ditemukan`);
                 }
                 
                 const qtyStock = Number(stock.QTY);
-                faktur = `PJ` + datetime() + String(id).padStart(6, '0');
                 
                 if (item.qty > qtyStock) {
-                    throw new Error(`Stock tidak Cukup untuk ${item.nama}`);
+                    throw new Error(`Stock tidak cukup untuk ${item.nama}. Tersedia: ${qtyStock}, Diminta: ${item.qty}`);
                 }
 
                 const updateStock = qtyStock - item.qty;
-                const cekDiskon = await trx("stock").where({ id }).first();
-                console.log(cekDiskon?.DISCOUNT);
 
-                // INSERT dengan field TOKO
                 await trx("kartustock_toko").insert({
                     status: "0",
                     faktur: faktur,
@@ -129,26 +136,30 @@ export const transaction = async (req, res) => {
                     keterangan: "Penjualan " + item.nama 
                 });
                 
-                // Update stock toko
-                await trx('stock_toko').where({ id }).update({ QTY: updateStock });
+                // ✅ Update juga gunakan KODE_TOKO
+                await trx('stock_toko')
+                    .where({ 
+                        id: id,
+                        KODE_TOKO: KODE_TOKO  // ✅ Perbaikan di sini
+                    })
+                    .update({ QTY: updateStock });
             }
         });
 
         return res.status(200).json({
             status: "00",
-            message: "Transaksi Berhasil Disimpan",
-            faktur: faktur,
+            message: "Transaksi berhasil",
+            faktur: faktur
         });
-    
+
     } catch (error) {
-        console.error("Error pada transaksi:", error);
+        console.error("Error transaksi:", error);
         return res.status(500).json({
-            status: "99", 
-            message: error.message || "Terjadi Kesalahan Pada Sisi Server"
+            status: "99",
+            message: error.message || "Terjadi kesalahan"
         });
     }
 };
-
 export const updateHargaDiskon = async (req, res) => {
     try {
         const { id, harga, diskon } = req.body;

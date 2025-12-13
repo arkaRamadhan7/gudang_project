@@ -171,12 +171,15 @@ export default function PenjualanPage() {
           items: cart,
           total: getTotalCart(),
           tanggal: new Date(),
-          username: user ? user.email : "-",
+          username: user ? user.username : "-",
           namaToko: tokoTerpilih ? tokoTerpilih.NAMA : "-",
           alamatToko: tokoTerpilih ? tokoTerpilih.ALAMAT : "-",
           nomerHp: tokoTerpilih ? tokoTerpilih.NO_HP : "-"
         });
         setCart([]);
+        setStockResult([]);
+        setStockKeyword([]);
+        setSelectedToko([])
       } else {
         showError(json.message || "Gagal menyimpan penjualan");
       }

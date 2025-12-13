@@ -489,7 +489,7 @@ const Dashboard = () => {
         {isFullAdmin() && (
             <>
                 {[{
-                    label: "Orders",
+                    label: "All Stock",
                     value: totalStockColumns ? totalStockColumns.toString() : "Loading...",
                     icon: "pi-shopping-cart",
                     bg: "bg-blue-100",
