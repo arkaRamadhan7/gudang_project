@@ -102,6 +102,12 @@ const AppMenu = () => {
                     roles: ['superadmin']
                 },
                 {
+                    label: 'Status Gudang',
+                    icon: 'pi pi-fw pi-th-large',
+                    to: '/kode/jenis-gudang',
+                    roles: ['superadmin']
+                },
+                {
                     label: "Toko",
                     icon: "pi pi-building",
                     to: '/kode/toko'

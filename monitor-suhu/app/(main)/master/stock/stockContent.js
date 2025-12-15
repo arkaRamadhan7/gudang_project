@@ -10,7 +10,6 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast';
 import { format, parseISO } from 'date-fns';
-import '@/styles/page/stock.scss';
 
 const initialFormState = {
   GUDANG: '', 
@@ -34,14 +33,12 @@ const initialFormState = {
 };
 
 const StockContent = () => {
+  // ==================== STATE MANAGEMENT ====================
   const toast = useRef(null);
   const [stock, setStock] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    rak: '',
-    satuan: '',
-    gudang: '',
-  });
+  const [filters, setFilters] = useState({ rak: '', satuan: '', gudang: '' });
+  const [globalFilter, setGlobalFilter] = useState('');
   const [options, setOptions] = useState({
     rak: [],
     satuan: [],
@@ -52,17 +49,22 @@ const StockContent = () => {
   const [dialogMode, setDialogMode] = useState(null);
   const [selectedStock, setSelectedStock] = useState(null);
   const [form, setForm] = useState(initialFormState);
-  
+
+  // ==================== UTILITY FUNCTIONS ====================
+  const generateBarcode = () => {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `BRC${timestamp.slice(-8)}${random}`;
+  };
+
   const formatDateToDB = (date) => {
     if (!date) return '';
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
-
     const jakartaDate = new Date(d.getTime() + (7 * 60 * 60 * 1000));
     const year = jakartaDate.getUTCFullYear();
     const month = String(jakartaDate.getUTCMonth() + 1).padStart(2, '0');
     const day = String(jakartaDate.getUTCDate()).padStart(2, '0');
-    
     return `${year}-${month}-${day}`;
   };
 
@@ -77,6 +79,23 @@ const StockContent = () => {
     }
   };
 
+  const validateForm = () => {
+    const requiredFields = ['GUDANG', 'KODE', 'NAMA'];
+    const emptyFields = requiredFields.filter(field => !form[field] || form[field].trim() === '');
+    
+    if (emptyFields.length > 0) {
+      toast.current?.show({ 
+        severity: 'warn', 
+        summary: 'Validasi', 
+        detail: `Field wajib tidak boleh kosong: ${emptyFields.join(', ')}`, 
+        life: 3000 
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // ==================== API CALLS ====================
   const fetchDropdownData = useCallback(async (endpoint, labelField = 'KETERANGAN') => {
     try {
       const res = await fetch(`/api/${endpoint}`);
@@ -112,7 +131,6 @@ const StockContent = () => {
     try {
       const res = await fetch("/api/toko");
       const json = await res.json();
-
       if (json.status === '00') {
         return json.data.map(item => ({
           label: item.NAMA,
@@ -130,9 +148,7 @@ const StockContent = () => {
     try {
       const res = await fetch("/api/gudang");
       const json = await res.json();
-
       if (json.status === "00" && Array.isArray(json.data)) {
-        console.log("✅ Data gudang:", json.data);
         return json.data.map(item => ({
           label: item.nama || item.NAMA,
           value: item.nama || item.NAMA,
@@ -186,6 +202,7 @@ const StockContent = () => {
     }
   }, []);
 
+  // ==================== EFFECTS ====================
   useEffect(() => {
     const loadInitialData = async () => {
       const [rakData, satuanData, golonganData, tokoData, gudangData] = await Promise.all([
@@ -210,36 +227,41 @@ const StockContent = () => {
     loadInitialData();
   }, [fetchDropdownData, fetchStock, fetchToko, fetchGudang]);
 
+  // ==================== COMPUTED VALUES ====================
   const filteredStocks = useMemo(() => {
     let filtered = stock;
-
-    if (filters.rak) {
-      filtered = filtered.filter(item => item.RAK === filters.rak);
+    
+    // Filter by dropdown filters
+    if (filters.rak) filtered = filtered.filter(item => item.RAK === filters.rak);
+    if (filters.satuan) filtered = filtered.filter(item => item.SATUAN === filters.satuan);
+    if (filters.gudang) filtered = filtered.filter(item => item.GUDANG === filters.gudang);
+    
+    // Global search filter
+    if (globalFilter) {
+      const searchLower = globalFilter.toLowerCase();
+      filtered = filtered.filter(item => {
+        return (
+          (item.KODE && item.KODE.toLowerCase().includes(searchLower)) ||
+          (item.NAMA && item.NAMA.toLowerCase().includes(searchLower)) ||
+          (item.BARCODE && item.BARCODE.toLowerCase().includes(searchLower)) ||
+          (item.GUDANG && item.GUDANG.toLowerCase().includes(searchLower)) ||
+          (item.JENIS && item.JENIS.toLowerCase().includes(searchLower)) ||
+          (item.GOLONGAN && item.GOLONGAN.toLowerCase().includes(searchLower))
+        );
+      });
     }
-
-    if (filters.satuan) {
-      filtered = filtered.filter(item => item.SATUAN === filters.satuan);
-    }
-    if (filters.gudang) {
-      filtered = filtered.filter(item => item.GUDANG === filters.gudang);
-    }
-
+    
     return filtered;
-  }, [stock, filters]);
+  }, [stock, filters, globalFilter]);
 
+  // ==================== EVENT HANDLERS ====================
   const handleFilterChange = useCallback((filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
+    setFilters(prev => ({ ...prev, [filterType]: value }));
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilters({
-      rak: '',
-      satuan: '',
-      gudang: ''
-    });
+    setFilters({ rak: '', satuan: '', gudang: '' });
+    setGlobalFilter('');
   }, []);
 
   const handleFormChange = useCallback((e) => {
@@ -256,27 +278,9 @@ const StockContent = () => {
       setForm(prev => ({ ...prev, [name]: '' }));
       return;
     }
-    
     const formattedDate = formatDateToDB(value);
     setForm(prev => ({ ...prev, [name]: formattedDate }));
   }, []);
-
-  const validateForm = () => {
-    const requiredFields = ['GUDANG', 'KODE', 'NAMA', 'BARCODE'];
-    const emptyFields = requiredFields.filter(field => !form[field] || form[field].trim() === '');
-    
-    if (emptyFields.length > 0) {
-      toast.current?.show({ 
-        severity: 'warn', 
-        summary: 'Validasi', 
-        detail: `Field wajib tidak boleh kosong: ${emptyFields.join(', ')}`, 
-        life: 3000 
-      });
-      return false;
-    }
-    
-    return true;
-  };
 
   const closeDialog = useCallback(() => {
     setDialogMode(null);
@@ -284,8 +288,15 @@ const StockContent = () => {
     setSelectedStock(null);
   }, []);
 
+  const openAddDialog = useCallback(() => {
+    setDialogMode('add');
+    const newForm = { ...initialFormState, BARCODE: generateBarcode() };
+    setForm(newForm);
+    setSelectedStock(null);
+  }, []);
+
   const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
 
@@ -331,7 +342,6 @@ const StockContent = () => {
   }, [dialogMode, form, selectedStock, fetchStock, closeDialog]);
 
   const handleEdit = useCallback((row) => {
-    console.log('Edit row data:', row);
     setDialogMode('edit');
     setSelectedStock(row);
     
@@ -340,14 +350,9 @@ const StockContent = () => {
       formData[key] = row[key] || '';
     });
     
-    if (row.TGL_MASUK) {
-      formData.TGL_MASUK = parseDateFromDB(row.TGL_MASUK);
-    }
-    if (row.EXPIRED) {
-      formData.EXPIRED = parseDateFromDB(row.EXPIRED);
-    }
+    if (row.TGL_MASUK) formData.TGL_MASUK = parseDateFromDB(row.TGL_MASUK);
+    if (row.EXPIRED) formData.EXPIRED = parseDateFromDB(row.EXPIRED);
     
-    console.log('Form data for edit:', formData);
     setForm(formData);
   }, []);
 
@@ -355,7 +360,6 @@ const StockContent = () => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
     
     const stockId = data?.id || data?.ID;
-    console.log("Delete Stock ID:", stockId);
     
     if (!stockId) {
       toast.current?.show({ 
@@ -401,25 +405,17 @@ const StockContent = () => {
     }
   }, [fetchStock]);
 
-  const openAddDialog = useCallback(() => {
-    setDialogMode('add');
-    setForm(initialFormState);
-    setSelectedStock(null);
-  }, []);
-
+  // ==================== RENDER FUNCTIONS ====================
   const renderCalendarInput = (name, label) => {
     let dateValue = null;
     if (form[name]) {
       const dateString = form[name] + 'T12:00:00';
       dateValue = new Date(dateString);
-      
-      if (isNaN(dateValue.getTime())) {
-        dateValue = null;
-      }
+      if (isNaN(dateValue.getTime())) dateValue = null;
     }
 
     return (
-      <div className="mutasi-form-group">
+      <div className="mb-3">
         <label htmlFor={name}>{label}</label>
         <Calendar
           id={name}
@@ -429,6 +425,7 @@ const StockContent = () => {
           dateFormat="yy-mm-dd"
           showIcon
           placeholder={`Pilih ${label}`}
+          className="w-full mt-2"
         />
       </div>
     );
@@ -445,233 +442,449 @@ const StockContent = () => {
     }
   };
 
-  const renderDialogForm = () => (
-    <Dialog
-      header={dialogMode === 'add' ? 'Tambah Stock' : 'Edit Stock'}
-      visible={!!dialogMode}
-      onHide={closeDialog}
-      style={{ width: '40rem' }}
-      className="mutasi-dialog"
-    >
-      <form onSubmit={handleSubmit}>
-        {/* Grid 2 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-2">
-          <div className="mutasi-form-group">
-            <label htmlFor="GUDANG">Gudang *</label>
-            <Dropdown
-              id="GUDANG"
-              name="GUDANG"
-              value={form.GUDANG}
-              options={options.gudang}
-              onChange={(e) => handleDropdownChange('GUDANG', e.value)}
-              placeholder="Pilih Gudang"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-          
-          <div className="mutasi-form-group">
-            <label htmlFor="KODE_TOKO">KODE TOKO</label>
-            <Dropdown
-              id="KODE_TOKO"
-              name="KODE_TOKO"
-              value={form.KODE_TOKO}
-              options={options.toko}
-              onChange={(e) => handleDropdownChange('KODE_TOKO', e.value)}
-              placeholder="Pilih Kode"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
+  const renderHeader = () => (
+    <div className="stock-header">
+      <div className="header-content">
+        <div className="title-section">
+          <i className="pi pi-shopping-bag header-icon"></i>
+          <h3 className="page-title">Master Stock</h3>
         </div>
+        <Button
+          label="Tambah Stock"
+          icon="pi pi-plus"
+          onClick={openAddDialog}
+          className="btn-add"
+        />
+      </div>
+    </div>
+  );
 
-        {/* Grid 2 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-2">
-          <div className="mutasi-form-group">
-            <label htmlFor="KODE">KODE *</label>
-            <InputText
-              id="KODE"
-              name="KODE"
-              value={form.KODE || ''}
-              onChange={handleFormChange}
-              placeholder="Masukkan kode"
-            />
-          </div>
-
-          <div className="mutasi-form-group">
-            <label htmlFor="NAMA">NAMA *</label>
-            <InputText
-              id="NAMA"
-              name="NAMA"
-              value={form.NAMA || ''}
-              onChange={handleFormChange}
-              placeholder="Masukkan nama"
-            />
-          </div>
-        </div>
-
-        {/* Grid 2 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-2">
-          <div className="mutasi-form-group">
-            <label htmlFor="JENIS">JENIS</label>
-            <InputText
-              id="JENIS"
-              name="JENIS"
-              value={form.JENIS || ''}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          <div className="mutasi-form-group">
-            <label htmlFor="GOLONGAN">Golongan</label>
-            <Dropdown
-              id="GOLONGAN"
-              name="GOLONGAN"
-              value={form.GOLONGAN}
-              options={options.golongan}
-              onChange={(e) => handleDropdownChange('GOLONGAN', e.value)}
-              placeholder="Pilih Golongan"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-        </div>
-        
-        {/* Grid 3 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-3">
-          <div className="mutasi-form-group">
-            <label htmlFor="RAK">RAK</label>
-            <Dropdown
-              id="RAK"
-              name="RAK"
-              value={form.RAK}
-              options={options.rak}
-              onChange={(e) => handleDropdownChange('RAK', e.value)}
-              placeholder="Pilih RAK"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-
-          <div className="mutasi-form-group">
-            <label htmlFor="DOS">DOS</label>
-            <InputText
-              id="DOS"
-              name="DOS"
-              value={form.DOS || ''}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          <div className="mutasi-form-group">
-            <label htmlFor="SATUAN">Satuan</label>
-            <Dropdown
-              id="SATUAN"
-              name="SATUAN"
-              value={form.SATUAN}
-              options={options.satuan}
-              onChange={(e) => handleDropdownChange('SATUAN', e.value)}
-              placeholder="Pilih Satuan"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-        </div>
-
-        <div className="mutasi-form-group">
-          <label>BARCODE *</label>
+  const renderFilterSection = () => (
+    <div className="filter-section">
+      {/* Search Bar */}
+      <div className="search-bar">
+        <span className="p-input-icon-left" style={{ width: '100%' }}>
+          <i className="pi pi-search" />
           <InputText
-            id="BARCODE"
-            name="BARCODE"
-            value={form.BARCODE || ''}
-            onChange={handleFormChange}
-            readOnly={dialogMode === 'edit'}
-            placeholder="Masukkan Barcode"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Cari berdasarkan kode, nama, barcode, gudang..."
+            style={{ width: '100%', paddingLeft: '2.5rem' }}
+          />
+        </span>
+      </div>
+
+      {/* Filter Dropdowns */}
+      <div className="filter-grid">
+        <div className="filter-group">
+          <label className="filter-label">
+            <i className="pi pi-th-large"></i>
+            Filter RAK
+          </label>
+          <Dropdown
+            value={filters.rak}
+            options={options.rak}
+            onChange={(e) => handleFilterChange('rak', e.value)}
+            placeholder="Semua RAK"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            className="filter-dropdown"
           />
         </div>
+        <div className="filter-group">
+          <label className="filter-label">
+            <i className="pi pi-percentage"></i>
+            Filter Satuan
+          </label>
+          <Dropdown
+            value={filters.satuan}
+            options={options.satuan}
+            onChange={(e) => handleFilterChange('satuan', e.value)}
+            placeholder="Semua Satuan"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            className="filter-dropdown"
+          />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">
+            <i className="pi pi-warehouse"></i>
+            Filter Gudang
+          </label>
+          <Dropdown
+            value={filters.gudang}
+            options={options.gudang}
+            onChange={(e) => handleFilterChange('gudang', e.value)}
+            placeholder="Semua Gudang"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            className="filter-dropdown"
+          />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label" style={{ opacity: 0 }}>Action</label>
+          <Button
+            label="Reset"
+            icon="pi pi-refresh"
+            severity="secondary"
+            onClick={clearFilters}
+            className="btn-reset"
+            style={{ width: '100%' }}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
-        {/* Grid 3 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-3">
-          <div className="mutasi-form-group">
-            <label htmlFor="ISI">ISI</label>
-            <InputText
-              id="ISI"
-              name="ISI"
-              value={form.ISI || ''}
-              onChange={handleFormChange}
+  const renderDataTable = () => (
+    <DataTable
+      value={filteredStocks}
+      paginator
+      rows={10}
+      loading={isLoading}
+      scrollable
+      size="small"
+      emptyMessage="Tidak ada data stock"
+      className="custom-datatable"
+    >
+      <Column field="GUDANG" header="GUDANG" style={{ minWidth: '120px' }} className="col-gudang" />
+      <Column field="KODE" header="KODE" style={{ minWidth: '100px' }} className="col-kode" />
+      <Column field="NAMA" header="NAMA" style={{ minWidth: '150px' }} className="col-nama" />
+      <Column field="JENIS" header="JENIS" style={{ minWidth: '100px' }} />
+      <Column field="GOLONGAN" header="GOLONGAN" style={{ minWidth: '100px' }} />
+      <Column field="RAK" header="RAK" style={{ minWidth: '80px' }} />
+      <Column field="SATUAN" header="SATUAN" style={{ minWidth: '100px' }} />
+      <Column field="HB" header="HB" style={{ minWidth: '100px' }} />
+      <Column field="HJ" header="HJ" style={{ minWidth: '100px' }} />
+      <Column field="QTY" header="QTY" style={{ minWidth: '80px' }} />
+      <Column field="BARCODE" header="BARCODE" style={{ minWidth: '120px' }} />
+      <Column 
+        field="TGL_MASUK" 
+        header="TGL MASUK" 
+        style={{ minWidth: '120px' }}
+        body={(rowData) => renderDateColumn(rowData, 'TGL_MASUK')}
+      />
+      <Column 
+        field="EXPIRED" 
+        header="EXPIRED" 
+        style={{ minWidth: '120px' }}
+        body={(rowData) => renderDateColumn(rowData, 'EXPIRED')}
+      />
+      <Column
+        header="AKSI"
+        style={{ minWidth: '120px' }}
+        className="col-action"
+        body={(row) => (
+          <div className="action-buttons">
+            <Button
+              icon="pi pi-pencil"
+              size="small"
+              severity="warning"
+              className="btn-edit"
+              onClick={() => handleEdit(row)}
+              tooltip="Edit"
+              tooltipOptions={{ position: 'top' }}
+            />
+            <Button
+              icon="pi pi-trash"
+              size="small"
+              severity="danger"
+              className="btn-delete"
+              onClick={() => handleDelete(row)}
+              tooltip="Hapus"
+              tooltipOptions={{ position: 'top' }}
             />
           </div>
+        )}
+      />
+    </DataTable>
+  );
 
-          <div className="mutasi-form-group">
-            <label htmlFor="DISCOUNT">DISCOUNT</label>
-            <InputText
-              id="DISCOUNT"
-              name="DISCOUNT"
-              value={form.DISCOUNT || ''}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          <div className="mutasi-form-group">
-            <label htmlFor="BERAT">BERAT</label>
-            <InputText
-              id="BERAT"
-              name="BERAT"
-              type="number"
-              value={form.BERAT || ''}
-              onChange={handleFormChange}
-            />
+  const renderDialogForm = () => (
+    <Dialog
+      header={
+        <div className="dialog-header">
+          <i className={`pi ${dialogMode === 'add' ? 'pi-plus' : 'pi-pencil'}`}></i>
+          {dialogMode === 'add' ? 'Tambah Stock' : 'Edit Stock'}
+        </div>
+      }
+      visible={!!dialogMode}
+      onHide={closeDialog}
+      style={{ width: '700px', maxHeight: '90vh' }}
+      className="stock-dialog"
+      modal
+    >
+      <div className="stock-form-wrapper">
+        {/* Section: Informasi Gudang & Toko */}
+        <div className="form-section">
+          <h4 className="section-title">
+            <i className="pi pi-warehouse"></i>
+            Informasi Gudang 
+          </h4>
+          
+          <div className="grid-2">
+            <div className="mb-3">
+              <label htmlFor="GUDANG">Gudang *</label>
+              <Dropdown
+                id="GUDANG"
+                name="GUDANG"
+                value={form.GUDANG}
+                options={options.gudang}
+                onChange={(e) => handleDropdownChange('GUDANG', e.value)}
+                placeholder="Pilih Gudang"
+                optionLabel="label"
+                optionValue="value"
+                showClear
+                className="w-full mt-2"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Grid 3 Kolom */}
-        <div className="mutasi-grid mutasi-grid-cols-3">
-          <div className="mutasi-form-group">
-            <label htmlFor="HB">HB (Harga Beli)</label>
-            <InputText
-              id="HB"
-              name="HB"
-              type="number"
-              value={form.HB || ''}
-              onChange={handleFormChange}
-            />
+        {/* Section: Informasi Produk */}
+        <div className="form-section">
+          <h4 className="section-title">
+            <i className="pi pi-box"></i>
+            Informasi Produk
+          </h4>
+          
+          <div className="grid-2">
+            <div className="mb-3">
+              <label htmlFor="KODE">Kode *</label>
+              <InputText
+                id="KODE"
+                name="KODE"
+                value={form.KODE || ''}
+                onChange={handleFormChange}
+                placeholder="Masukkan kode produk"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="NAMA">Nama Produk *</label>
+              <InputText
+                id="NAMA"
+                name="NAMA"
+                value={form.NAMA || ''}
+                onChange={handleFormChange}
+                placeholder="Masukkan nama produk"
+                className="w-full mt-2"
+              />
+            </div>
           </div>
 
-          <div className="mutasi-form-group">
-            <label htmlFor="HJ">HJ (Harga Jual)</label>
+          <div className="mb-3">
+            <label htmlFor="BARCODE">Barcode (Auto)</label>
             <InputText
-              id="HJ"
-              name="HJ"
-              type="number"
-              value={form.HJ || ''}
-              onChange={handleFormChange}
+              id="BARCODE"
+              name="BARCODE"
+              value={form.BARCODE || ''}
+              readOnly
+              placeholder="Barcode otomatis"
+              className="w-full mt-2"
+              style={{ 
+                backgroundColor: '#0f172a !important', 
+                cursor: 'not-allowed',
+                opacity: 0.7 
+              }}
             />
+            <small style={{ color: '#94a3b8', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+              <i className="pi pi-info-circle" style={{ fontSize: '11px', marginRight: '4px' }}></i>
+              Barcode akan digenerate otomatis oleh sistem
+            </small>
           </div>
 
-          <div className="mutasi-form-group">
-            <label htmlFor="QTY">QTY</label>
-            <InputText
-              id="QTY"
-              name="QTY"
-              type="number"
-              value={form.QTY || ''}
-              onChange={handleFormChange}
-            />
+          <div className="grid-2">
+            <div className="mb-3">
+              <label htmlFor="JENIS">Jenis</label>
+              <InputText
+                id="JENIS"
+                name="JENIS"
+                value={form.JENIS || ''}
+                onChange={handleFormChange}
+                placeholder="Masukkan jenis produk"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="GOLONGAN">Golongan</label>
+              <Dropdown
+                id="GOLONGAN"
+                name="GOLONGAN"
+                value={form.GOLONGAN}
+                options={options.golongan}
+                onChange={(e) => handleDropdownChange('GOLONGAN', e.value)}
+                placeholder="Pilih Golongan"
+                optionLabel="label"
+                optionValue="value"
+                showClear
+                className="w-full mt-2"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Grid 2 Kolom - Calendar */}
-        <div className="mutasi-grid mutasi-grid-cols-2">
-          {renderCalendarInput('TGL_MASUK', 'Tanggal Masuk')}
-          {renderCalendarInput('EXPIRED', 'Tanggal Expired')}
+        {/* Section: Penyimpanan & Satuan */}
+        <div className="form-section">
+          <h4 className="section-title">
+            <i className="pi pi-th-large"></i>
+            Penyimpanan & Satuan
+          </h4>
+          
+          <div className="grid-3">
+            <div className="mb-3">
+              <label htmlFor="RAK">Rak</label>
+              <Dropdown
+                id="RAK"
+                name="RAK"
+                value={form.RAK}
+                options={options.rak}
+                onChange={(e) => handleDropdownChange('RAK', e.value)}
+                placeholder="Pilih Rak"
+                optionLabel="label"
+                optionValue="value"
+                showClear
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="SATUAN">Satuan</label>
+              <Dropdown
+                id="SATUAN"
+                name="SATUAN"
+                value={form.SATUAN}
+                options={options.satuan}
+                onChange={(e) => handleDropdownChange('SATUAN', e.value)}
+                placeholder="Pilih Satuan"
+                optionLabel="label"
+                optionValue="value"
+                showClear
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="DOS">Dos</label>
+              <InputText
+                id="DOS"
+                name="DOS"
+                value={form.DOS || ''}
+                onChange={handleFormChange}
+                placeholder="Jumlah dos"
+                className="w-full mt-2"
+              />
+            </div>
+          </div>
+
+          <div className="grid-3">
+            <div className="mb-3">
+              <label htmlFor="ISI">Isi</label>
+              <InputText
+                id="ISI"
+                name="ISI"
+                value={form.ISI || ''}
+                onChange={handleFormChange}
+                placeholder="Isi per satuan"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="BERAT">Berat (gr)</label>
+              <InputText
+                id="BERAT"
+                name="BERAT"
+                type="number"
+                value={form.BERAT || ''}
+                onChange={handleFormChange}
+                placeholder="Berat produk"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="QTY">Quantity</label>
+              <InputText
+                id="QTY"
+                name="QTY"
+                type="number"
+                value={form.QTY || ''}
+                onChange={handleFormChange}
+                placeholder="Jumlah stok"
+                className="w-full mt-2"
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="mutasi-button-wrapper">
+        {/* Section: Harga */}
+        <div className="form-section">
+          <h4 className="section-title">
+            <i className="pi pi-dollar"></i>
+            Informasi Harga
+          </h4>
+          
+          <div className="grid-3">
+            <div className="mb-3">
+              <label htmlFor="HB">Harga Beli (HB)</label>
+              <InputText
+                id="HB"
+                name="HB"
+                type="number"
+                value={form.HB || ''}
+                onChange={handleFormChange}
+                placeholder="Rp 0"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="HJ">Harga Jual (HJ)</label>
+              <InputText
+                id="HJ"
+                name="HJ"
+                type="number"
+                value={form.HJ || ''}
+                onChange={handleFormChange}
+                placeholder="Rp 0"
+                className="w-full mt-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="DISCOUNT">Diskon (%)</label>
+              <InputText
+                id="DISCOUNT"
+                name="DISCOUNT"
+                value={form.DISCOUNT || ''}
+                onChange={handleFormChange}
+                placeholder="0"
+                className="w-full mt-2"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Tanggal */}
+        <div className="form-section">
+          <h4 className="section-title">
+            <i className="pi pi-calendar"></i>
+            Informasi Tanggal
+          </h4>
+          
+          <div className="grid-2">
+            {renderCalendarInput('TGL_MASUK', 'Tanggal Masuk')}
+            {renderCalendarInput('EXPIRED', 'Tanggal Expired')}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 mt-4">
           <Button 
             type="button" 
             label="Batal" 
@@ -679,133 +892,27 @@ const StockContent = () => {
             onClick={closeDialog}
           />
           <Button 
-            type="submit" 
+            type="button"
             label="Simpan" 
             severity="success" 
             icon="pi pi-save" 
             loading={isLoading}
-            className="p-button-success"
+            onClick={handleSubmit}
           />
         </div>
-      </form>
+      </div>
     </Dialog>
   );
 
+  // ==================== MAIN RENDER ====================
   return (
-    <div className="mutasi-container">
+    <div className="stock-container">
       <Toast ref={toast} />
-      
-      {/* HEADER SECTION */}
-      <div className="mutasi-header">
-        <h2>Master Stock</h2>
+      {renderHeader()}
+      <div className="stock-content">
+        {renderFilterSection()}
+        {renderDataTable()}
       </div>
-
-      {/* FORM SECTION - Action Buttons */}
-      <div className="mutasi-form">
-        <div className="mutasi-button-wrapper" style={{ justifyContent: 'flex-start', marginBottom: '14px' }}>
-          <Button
-            label="Tambah Stock"
-            icon="pi pi-plus"
-            onClick={openAddDialog}
-            className="p-button-success"
-          />
-          <Button
-            label="Reset Filter"
-            icon="pi pi-refresh"
-            severity="secondary"
-            onClick={clearFilters}
-          />
-        </div>
-        
-        {/* FILTER SECTION */}
-        <div className="mutasi-grid mutasi-grid-cols-3">
-          <div className="mutasi-form-group">
-            <label>Filter RAK</label>
-            <Dropdown
-              value={filters.rak}
-              options={options.rak}
-              onChange={(e) => handleFilterChange('rak', e.value)}
-              placeholder="Pilih RAK"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-          <div className="mutasi-form-group">
-            <label>Filter Satuan</label>
-            <Dropdown
-              value={filters.satuan}
-              options={options.satuan}
-              onChange={(e) => handleFilterChange('satuan', e.value)}
-              placeholder="Pilih Satuan"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-          <div className="mutasi-form-group">
-            <label>Filter Gudang</label>
-            <Dropdown
-              value={filters.gudang}
-              options={options.gudang}
-              onChange={(e) => handleFilterChange('gudang', e.value)}
-              placeholder="Pilih Gudang"
-              optionLabel="label"
-              optionValue="value"
-              showClear
-            />
-          </div>
-        </div>
-
-        {/* TABLE SECTION */}
-        <div className="mutasi-table">
-          <DataTable
-            value={filteredStocks}
-            paginator
-            rows={10}
-            loading={isLoading}
-            scrollable
-            size="small"
-            emptyMessage="Tidak ada data stock"
-          >
-            {Object.keys(initialFormState)
-              .filter(key => key !== 'BERAT')
-              .map(key => (
-                <Column 
-                  key={key} 
-                  field={key} 
-                  header={key.replace(/_/g, ' ')}
-                  style={{ minWidth: '100px' }}
-                  body={key === 'TGL_MASUK' || key === 'EXPIRED' ? 
-                    (rowData) => renderDateColumn(rowData, key) : undefined
-                  }
-                />
-              ))}
-              
-            <Column
-              header="AKSI"
-              style={{ minWidth: '100px' }}
-              body={(row) => (
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <Button
-                    icon="pi pi-pencil"
-                    className="p-button-warning p-button-sm"
-                    onClick={() => handleEdit(row)}
-                    tooltip="Edit"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    className="p-button-danger p-button-sm"
-                    onClick={() => handleDelete(row)}
-                    tooltip="Hapus"
-                  />
-                </div>
-              )}
-            />
-          </DataTable>
-        </div>
-      </div>
-
       {renderDialogForm()}
     </div>
   );
