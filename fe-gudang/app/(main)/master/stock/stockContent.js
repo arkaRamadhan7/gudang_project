@@ -474,69 +474,7 @@ const StockContent = () => {
         </span>
       </div>
 
-      {/* Filter Dropdowns */}
-      <div className="filter-grid">
-        <div className="filter-group">
-          <label className="filter-label">
-            <i className="pi pi-th-large"></i>
-            Filter RAK
-          </label>
-          <Dropdown
-            value={filters.rak}
-            options={options.rak}
-            onChange={(e) => handleFilterChange('rak', e.value)}
-            placeholder="Semua RAK"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-            className="filter-dropdown"
-          />
-        </div>
-        <div className="filter-group">
-          <label className="filter-label">
-            <i className="pi pi-percentage"></i>
-            Filter Satuan
-          </label>
-          <Dropdown
-            value={filters.satuan}
-            options={options.satuan}
-            onChange={(e) => handleFilterChange('satuan', e.value)}
-            placeholder="Semua Satuan"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-            className="filter-dropdown"
-          />
-        </div>
-        <div className="filter-group">
-          <label className="filter-label">
-            <i className="pi pi-warehouse"></i>
-            Filter Gudang
-          </label>
-          <Dropdown
-            value={filters.gudang}
-            options={options.gudang}
-            onChange={(e) => handleFilterChange('gudang', e.value)}
-            placeholder="Semua Gudang"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-            className="filter-dropdown"
-          />
-        </div>
-        <div className="filter-group">
-          <label className="filter-label" style={{ opacity: 0 }}>Action</label>
-          <Button
-            label="Reset"
-            icon="pi pi-refresh"
-            severity="secondary"
-            onClick={clearFilters}
-            className="btn-reset"
-            style={{ width: '100%' }}
-          />
-        </div>
       </div>
-    </div>
   );
 
   const renderDataTable = () => (

@@ -1,8 +1,6 @@
 import { API_ENDPOINTS } from "../api";
-import { NextResponse } from "next/server";
 import axios from 'axios';
-import { ReactJsxRuntime } from "next/dist/server/route-modules/app-page/vendored/rsc/entrypoints";
-import { status } from "../../../../be-express-monitor-suhu/src/utils/general";
+
 
 export async function GET() {
     try {

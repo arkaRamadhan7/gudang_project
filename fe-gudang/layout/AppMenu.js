@@ -208,12 +208,6 @@ const AppMenu = () => {
             roles: ['superadmin', 'Admin Gudang', 'Admin Toko'],
             items: [
                 {
-                    label: 'Kartu Stock',
-                    icon: 'pi pi-fw pi-sync',
-                    to: '/laporan/kartustock',
-                    roles: ['Admin Gudang', 'superadmin']
-                },
-                {
                     label: "Laporan Sisa Stock",
                     icon: 'pi pi-shopping-cart',
                     to: '/laporan/stock',
